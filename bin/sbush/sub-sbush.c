@@ -64,6 +64,10 @@ int main(int argc, char* argv[]) {
             }
             fprintf(stdout, "%s\n", pwd);
             continue;
+        }else{
+
+            // fork a process, then execute the file/command/script
+
         }
 
         // need fork??? 
