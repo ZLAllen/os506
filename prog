@@ -1,2 +1,14 @@
 Aug 30
-implement basic cd, need fork, exec to execute scripts/binaries 
+implement basic cd, need fork, exec to execute scripts/binaries
+
+#phase 1
+fork() 
+execvp()
+
+#phase 2
+ls
+cat
+
+#hope for the best
+grep [optional]
+pipe [optional]
