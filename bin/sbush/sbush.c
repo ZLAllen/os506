@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 // for read: should cover it with gets
 
@@ -33,6 +34,35 @@ int getcmd(char* buf, int max)
 
     return 0;
 
+}
+
+/*This function gets a commend line argument list with the*/
+/*first one being a file name followed by all the arguments.*/
+/*It forks a child process to execute the command using*/
+/*system call execvpe().                                             */
+void  execute_cmd(char **argv, char **envp)
+{
+
+     pid_t  pid;
+     int status;
+     
+     pid = fork();
+     if (pid == 0) {          /*child process executes the command*/ 
+          if (execvpe(*argv, argv, envp) == -1) {    
+               perror("ERROR: exec failed\n");
+          }
+          exit(EXIT_FAILURE);
+     }
+     else if (pid < 0) {     /*fork a child process*/
+          perror("ERROR: forking failed\n");
+          exit(EXIT_FAILURE);
+     }
+     else {              /*parent waits on the child for completion*/
+              do {
+               waitpid(pid, &status, WUNTRACED);
+              } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+     }
+     return 1;
 }
 
 
