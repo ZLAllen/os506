@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 #define MAX_ARGS 10
 
@@ -14,7 +15,7 @@ void fetchtoken(char** ps, char* dst);
 struct cmd* formEcmd();
 struct cmd* formBcmd(struct cmd* cmd);
 void runcmd(struct cmd* cmd);
-
+void  execute_cmd(char **argv, char **envp);
 
 // for read: should cover it with gets
 
@@ -234,6 +235,35 @@ void runcmd(struct cmd* cmd){
     }
 
 }
+/*This function gets a commend line argument list with the*/
+/*first one being a file name followed by all the arguments.*/
+/*It forks a child process to execute the command using*/
+/*system call execvpe().                                             */
+void  execute_cmd(char **argv, char **envp)
+{
+
+     pid_t  pid;
+     int status;
+     
+     pid = fork();
+     if (pid == 0) {          /*child process executes the command*/ 
+          if (execvpe(*argv, argv, envp) == -1) {    
+               perror("ERROR: exec failed\n");
+          }
+          exit(EXIT_FAILURE);
+     }
+     else if (pid < 0) {     /*fork a child process*/
+          perror("ERROR: forking failed\n");
+          exit(EXIT_FAILURE);
+     }
+     else {              /*parent waits on the child for completion*/
+              do {
+               waitpid(pid, &status, WUNTRACED);
+              } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+     }
+     return 1;
+}
+
 
 int main(int argc, char* argv[]) {
 
