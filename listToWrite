@@ -12,3 +12,17 @@ cat
 #hope for the best
 grep [optional]
 pipe [optional]
+
+
+#syscall to implement
+read
+write
+fork
+waitpid
+chdir
+exec
+getdents
+
+#library functions to write
+getcwd()
+
