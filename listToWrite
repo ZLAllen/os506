@@ -21,7 +21,8 @@ fork
 waitpid
 chdir
 exec
+getdents
 
 #library functions to write
-
+getcwd()
 

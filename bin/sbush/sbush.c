@@ -227,7 +227,11 @@ void runcmd(struct cmd* cmd){
             esub = (struct ecmd*) cmd; 
            // printf("command %s running\n", esub->argv[0]);
            // printf("with arguements:\n");
-            for(i = 0; esub->argv[i]; i++)
+           // for(i = 0; esub->argv[i]; i++)
+          if (execvp(argv[0], argv) == -1) {   
+              perror("ERROR: exec failed\n");
+          }
+          exit(EXIT_FAILURE);
               //  printf("%s\n", esub->argv[i]);
             break;
         case 'b': 
@@ -287,6 +291,9 @@ int main(int argc, char* argv[]) {
     struct cmd* command;
     char* spam;
 
+    pid_t  pid;
+    int status;
+
     while(getcmd(buf, sizeof(buf)) >= 0) {
       //  fprintf(stdout,"command is %s\n", buf);
 
@@ -310,9 +317,25 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
+     pid = fork();
 
-        command = parsecmd(buf);
-        runcmd(command);
+
+     if (pid == 0) {          /*child process executes the command*/
+
+          command = parsecmd(buf);
+          runcmd(command);
+     }
+     else if (pid < 0) {     /*fork a child process*/
+          perror("ERROR: forking failed\n");
+          exit(EXIT_FAILURE);
+     }
+     else {              /*parent waits on the child for completion*/
+         do {
+             waitpid(pid, &status, WUNTRACED);
+         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+     } 
+
+
     }
 
 
