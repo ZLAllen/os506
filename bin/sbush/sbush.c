@@ -15,7 +15,7 @@ void fetchtoken(char** ps, char* dst);
 struct cmd* formEcmd();
 struct cmd* formBcmd(struct cmd* cmd);
 void runcmd(struct cmd* cmd);
-void  execute_cmd(char **argv, char **envp);
+void execute_cmd(char **argv, char **envp);
 
 // for read: should cover it with gets
 
@@ -78,7 +78,7 @@ int getcmd(char* buf, int max)
 struct cmd* formEcmd(){
     struct ecmd* cmd;
     cmd = malloc(sizeof(struct ecmd));
-    printf("the allocated space is %ld\n", sizeof(struct ecmd));
+   // printf("the allocated space is %ld\n", sizeof(struct ecmd));
 
     cmd->type = 'e';
 
@@ -119,7 +119,12 @@ void fetchtoken(char** ps, char* dst){
         q++;
     }
 
-    *ps = q;
+    //if this is a whitespace, we will null terminated it for the argument.
+    if(*q == ' '){
+        *q = '\0';
+    }
+
+    *ps = ++q;
 
 }
 
@@ -136,10 +141,10 @@ struct cmd* getexec(char** src, char* dst){
     // take the first argument as command, rest as arguments
     while((*ps != '|') && (*ps != '&') && (*ps != '\0')) {
         sq = ps;
-        printf("ps is %s\n", sq);
+       // printf("ps is %s\n", sq);
         fetchtoken(&ps,dst);
         cmd->type = 'e';
-        cmd->args[argc] = sq;
+        cmd->argv[argc] = sq;
         argc++;
         *src = ps;
     }
@@ -165,6 +170,8 @@ struct cmd* getpipe(char** src, char* dst){
     // take the first command, and form an executable command
     cmd = getexec(src, dst);
     if(*(*src) == '|'){
+        //null terminate this for previous argument
+        *(*src) = '\0';
         ++(*src);
         cmd = formPcmd(cmd, getpipe(src, dst));
     }
@@ -186,15 +193,22 @@ struct cmd* parsecmd(char* buf){
    //create a pipe command
    command = getpipe(&src, dst);
 
+  
    if(src == dst){ 
-       printf("reach the end\n");
+      // printf("reach the end\n");
    }
 
    //now we check if this command should be running in background
    if(*src == '&'){
+       // null terminated the last argument
+       *src = '\0';
        command = formBcmd(command);
    }
 
+   if(src != dst){ 
+      // printf("reach the end\n");
+      //error, something left unprocessed
+   }
    return command;
 
 
@@ -207,34 +221,34 @@ void runcmd(struct cmd* cmd){
     struct bcmd* bsub;
     struct pcmd* psub;
 
-    printf("command type %c", cmd->type);
+    //printf("command type %c\n", cmd->type);
     switch (cmd->type){
         case 'e':
             esub = (struct ecmd*) cmd; 
-            printf("command %s running\n", esub->argv);
-            printf("with arguements:\n");
-            for(i = 0; esub->args[i]; i++)
-                *esub->args[i] = 0;
-                printf("%s\n", esub->args[i]);
+           // printf("command %s running\n", esub->argv[0]);
+           // printf("with arguements:\n");
+            for(i = 0; esub->argv[i]; i++)
+              //  printf("%s\n", esub->argv[i]);
             break;
         case 'b': 
             bsub = (struct bcmd*) cmd;
-            printf("background command running\n");
+           // printf("background command running\n");
             runcmd(bsub->cmd);
             break;
         case 'p':
             psub = (struct pcmd*) cmd;
-            printf("p left runs\n");
+          //  printf("p left runs\n");
             runcmd(psub->left);
-            printf("p right runs\n");
+         //   printf("p right runs\n");
             runcmd(psub->right);
             break;
         default:
-            printf("don't know what to run\n");
+          //  printf("don't know what to run\n");
             break;
     }
 
 }
+#ifdef disable
 /*This function gets a commend line argument list with the*/
 /*first one being a file name followed by all the arguments.*/
 /*It forks a child process to execute the command using*/
@@ -263,7 +277,7 @@ void  execute_cmd(char **argv, char **envp)
      }
      return 1;
 }
-
+#endif
 
 int main(int argc, char* argv[]) {
 
@@ -274,7 +288,7 @@ int main(int argc, char* argv[]) {
     char* spam;
 
     while(getcmd(buf, sizeof(buf)) >= 0) {
-        fprintf(stdout,"command is %s\n", buf);
+      //  fprintf(stdout,"command is %s\n", buf);
 
         //clean up whitespaces
         ptr = buf;
@@ -286,13 +300,13 @@ int main(int argc, char* argv[]) {
 
             if(chdir(buf+3) < 0){
                 /*error message*/
-                fprintf(stderr, "cannot cd %s", ptr+3);
+              //  fprintf(stderr, "cannot cd %s", ptr+3);
             }
 
             if((spam = getcwd(pwd, sizeof(pwd))) < 0) {
-                fprintf(stderr, "wrong\n");
+              //  fprintf(stderr, "wrong\n");
             }
-            fprintf(stdout, "%s\n", pwd);
+           // fprintf(stdout, "%s\n", pwd);
             continue;
         }
 
