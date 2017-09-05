@@ -10,3 +10,4 @@ int close(int fd);
 int read(int fd, char* buf, int size);
 int write(int fd, const char* buf, int size);
 int fork();
+int execvpe(char *path, char *argv[], char *envp[])

@@ -69,3 +69,28 @@ size_t strlen(const char *str) {
     return len;
 }
 
+// copy from sourc to destination string
+char* strcpy(char *target, const char *src)
+{
+	int i;
+	for (i = 0; src[i] != '\0'; i++)
+		target[i] = src[i];
+	// terminating null byte
+	target[i] = '\0';
+	return target;
+}
+
+// copy n bytes from source to destination string
+char* strncpy(char *target, const char *src, int n)
+{
+	// mightbe buggy if destination is not large enough
+	int i;
+	for (i = 0; i < n && src[i] != '\0'; i++)
+		target[i] = src[i];
+	// might not be null terminated if not in first n bytes
+	for ( ; i < n; i++)
+		target[i] = '\0';
+	return target;
+
+}
+
