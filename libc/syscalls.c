@@ -77,8 +77,16 @@ void exit(int status){
         );
 }
 
+/*
 int execvpe(char *path, char *argv[], char *envp[]){
-}
+    int ret
+    
+    __asm
+        ("syscall"
+        );
+    return ret;
+
+}*/
 
 
 
