@@ -283,7 +283,16 @@ void  execute_cmd(char **argv, char **envp)
 }
 #endif
 
+void welcomeMessage(){
+    printf("\n\t============================================\n");
+    printf("\t               SBU Shell\n");
+    printf("\t--------------------------------------------\n");
+    printf("\n\n");
+}
+
 int main(int argc, char *argv[], char *envp[]) {
+
+    welcomeMessage();
 
     char buf[100];
     char* ptr;
