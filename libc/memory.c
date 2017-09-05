@@ -7,5 +7,11 @@ struct meta {
 }
 
 
+static void* pbreak;
+
+void* sbrk(int inc){
+
+}
+
 
     

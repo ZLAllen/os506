@@ -115,5 +115,16 @@ int fstat(int fd, struct stat *buf){
     return ret;
 }
 
+void* brk(void* addr){
+    void* ret;
 
+    __asm
+        ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_brk), "D"(addr)
+         :"cc", "rcx", "r11", "memory"
+        );
+    return ret;
+
+}
 

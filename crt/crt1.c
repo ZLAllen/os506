@@ -2,18 +2,24 @@
 #include <stdio.h>
 
 void _start(void) {
-    char** argv, **envp;
+    char** argv, **envp, **environ;
     int* argc;
+    int ret;
     __asm("movq %%rsp, %%rax\n"
-          "addq $8, %%rax"
+          "addq $24, %%rax"
             :"=a"(argc)
          );
 
     argv = (char**)((char*)argc + 8);
 
-    envp = &(argv[*argc + 1]);
+     envp = &(argv[*argc + 1]);
+     environ = envp;
+
+     if(!*environ){
+         exit(1);
+     }
 
     // call main() and exit() here
-    int ret = main(*argc,argv,envp);
+    ret = main(*argc,argv,envp);
     exit(ret);
 }
