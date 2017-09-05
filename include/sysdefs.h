@@ -6,3 +6,4 @@
 #define __NR_close 3
 #define __NR_fork 57
 #define __NR_exit 60
+#define __NR_chdir 80

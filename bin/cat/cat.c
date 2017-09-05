@@ -1,5 +1,6 @@
-#include "syscalls.h"
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #define BLOC 512
 

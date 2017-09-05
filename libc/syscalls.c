@@ -77,16 +77,43 @@ void exit(int status){
         );
 }
 
-/*
+int chdir(char* path){
+    int ret;
+    __asm 
+        (
+         "syscall"
+         : "=a" (ret)
+         : "0"(__NR_chdir), "D"(path)
+         : "cc", "rcx", "r11"
+        );
+
+    return ret;
+}
+
+// TODO test if memory should be there
 int execvpe(char *path, char *argv[], char *envp[]){
-    int ret
+    int ret;
     
     __asm
         ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_execve), "D"(path), "S"(argv), "d"(envp)
+         :"cc", "rcx", "r11", "memory"
         );
     return ret;
 
-}*/
+}
+
+int fstat(int fd, struct stat *buf){
+    int ret;
+    __asm
+        ("syscall"
+         :"=a" (ret)
+         :"0" (__NR_fstat), "D"(fd), "S"(buf)
+         :"cc", "rcx", "r11"
+        );
+    return ret;
+}
 
 
 
