@@ -1,12 +1,13 @@
-#include "sysdefs.h"
-#include "syscalls.h"
+#include <sysdefs.h>
+#include <syscalls.h>
+#include <stdlib.h>
 
 // in x86-64, we can free rcx and r11 for kernel
 
 int read(int fd, char* buf, int size){
     int ret;
 
-    asm volatile
+    __asm
         (
          "syscall"
          : "=a" (ret)
@@ -18,7 +19,7 @@ int read(int fd, char* buf, int size){
 
 int write(int fd, const char* buf, int size){
     int ret;
-    asm volatile
+    __asm
         (
          "syscall"
          : "=a" (ret)
@@ -30,7 +31,7 @@ int write(int fd, const char* buf, int size){
 
 int open(const char* file, int flag){
     int ret;
-    asm volatile
+    __asm 
         (
          "syscall"
          : "=a" (ret)
@@ -43,18 +44,31 @@ int open(const char* file, int flag){
 int close(int fd){
    int ret;
 
-   asm volatile
+   __asm
        (
         "syscall"
-        : "=a" (ret)
+        : "=a"(ret)
         : "0"(__NR_close), "D"(fd)
         : "cc", "rcx", "r11"
        );
    return ret;
 }
 
+int fork(){
+    int ret;
+
+    __asm 
+        (
+         "syscall"
+         : "=a"(ret)
+         : "0"(__NR_fork)
+         : "cc", "rcx", "r11"
+        );
+    return ret;
+}
+
 void exit(int status){
-    asm volatile 
+    __asm 
         (
          "syscall"
          :
@@ -62,3 +76,9 @@ void exit(int status){
          : "cc"
         );
 }
+
+int execvpe(char *path, char *argv[], char *envp[]){
+}
+
+
+

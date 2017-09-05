@@ -9,4 +9,4 @@ int open(const char* file, int flag);
 int close(int fd);
 int read(int fd, char* buf, int size);
 int write(int fd, const char* buf, int size);
-void exit(int status);
+int fork();
