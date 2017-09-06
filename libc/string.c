@@ -94,3 +94,15 @@ char* strncpy(char *target, const char *src, int n)
 
 }
 
+// concatenate two strings
+char *strcat(char *dest, const char *src)
+{
+	// allocate enough memory to dest else error
+	while (*dest)
+		dest++;
+	while (*dest++ = *src++)
+		;
+	return result;
+}
+
+
