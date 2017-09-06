@@ -10,7 +10,4 @@ struct linux_dirent {
     unsigned long d_off;
     unsigned long d_reclen;
     char          d_name[];
-
-    char          pad;
-    char          d_type;
-}
+};

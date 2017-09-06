@@ -1,11 +1,11 @@
 #include <sysdefs.h>
 #include <syscalls.h>
 #include <stdlib.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 // in x86-64, we can free rcx and r11 for kernel
 
-int read(int fd, char* buf, int size){
+ssize_t read(int fd, void* buf, size_t size){
     int ret;
 
     __asm
@@ -18,7 +18,7 @@ int read(int fd, char* buf, int size){
     return ret;
 }
 
-int write(int fd, const char* buf, int size){
+ssize_t write(int fd, const void* buf, size_t size){
     int ret;
     __asm
         (
@@ -55,8 +55,8 @@ int close(int fd){
    return ret;
 }
 
-int fork(){
-    int ret;
+pid_t fork(){
+    pid_t ret;
 
     __asm 
         (
@@ -78,7 +78,7 @@ void exit(int status){
         );
 }
 
-int chdir(char* path){
+int chdir(const char* path){
     int ret;
     __asm 
         (
@@ -146,7 +146,7 @@ int fstat(int fd, struct stat *buf){
 */
 
 int getdents(int fd, struct linux_dirent *d, int count){
-
+    int ret;
     __asm("syscall"
             :"=a"(ret)
             :"0"(__NR_getdents), "D"(fd), "S"(d), "d"(count)
@@ -172,7 +172,7 @@ int dup(int fd){
     int ret;
 
     __asm
-        ("syscall",
+        ("syscall"
          :"=a"(ret)
          :"0"(__NR_dup), "D"(fd)
          :"cc", "rcx", "r11"
@@ -181,28 +181,15 @@ int dup(int fd){
     return ret;
 }
 
-int pipe(int fd[2]){
-    int ret;
 
-    __asm
-        ("syscall",
-         :"=a"(ret)
-         :"0"(__NR_pipe), "D"(fd)
-         :"cc", "rcx", "r11"
-        );
-
-    return ret;
-
-}
-
-int wait4(pid_t upid, int* stat_addr, int options){
+int wait4(pid_t upid, int* status, int options){
     // we ignore struct rusage for now
     int ret;
 
     __asm
         ("syscall"
          :"=a"(ret)
-         :"0"(__NR_wait4), "D"(upid), "s"(stat_addr), "d"(options)
+         :"0"(__NR_wait4), "D"(upid), "S"(status),"d"(options)
          :"cc", "rcx", "r11"
         );
     
