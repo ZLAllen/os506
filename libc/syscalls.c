@@ -194,3 +194,18 @@ int pipe(int fd[2]){
     return ret;
 
 }
+
+int wait4(pid_t upid, int* stat_addr, int options){
+    // we ignore struct rusage for now
+    int ret;
+
+    __asm
+        ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_wait4), "D"(upid), "s"(stat_addr), "d"(options)
+         :"cc", "rcx", "r11"
+        );
+    
+    return ret;
+}
+
