@@ -9,4 +9,5 @@
 #define __NR_fork 57
 #define __NR_execve 59
 #define __NR_exit 60
+#define __NR_getdents 78
 #define __NR_chdir 80

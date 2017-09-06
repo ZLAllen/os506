@@ -10,12 +10,12 @@ void cat(int fd){
     // 512 bytes per chunk
     while((nread = read(fd, buf, BLOC)) > 0){
         if(write(1, buf, nread) < 0){
-            perror("write failed");
+            puts("write data failed")
             exit(1);
         }
     }
     if(nread < 0){
-        perror("read failed");
+        puts("read data failed");
         exit(1);
     }
 }
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
           // need to implement flags for open
           fd=open(argv[i], O_RDONLY);
           if(fd < 0){
-              perror("bad fd\n");
+              puts("bad fd\n");
               exit(1);
               //error and exit
           }

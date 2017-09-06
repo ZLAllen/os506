@@ -47,6 +47,7 @@ void* malloc(size_t size){
         head->next = 0;
         head->free = 0;
 
+
         //walk pass the meta block and yield allocated space to user
         return (struct meta*)p + 1;
     }
@@ -83,7 +84,7 @@ void* malloc(size_t size){
     ptr->next = holder;
 
     //walk pass the meta block and yield allocated space to user
-    return ptr+1;
+    return holder+1;
 
 
 
@@ -94,11 +95,8 @@ void free(void* ptr){
 
     if(ptr){
         bloc = (struct meta*)ptr - 1;
-        printf("free address is %p\n", bloc);
         if(bloc->free){
-           // exit(1);i
-           printf("already free %p\n", ptr);
-           return;
+           exit(1);
         }
         bloc->free = 1;
     }

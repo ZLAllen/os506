@@ -1,6 +1,7 @@
 #include <sysdefs.h>
 #include <syscalls.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 // in x86-64, we can free rcx and r11 for kernel
 
@@ -103,7 +104,8 @@ int execve(char *path, char *argv[], char *envp[]){
     return ret;
 
 }
-
+// come back later
+/*
 int fstat(int fd, struct stat *buf){
     int ret;
     __asm
@@ -114,7 +116,18 @@ int fstat(int fd, struct stat *buf){
         );
     return ret;
 }
+*/
 
+int getdents(int fd, struct linux_dirent *d, int count){
+
+    __asm("syscall"
+            :"=a"(ret)
+            :"0"(__NR_getdents), "D"(fd), "S"(d), "d"(count)
+            :"cc", "rcx", "r11", "memory"
+         );
+    
+    return ret;
+}
 void* brk(void* addr){
     void* ret;
 
