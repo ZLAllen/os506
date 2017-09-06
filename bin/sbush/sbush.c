@@ -52,7 +52,7 @@ int getcmd(char* buf, int max)
     /* need to implement a prompt message */
     puts("sbush> ");
     memset(buf, 0, max);
-    
+
     for(i=0;i<max-1;++i){
         cc = read(0, &c, 1);
 
@@ -78,7 +78,7 @@ int getcmd(char* buf, int max)
 struct cmd* formEcmd(){
     struct ecmd* cmd;
     cmd = malloc(sizeof(struct ecmd));
-   // printf("the allocated space is %ld\n", sizeof(struct ecmd));
+    // printf("the allocated space is %ld\n", sizeof(struct ecmd));
 
     cmd->type = 'e';
 
@@ -88,7 +88,7 @@ struct cmd* formEcmd(){
 struct cmd* formPcmd(struct cmd* left, struct cmd* right){
     struct pcmd* cmd;
     cmd = malloc(sizeof(struct pcmd));
-    
+
     cmd->type = 'p';
     cmd->left = left;
     cmd->right = right;
@@ -137,11 +137,11 @@ struct cmd* getexec(char** src, char* dst){
     ps = *src;
     argc = 0;
 
-     cmd = (struct ecmd*)formEcmd();
+    cmd = (struct ecmd*)formEcmd();
     // take the first argument as command, rest as arguments
     while((*ps != '|') && (*ps != '&') && (*ps != '\0')) {
         sq = ps;
-       // printf("ps is %s\n", sq);
+        // printf("ps is %s\n", sq);
         fetchtoken(&ps,dst);
         cmd->type = 'e';
         cmd->argv[argc] = sq;
@@ -182,37 +182,37 @@ struct cmd* getpipe(char** src, char* dst){
 
 //to parse command, 
 struct cmd* parsecmd(char* buf){
-   //first we should check if a command contains pipe
-   char* src, *dst;
-   struct cmd* command;
+    //first we should check if a command contains pipe
+    char* src, *dst;
+    struct cmd* command;
 
-   //get the head and tail of the line
-   src = buf;
-   dst = src + strlen(buf);
+    //get the head and tail of the line
+    src = buf;
+    dst = src + strlen(buf);
 
-   //create a pipe command
-   command = getpipe(&src, dst);
-
-  
-   if(src == dst){ 
-      // printf("reach the end\n");
-   }
-
-   //now we check if this command should be running in background
-   if(*src == '&'){
-       // null terminated the last argument
-       *src = '\0';
-       command = formBcmd(command);
-   }
-
-   if(src != dst){ 
-      // printf("reach the end\n");
-      //error, something left unprocessed
-   }
-   return command;
+    //create a pipe command
+    command = getpipe(&src, dst);
 
 
-   
+    if(src == dst){ 
+        // printf("reach the end\n");
+    }
+
+    //now we check if this command should be running in background
+    if(*src == '&'){
+        // null terminated the last argument
+        *src = '\0';
+        command = formBcmd(command);
+    }
+
+    if(src != dst){ 
+        // printf("reach the end\n");
+        //error, something left unprocessed
+    }
+    return command;
+
+
+
 }
 
 void runcmd(struct cmd* cmd){
@@ -230,14 +230,14 @@ void runcmd(struct cmd* cmd){
     switch (cmd->type){
         case 'e':
             esub = (struct ecmd*) cmd; 
-           // printf("command %s running\n", esub->argv[0]);
-           // printf("with arguements:\n");
-           // for(i = 0; esub->argv[i]; i++)
-          if (execvp(argv[0], argv) == -1) {   
-              perror("ERROR: exec failed\n");
-          }
-          exit(EXIT_FAILURE);
-              //  printf("%s\n", esub->argv[i]);
+            // printf("command %s running\n", esub->argv[0]);
+            // printf("with arguements:\n");
+            // for(i = 0; esub->argv[i]; i++)
+            if (execvp(argv[0], argv) == -1) {   
+                perror("ERROR: exec failed\n");
+            }
+            exit(EXIT_FAILURE);
+            //  printf("%s\n", esub->argv[i]);
             break;
         case 'b': 
             bsub = (struct bcmd*) cmd;
@@ -250,6 +250,7 @@ void runcmd(struct cmd* cmd){
                 exit(1);
             }
             break;
+/*
         case 'p':
             psub = (struct pcmd*) cmd;
             if(pipe(p) < 0){
@@ -302,9 +303,48 @@ void runcmd(struct cmd* cmd){
             // now wait for child process to return
             wait();
             wait();
+    */
+            break;
+        case 'p':
+            psub = (struct pcmd*) cmd;
+            int fd[2]; // pipe fd
+            int pid; // forked process
+
+
+            if (pipe(fd) < 0) {
+                exit("ERROR: pipe failed\n");
+                break;
+            }
+
+            pid = fork();
+            if (pid == 0) { // child executes right side
+                // receive input (stdin) from input part of pipe
+                dup2(fd[0], 0);
+
+                // run right command
+                runcmd(psub->right);
+            }
+            else if (pid < 0) { // fork fail
+                perror("ERROR: forking failed\n");
+                exit(EXIT_FAILURE);
+            }
+            else { // parent executes left side
+
+                // redirect output (stdout) with pipe output
+                dup2(fd[1], 1);
+
+                // run left command
+                runcmd(psub->left);
+
+            } 
+
+            do {
+                waitpid(pid, &status, WUNTRACED);
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+
             break;
         default:
-          //  printf("don't know what to run\n");
+            //  printf("don't know what to run\n");
             break;
     }
 
@@ -317,26 +357,26 @@ void runcmd(struct cmd* cmd){
 void  execute_cmd(char **argv, char **envp)
 {
 
-     pid_t  pid;
-     int status;
-     
-     pid = fork();
-     if (pid == 0) {          /*child process executes the command*/ 
-          if (execvpe(*argv, argv, envp) == -1) {    
-               perror("ERROR: exec failed\n");
-          }
-          exit(EXIT_FAILURE);
-     }
-     else if (pid < 0) {     /*fork a child process*/
-          perror("ERROR: forking failed\n");
-          exit(EXIT_FAILURE);
-     }
-     else {              /*parent waits on the child for completion*/
-              do {
-               waitpid(pid, &status, WUNTRACED);
-              } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-     }
-     return 1;
+    pid_t  pid;
+    int status;
+
+    pid = fork();
+    if (pid == 0) {          /*child process executes the command*/ 
+        if (execvpe(*argv, argv, envp) == -1) {    
+            perror("ERROR: exec failed\n");
+        }
+        exit(EXIT_FAILURE);
+    }
+    else if (pid < 0) {     /*fork a child process*/
+        perror("ERROR: forking failed\n");
+        exit(EXIT_FAILURE);
+    }
+    else {              /*parent waits on the child for completion*/
+        do {
+            waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    return 1;
 }
 #endif
 
@@ -361,45 +401,45 @@ int main(int argc, char *argv[], char *envp[]) {
     int status;
 
     while(getcmd(buf, sizeof(buf)) >= 0) {
-      //  fprintf(stdout,"command is %s\n", buf);
+        //  fprintf(stdout,"command is %s\n", buf);
 
         //clean up whitespaces
         ptr = buf;
         while(*ptr == ' ') {
             ++ptr;
         }
-        
+
         if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
             if(chdir(buf+3) < 0){
                 /*error message*/
-              //  fprintf(stderr, "cannot cd %s", ptr+3);
+                //  fprintf(stderr, "cannot cd %s", ptr+3);
             }
 
             if((spam = getcwd(pwd, sizeof(pwd))) < 0) {
-              //  fprintf(stderr, "wrong\n");
+                //  fprintf(stderr, "wrong\n");
             }
-           // fprintf(stdout, "%s\n", pwd);
+            // fprintf(stdout, "%s\n", pwd);
             continue;
         }
 
-     pid = fork();
+        pid = fork();
 
 
-     if (pid == 0) {          /*child process executes the command*/
+        if (pid == 0) {          /*child process executes the command*/
 
-          command = parsecmd(buf);
-          runcmd(command);
-     }
-     else if (pid < 0) {     /*fork a child process*/
-          perror("ERROR: forking failed\n");
-          exit(EXIT_FAILURE);
-     }
-     else {              /*parent waits on the child for completion*/
-         do {
-             waitpid(pid, &status, WUNTRACED);
-         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-     } 
+            command = parsecmd(buf);
+            runcmd(command);
+        }
+        else if (pid < 0) {     /*fork a child process*/
+            perror("ERROR: forking failed\n");
+            exit(EXIT_FAILURE);
+        }
+        else {              /*parent waits on the child for completion*/
+            do {
+                waitpid(pid, &status, WUNTRACED);
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+        } 
 
 
     }

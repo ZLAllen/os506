@@ -91,6 +91,33 @@ int chdir(char* path){
     return ret;
 }
 
+int pipe(int pipefd[]) {
+    int ret;
+
+    __asm
+        ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_pipe), "D"(pipefd)
+         :"cc", "rcx", "r11"
+        );
+    return ret;
+
+}
+
+int dup2(int srcfd, int destfd) {
+
+    int ret;
+    
+    __asm
+        ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_dup2), "D"(srcfd), "S"(destfd)
+         :"cc", "rcx", "r11"
+        );
+    return ret;
+
+}
+
 // TODO test if memory should be there
 int execve(char *path, char *argv[], char *envp[]){
     int ret;

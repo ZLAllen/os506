@@ -8,6 +8,7 @@
 #define __NR_brk 12
 #define __NR_pipe 22
 #define __NR_dup 32
+#define __NR_dup2 33
 #define __NR_fork 57
 #define __NR_execve 59
 #define __NR_exit 60
