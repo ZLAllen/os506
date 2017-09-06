@@ -217,9 +217,14 @@ struct cmd* parsecmd(char* buf){
 
 void runcmd(struct cmd* cmd){
     int i;
+    pid_t pid;
+    int p[2];
     struct ecmd* esub;
     struct bcmd* bsub;
     struct pcmd* psub;
+
+    if(cmd == 0){
+        exit(0);
 
     //printf("command type %c\n", cmd->type);
     switch (cmd->type){
@@ -237,14 +242,66 @@ void runcmd(struct cmd* cmd){
         case 'b': 
             bsub = (struct bcmd*) cmd;
            // printf("background command running\n");
-            runcmd(bsub->cmd);
+           //
+            pid = fork();
+            if(pid == 0){
+                runcmd(bsub->cmd);
+            }else if(pid < 0){
+                exit(1);
+            }
             break;
         case 'p':
             psub = (struct pcmd*) cmd;
-          //  printf("p left runs\n");
-            runcmd(psub->left);
-         //   printf("p right runs\n");
-            runcmd(psub->right);
+            if(pipe(p) < 0){
+                // pipe error
+                exit(1);
+            }
+
+            pid = fork();
+            if(pid < 0) {
+                // fork() error
+                exit(1);
+            }
+
+            if(pid == 0){
+                //close stdout
+                close(1);
+                //assign write channel to stdout number
+                dup(p[1]);
+                //shut down both fds since no need
+                close(p[0]);
+                close(p[1]);
+                // now we allow left side command to write to channel buffer
+                runcmd(psub->left); 
+            }
+
+            pid = fork();
+            
+            // shoud make this a function call, too much code T.T
+            if(pid <0) {
+                //fork() error
+                exit(1);
+            }
+
+            if(pid == 0){
+                //close stdin
+                close(0);
+                //assign read channel to stdin number
+                dup(p[0]);
+                //shut down both fds since no need
+                close(p[0]);
+                close(p[1]);
+                // now we allow right side command to write to channel buffer
+                runcmd(psub->right); 
+            }
+
+            //in parents, we close these pipe channels now
+            close(p[0]);
+            close(p[1]);
+
+            // now wait for child process to return
+            wait();
+            wait();
             break;
         default:
           //  printf("don't know what to run\n");

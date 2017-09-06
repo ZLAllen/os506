@@ -141,3 +141,29 @@ void* brk(void* addr){
 
 }
 
+int dup(int fd){
+    int ret;
+
+    __asm
+        ("syscall",
+         :"=a"(ret)
+         :"0"(__NR_dup), "D"(fd)
+         :"cc", "rcx", "r11"
+        );
+
+    return ret;
+}
+
+int pipe(int fd[2]){
+    int ret;
+
+    __asm
+        ("syscall",
+         :"=a"(ret)
+         :"0"(__NR_pipe), "D"(fd)
+         :"cc", "rcx", "r11"
+        );
+
+    return ret;
+
+}
