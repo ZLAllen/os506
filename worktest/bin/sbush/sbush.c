@@ -2,9 +2,10 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[], char *envp[]) {
-    int i;
-    for(i=0; envp[i]; i++)
-        puts(envp[i]);
+    char* p;
+
+    p = malloc(16);
+
 
     puts("sbush> ");
     exit(0);

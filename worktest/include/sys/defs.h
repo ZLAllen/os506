@@ -14,6 +14,7 @@ typedef          char    int8_t;
 
 typedef uint64_t size_t;
 typedef int64_t ssize_t;
+typedef uint32_t mode_t;
 
 typedef uint64_t off_t;
 

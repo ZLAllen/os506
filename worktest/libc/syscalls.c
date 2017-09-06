@@ -103,7 +103,7 @@ int execve(char *path, char *argv[], char *envp[]){
     return ret;
 
 }
-
+/*
 int fstat(int fd, struct stat *buf){
     int ret;
     __asm
@@ -114,7 +114,7 @@ int fstat(int fd, struct stat *buf){
         );
     return ret;
 }
-
+*/
 void* brk(void* addr){
     void* ret;
 

@@ -83,7 +83,7 @@ char* strcpy(char *target, const char *src)
 // copy n bytes from source to destination string
 char* strncpy(char *target, const char *src, int n)
 {
-	// mightbe buggy if destination is not large enough
+	// might be buggy if destination is not large enough
 	int i;
 	for (i = 0; i < n && src[i] != '\0'; i++)
 		target[i] = src[i];
