@@ -1,34 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <syscalls.h>
-
+#include <stdio.h>
 struct meta {
     size_t size;
     struct meta* next;
     int free;
 };
 
-static void* pbreak;
 static struct meta* head;
 
-void* sbrk(size_t inc){
-    void* p, *prev;
 
-    // if pbreak is not initialized
-    if(pbreak == (void*)0){
-        //make a failed brk call to get current program break
-        pbreak = brk((void*)(-1));
-    }
+void* sbrk(size_t inc){
+    char* p, *prev;
+
+    prev = brk((void*)(-1));
 
     if(!inc)
-        return pbreak;
+        return prev;
 
-    p = pbreak + inc;
-    if(brk(p) == pbreak)
+    p = prev + inc;
+    if((char*)(brk((void*)p)) == prev)
         return (void*)(-1);
-
-    prev = pbreak;
-    pbreak = p;
 
     return prev;
 }
@@ -42,6 +35,7 @@ void* malloc(size_t size){
     if(size < 0)
         return 0;
 
+
     //no memory in the free list, call sbrk to allocate 
     if(!head){
         p = sbrk(size + sizeof(struct meta));
@@ -52,6 +46,7 @@ void* malloc(size_t size){
         head->size = size;
         head->next = 0;
         head->free = 0;
+
 
         //walk pass the meta block and yield allocated space to user
         return (struct meta*)p + 1;
@@ -67,6 +62,7 @@ void* malloc(size_t size){
            ptr->free = 0;
            return ptr+1;
        }
+      
        
        if(ptr->next)
            ptr = ptr->next;
@@ -87,9 +83,9 @@ void* malloc(size_t size){
 
     ptr->next = holder;
 
-
     //walk pass the meta block and yield allocated space to user
-    return (struct meta*)p + 1;
+    return holder+1;
+
 
 
 }
@@ -98,13 +94,15 @@ void free(void* ptr){
     struct meta* bloc;
 
     if(ptr){
-        bloc = (struct meta*)ptr + 1;
-        if(bloc->free)
-            exit(1);
+        bloc = (struct meta*)ptr - 1;
+        if(bloc->free){
+           exit(1);
+        }
         bloc->free = 1;
     }
 
 }
+
 
 
 
