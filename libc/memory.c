@@ -1,6 +1,6 @@
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <syscalls.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <syscalls.h>
 #include <stdio.h>
 struct meta {
     size_t size;
@@ -8,41 +8,20 @@ struct meta {
     int free;
 };
 
-static void* pbreak;
 static struct meta* head;
 
 
-void* brk(void* addr){
-    void* ret;
-
-    __asm
-        ("syscall"
-         :"=a"(ret)
-         :"0"(12), "D"(addr)
-         :"cc", "rcx", "r11", "memory"
-        );
-    return ret;
-
-}
-
 void* sbrk(size_t inc){
-    void* p, *prev;
+    char* p, *prev;
 
-    // if pbreak is not initialized
-    if(pbreak == (void*)0){
-        //make a failed brk call to get current program break
-        pbreak = brk((void*)(-1));
-    }
+    prev = brk((void*)(-1));
 
     if(!inc)
-        return pbreak;
+        return prev;
 
-    p = pbreak + inc;
-    if(brk(p) == pbreak)
+    p = prev + inc;
+    if((char*)(brk((void*)p)) == prev)
         return (void*)(-1);
-
-    prev = pbreak;
-    pbreak = p;
 
     return prev;
 }
@@ -68,6 +47,7 @@ void* malloc(size_t size){
         head->next = 0;
         head->free = 0;
 
+
         //walk pass the meta block and yield allocated space to user
         return (struct meta*)p + 1;
     }
@@ -79,10 +59,10 @@ void* malloc(size_t size){
    // we will postpone this idea
    while(ptr){
        if((ptr->free) && (ptr->size >= size)){
-           printf("take from freelist\n");
            ptr->free = 0;
            return ptr+1;
        }
+      
        
        if(ptr->next)
            ptr = ptr->next;
@@ -103,9 +83,9 @@ void* malloc(size_t size){
 
     ptr->next = holder;
 
-
     //walk pass the meta block and yield allocated space to user
-    return (struct meta*)p + 1;
+    return holder+1;
+
 
 
 }
@@ -115,39 +95,14 @@ void free(void* ptr){
 
     if(ptr){
         bloc = (struct meta*)ptr - 1;
-        printf("free address is %p\n", bloc);
         if(bloc->free){
-           // exit(1);i
-           printf("already free %p\n", ptr);
-           return;
+           exit(1);
         }
         bloc->free = 1;
     }
 
 }
 
-
-int main(){
-    char *p, *q;
-    p = malloc(16);
-
-    printf("%p\n", p);
-
-
-    printf("%p\n", head);
-    
-    q = malloc(16);
-
-
-    printf("%p\n", q);
-   
-    printf("%p\n", head->next);
-    free(p);
-    free(q);
-
-    return 0;
-
-}
 
 
 

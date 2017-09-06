@@ -2,10 +2,13 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[], char *envp[]) {
-    char* p;
+    char* p, *q;
 
     p = malloc(16);
+    free(p);
+    q = malloc(16);
 
+    free(q);
 
     puts("sbush> ");
     exit(0);
