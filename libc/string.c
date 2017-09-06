@@ -97,12 +97,15 @@ char* strncpy(char *target, const char *src, int n)
 // concatenate two strings
 char *strcat(char *dest, const char *src)
 {
+    // hold original dest to return
+    char *cursor = dest;
+
 	// allocate enough memory to dest else error
-	while (*dest)
-		dest++;
-	while (*dest++ = *src++)
+	while (*cursor)
+		cursor++;
+	while (*cursor++ == *src++)
 		;
-	return result;
+	return dest;
 }
 
 
