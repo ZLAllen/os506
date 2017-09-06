@@ -21,4 +21,7 @@ typedef uint32_t pid_t;
 
 typedef unsigned short mode_t; // permission bits
 
+typedef unsigned int ino_t; //struct stat
+typedef long blkcnt_t; //struct stat
+
 #endif
