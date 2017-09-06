@@ -241,10 +241,41 @@ void runcmd(struct cmd* cmd){
             break;
         case 'p':
             psub = (struct pcmd*) cmd;
-          //  printf("p left runs\n");
-            runcmd(psub->left);
-         //   printf("p right runs\n");
-            runcmd(psub->right);
+            int fd[2]; // pipe fd
+            int pid; // forked process
+
+          
+            if (pipe(fd) < 0) {
+                exit("ERROR: pipe failed\n");
+                break;
+            }
+
+            pid = fork();
+            if (pid == 0) { // child executes right side
+                // receive input (stdin) from input part of pipe
+                dup2(fd[0], 0);
+            
+                // run right command
+                runcmd(psub->right);
+            }
+            else if (pid < 0) { // fork fail
+                perror("ERROR: forking failed\n");
+                exit(EXIT_FAILURE);
+            }
+            else { // parent executes left side
+
+                // redirect output (stdout) with pipe output
+                dup2(fd[1], 1);
+
+                // run left command
+                runcmd(psub->left);
+
+            } 
+
+            do {
+                waitpid(pid, &status, WUNTRACED);
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+
             break;
         default:
           //  printf("don't know what to run\n");
@@ -326,23 +357,23 @@ int main(int argc, char *argv[], char *envp[]) {
             continue;
         }
 
-     pid = fork();
+         pid = fork();
 
 
-     if (pid == 0) {          /*child process executes the command*/
+         if (pid == 0) {          /*child process executes the command*/
 
-          command = parsecmd(buf);
-          runcmd(command);
-     }
-     else if (pid < 0) {     /*fork a child process*/
-          perror("ERROR: forking failed\n");
-          exit(EXIT_FAILURE);
-     }
-     else {              /*parent waits on the child for completion*/
-         do {
-             waitpid(pid, &status, WUNTRACED);
-         } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-     } 
+              command = parsecmd(buf);
+              runcmd(command);
+         }
+         else if (pid < 0) {     /*fork a child process*/
+              perror("ERROR: forking failed\n");
+              exit(EXIT_FAILURE);
+         }
+         else {              /*parent waits on the child for completion*/
+             do {
+                 waitpid(pid, &status, WUNTRACED);
+             } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+         } 
 
 
     }
