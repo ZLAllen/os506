@@ -52,7 +52,7 @@ int getcmd(char* buf, int max)
     char c;
 
     /* need to implement a prompt message */
-    puts("sbush> ");
+    printf("sbush> ");
     memset(buf, 0, max);
 
     for(i=0;i<max-1;++i){
@@ -224,6 +224,7 @@ void runcmd(struct cmd* cmd){
     struct bcmd* bsub;
     struct pcmd* psub;
     int status;
+    int ret;
 
     if(cmd == 0)
         exit(0);
@@ -235,7 +236,8 @@ void runcmd(struct cmd* cmd){
             // printf("command %s running\n", esub->argv[0]);
             // printf("with arguements:\n");
             // for(i = 0; esub->argv[i]; i++)
-            if (execvpe(esub->argv[0], esub->argv, environ) < 0) {   
+            if ((ret = execvpe(esub->argv[0], esub->argv, environ)) < 0) {  
+                printf("error code: %d\n", ret);
                 printf("failed to execute %s\n", esub->argv[0]);
             }
             //  printf("%s\n", esub->argv[i]);
@@ -254,6 +256,7 @@ void runcmd(struct cmd* cmd){
 
         case 'p':
             psub = (struct pcmd*) cmd;
+            printf("here\n");
             if(pipe(p) < 0){
                 printf("ERROR: piping failed\n");
                 exit(1);
@@ -349,7 +352,7 @@ void runcmd(struct cmd* cmd){
               printf("don't know what to run\n");
             break;
     }
-
+    exit(0);
 }
 #ifdef disable
 /*This function gets a commend line argument list with the*/
