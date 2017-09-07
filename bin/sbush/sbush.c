@@ -423,7 +423,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
     if(argc < 2){
         pw = getenv("PWD");
-        rs = getenv("_");
+        rs = argv[0];
         dPath = malloc(strlen(pw)+strlen(rs));
         strncpy(dPath, pw, strlen(pw));
         strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
@@ -431,9 +431,6 @@ int main(int argc, char *argv[], char *envp[]) {
         dPath = malloc(strlen(argv[0]));
         strncpy(dPath, argv[0], strlen(argv[0])-5);
     }
-
-
-
 
     while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
