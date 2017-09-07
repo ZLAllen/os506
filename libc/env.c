@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <env.h>
 
 char **environ;
 
@@ -63,11 +64,13 @@ char *getenv(const char *name){
     char* home="HOME";
     char* path="PATH";
     char* ps1 ="PS1";
+	char *extra = "@sbush$";
 
     pa = extract_from_environ(path);
     us = extract_from_environ(user);
     hs = extract_from_environ(home);
-    ps = hs;
+	// ps1 is user@sbush$
+    ps = strcat(us, extra);
 
 
     if(strcmp(name, home) == 0){
@@ -120,7 +123,12 @@ void export(char *cmd){
     else if(strcmp(env_type,"PATH") == 0){
         setenv(env_type, var_val, 1);
     }
-    printf("printf(\"env setting for this variable not implemented\n");
+    else if(strcmp(env_type,"PS1") == 0){
+        setenv(env_type, var_val, 1);
+    }else{
+        printf("printf(\"env setting for this variable not implemented\n");
+        return;
+    }
 
     free(env_type);
 }

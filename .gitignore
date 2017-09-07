@@ -1,2 +1,6 @@
 # ignore binary files
 *.o
+
+rootfs/lib/
+rootfs/bin/
+
