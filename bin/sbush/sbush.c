@@ -68,8 +68,9 @@ int getcmd(char* buf, int max, int fd)
         }
 
         //end of line condition
-        if(c == '\r' || c == '\n' || cc == 0){
+        if(c == '\r' || c == '\n' || cc == 0 || c = -1){
             buf[i] = '\0';
+            if(c = -1)
             break;
         }else{
             buf[i] = c;
@@ -461,7 +462,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
             if(chdir(buf+3) < 0){
                 /*error message*/
-                //  fprintf(stderr, "cannot cd %s", ptr+3);
+                printf("cannot cd %s\n", ptr+3);
             }
 
             if(!(spam = getcwd(pwd, sizeof(pwd)))) {
