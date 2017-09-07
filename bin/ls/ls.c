@@ -40,7 +40,7 @@ void ls(char *path)
 
         for(bpos=0; bpos < nread;){
             d= (struct linux_dirent*)(buf + bpos);
-            puts(d->d_name);
+            printf("%s\n", d->d_name);
             bpos += d->d_reclen;
         }
 

@@ -38,40 +38,46 @@ char* concat(const char *s1, const char *s2)
 
 int execvpe(const char *file, char *const argv[], char *const envp[]){
 
-    int ret = 0;
+    int ret = -1;
+    int fd, slash;
+    char* path, *pbuffer, *token;
+    char delim;
+    char* ctoken, *citoken;
+
     // check if the file is NULL
     if (*file == '\0') {
+        printf("bad file\n");
         return -1;
     }
 
-    int slash = 0;
+    slash = 0;
 
     // don't search for the binary; if fail set the slash flag
     if (strchr(file, '/') != NULL){
         int fd = open(file, 0);
-        if(fd > 0)
-            execve(file, argv, envp);
-        else
+        if(fd > 0){
+            ret = execve(file, argv, envp);
+            return ret;
+        }else
             // set the flag and sarch in the PATH
            slash = 1;
     }
 
-    char *path = getenvval("PATH");
+    path = getenvval("PATH");
     // if path is NULL use a default value
     if (!path)
         path=DEFAULT_PATH;
 
-    char pbuffer[strlen(path) + strlen(file) + 1];
+    pbuffer = malloc(strlen(path) + strlen(file) + 1);
     strcpy(pbuffer, path);
 
     // get each path and search for the binary
-    char* token = strtok(pbuffer, ":");
-    char delim = '/';
+    token = strtok(pbuffer, ":");
+    delim = '/';
     while (token){
         token = strtok(NULL, ":");
         // concat token and the actual path
-        char *ctoken;
-        char *citoken = NULL;
+        citoken = NULL;
         if(slash != 1) {
             citoken = concat(token, &delim);
             ctoken = concat(citoken, file);
@@ -79,9 +85,11 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         else
             ctoken = concat(token, file);
 
-        int fd = open(ctoken, 0);
+        fd = open(ctoken, 0);
+
+        printf("executing:%s\n", ctoken);
         if (fd > 0) {
-            //printf("executing:%s\n", ctoken);
+            printf("executing:%s\n", ctoken);
             ret =  execve(ctoken, argv, envp);
             if(!citoken)
                 free(citoken);
@@ -94,6 +102,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         }
     }
     free(pbuffer);
+    printf("failed and return\n");
     return ret;
 }
 
