@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <env.h>
 
 extern char **environ;
 
@@ -17,7 +18,7 @@ int setenv(const char *name, const char *value, int overwrite){
 
         // should be a more efficient way than search again
         // search and replace pointer
-        while(*environ[c] != NULL) {
+        while(environ[c] != NULL) {
             if(strncmp(environ[c], name, strlen(name)) == 0) {
                 environ[c] = nc;
 
@@ -39,7 +40,7 @@ int setenv(const char *name, const char *value, int overwrite){
 
 char *extract_from_environ(char *var){
     int c = 0;
-    while(*environ[c] != NULL) {
+    while(environ[c] != NULL) {
     if(strncmp(environ[c], var, strlen(var)) == 0) {
     // key=value; get pointer to the value
     return environ[c]+strlen(var)+1;
@@ -52,7 +53,7 @@ char *extract_from_environ(char *var){
 
 char *getenv(const char *name){
 
-    char *pa, *us, *hs, *ps, *gn;
+    char *pa, *us, *hs, *ps;
     // env handling
     char* user="USER";
     char* home="HOME";
