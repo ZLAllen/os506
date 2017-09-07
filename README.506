@@ -3,11 +3,13 @@ This README containes all the functionalities tha we have added to our shell wit
 Shell: sbush.c
 
 -- shell welcome message
--- cd to change directory
--- ls to list files and directories, takes a file name, a directory name, or both 
+-- cd to change directory (must followed by directory)
+-- ls to list files and directories, takes a file name, a directory name, or ls current directory if no argument
 -- pipe 
+-- background process with & trailling 
 -- export to set the environment variable. mainly HOME, USER, PPATH, and PS1. 
 -- cat to read a file and output to standard library
+-- grep word (no quotation mark)[files...] 
 -- shell exit message
 
 
@@ -17,10 +19,26 @@ Standard Library: .c files under libc
 
 -- string library functionalities in string.c
 -- execvpe, a wrapper arround execve to allow passing of filename rather than a binary name
+-- syscalls.c contains all syscalls implementations, declarations in unistd.h/stdlib.h/syscalls.h
+syscall number are defined in sysdefs.h
+-- env.c contains environment global environ and setenv/getenv functions
+-- memory.c contains malloc and free functions 
+-- stdio.c contains a simple printf function
+-- wait.c contains a wrapper for syscall wait4()
 
 
+Complement to include folder:
+fcntl.c defines a linux_direct struct and some open system call flags
 
 
+Note:
+Contributing source: this project incoporates knowledge that we learn online, including
+
+1) https://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html (inline assembly guide)
+2) linux error code table
+3) linux x86_64 system call table
+4) Danluu's tutorial to malloc 
+5) MIT's tutorial on xv6 shell (the cmd structure in this project was influnced by the tutorial)
 
 
 
