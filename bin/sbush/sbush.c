@@ -260,7 +260,6 @@ void runcmd(struct cmd* cmd){
 
         case 'p':
             psub = (struct pcmd*) cmd;
-            printf("here\n");
             if(pipe(p) < 0){
                 printf("ERROR: piping failed\n");
                 exit(1);
@@ -412,6 +411,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
     pid_t  pid;
 
+
     //try to get scripts
     if(argc > 1){
         if((fd = open(argv[1], 0)) < 0){
@@ -421,11 +421,17 @@ int main(int argc, char *argv[], char *envp[]) {
     }
 
 
-    pw = getenv("PWD");
-    rs = getenv("_");
-    dPath = malloc(strlen(pw)+strlen(rs));
-    strncpy(dPath, pw, strlen(pw));
-    strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
+    if(argc < 2){
+        pw = getenv("PWD");
+        rs = getenv("_");
+        dPath = malloc(strlen(pw)+strlen(rs));
+        strncpy(dPath, pw, strlen(pw));
+        strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
+    }else{
+        dPath = malloc(strlen(argv[0]));
+        strncpy(dPath, argv[0], strlen(argv[0])-5);
+    }
+
 
 
 
@@ -437,6 +443,7 @@ int main(int argc, char *argv[], char *envp[]) {
         if(!(*buf)){
             break;
         }
+
         ptr = buf;
         while(*ptr == ' ') {
             ++ptr;
@@ -455,14 +462,16 @@ int main(int argc, char *argv[], char *envp[]) {
             // fprintf(stdout, "%s\n", pwd);
             printf("%s\n", pwd);
             continue;
+        }else if(ptr[0] == '#' && ptr[1] == '!'){
+            continue;
         }
 
-		// exit operation 
-		char *exit_cmd = "exit";
-		if(strncmp(ptr, exit_cmd, 4) == 0){
-				printf("exiting the shell\n");
-				exit(0);
-		}
+        // exit operation 
+        char *exit_cmd = "exit";
+        if(strncmp(ptr, exit_cmd, 4) == 0){
+                        printf("exiting the shell\n");
+                        exit(0);
+        }
 
         pid = fork();
 
