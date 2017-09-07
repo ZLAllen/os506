@@ -7,7 +7,7 @@
 #define MAX_ARGS 10
 
 /* declarations */
-int getcmd(char* buf, int max);
+int getcmd(char* buf, int max, int fd);
 struct cmd* parsecmd(char* buf);
 struct cmd* getpipe(char** src, char* dst);
 struct cmd* getexec(char** src, char* dst);
@@ -45,7 +45,7 @@ struct bcmd
     struct cmd* cmd;
 };
 
-int getcmd(char* buf, int max)
+int getcmd(char* buf, int max, int fd)
 {
     // roughly cover read() to terminate at newline
     int i, cc;
@@ -56,10 +56,11 @@ int getcmd(char* buf, int max)
     memset(buf, 0, max);
 
     for(i=0;i<max-1;++i){
-        cc = read(0, &c, 1);
+        cc = read(fd, &c, 1);
 
         if(cc < 0) {
             // error
+            printf("read failed\n");
             return -1;
         }
 
@@ -402,10 +403,19 @@ int main(int argc, char *argv[], char *envp[]) {
     struct cmd* command;
     char* spam;
     int status;
+    int fdi = 1;
 
     pid_t  pid;
 
-    while(getcmd(buf, sizeof(buf)) >= 0) {
+    //try to get scripts
+    if(argc > 1){
+        if((fd = open(argv[1], 0)) < 0){
+            printf("failed to run script\n");
+            exit(1);
+        }
+    }
+
+    while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
 
         //clean up whitespaces

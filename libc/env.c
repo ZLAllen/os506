@@ -2,7 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-extern char **environ;
+char **environ;
+
+int setenv(const char *name, const char *value, int overwrite);
+char *extract_from_environ(char *var);
+char *getenv(const char *name);
+int get_value(const char* cmd){
 
 int setenv(const char *name, const char *value, int overwrite){
     // old value in environ
@@ -100,7 +105,7 @@ void export(char *cmd){
     }
 }
 
-
+/*
 int main(int argc, char *argv[], char*envp[])
 {
     // print som continuos path variables
@@ -111,4 +116,4 @@ int main(int argc, char *argv[], char*envp[])
     export(cmd);
     printf("%s \n %s \n %s \n", environ[0], environ[1], environ[3]);
 }
-
+*/
