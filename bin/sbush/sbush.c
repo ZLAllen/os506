@@ -359,7 +359,7 @@ void runcmd(struct cmd* cmd){
     exit(0);
 }
 #ifdef disable
-/*This function gets a commend line argument list with the*/
+/*This function gets a command line argument list with the*/
 /*first one being a file name followed by all the arguments.*/
 /*It forks a child process to execute the command using*/
 /*system call execvpe().                                             */
@@ -389,16 +389,16 @@ void  execute_cmd(char **argv, char **envp)
 }
 #endif
 
-void welcomeMessage(){
-    printf("\n\t============================================\n");
+void welcome_message(){
+    printf("\n\t***********************************************\n");
     printf("\t               SBU Shell\n");
-    printf("\t--------------------------------------------\n");
+    printf("\t***********************************************\n");
     printf("\n\n");
 }
 
 int main(int argc, char *argv[], char *envp[]) {
 
-    welcomeMessage();
+    welcome_message();
 
     char buf[100];
     char* ptr;
@@ -445,6 +445,13 @@ int main(int argc, char *argv[], char *envp[]) {
             printf("%s\n", pwd);
             continue;
         }
+
+		// exit operation 
+		char *exit_cmd = "exit";
+		if(strncmp(ptr, exit_cmd, 4) == 0){
+				printf("exiting the shell\n");
+				exit(0);
+		}
 
         pid = fork();
 
