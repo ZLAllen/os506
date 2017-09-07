@@ -13,13 +13,32 @@ int setenv(const char *name, const char *value, int overwrite){
     // old value in environ
     char *currval = getenv(name);
     printf("old value:%s\n", currval);
-    char *nc = malloc(sizeof(value) + 1); // TODO used malloc but sont know what to do next
+
+    // name + '=' + value + 1
+    char *nc = malloc(sizeof(name) + 1 + sizeof(value) + 1);
+
     if(overwrite == 1) {
-        memset(currval, 0, sizeof(currval));
-        strcpy(currval, value);
+        int c = 0;
+
+        // should be a more efficient way than search again
+        // search and replace pointer
+        while(*environ[c] != NULL) {
+            if(strncmp(environ[c], name, strlen(name)) == 0) {
+                environ[c] = nc;
+
+                strcpy(nc, name);
+                strcat(nc, "=");
+                strcat(nc, value);
+
+                break;
+            }
+            c++;
+        }
+
+        char *newVal = getenv(name);
+        printf("New value %s\n", newVal);
     }
-    // now value should be the new one in environ
-    printf("new value:%s\n", currval);
+
     return 0;
 }
 
@@ -49,6 +68,7 @@ char *getenv(const char *name){
     us = extract_from_environ(user);
     hs = extract_from_environ(home);
     ps = hs;
+
 
     if(strcmp(name, home) == 0){
         return hs;
@@ -109,11 +129,12 @@ void export(char *cmd){
 int main(int argc, char *argv[], char*envp[])
 {
     // print som continuos path variables
-    printf("%s \n %s \n %s \n", environ[0], environ[1], environ[3]);
+    printf("0: %s \n 3: %s \n 4: %s \n\n\n", environ[0], environ[3], environ[4]);
     argv[0] = "export";
     // set this to longer than your path
-    char *cmd = "PATH=veryverylongpath/home/leena/bin:/home/leena/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/leena/Documents/apache-opennlp-1.7.2/bin:/snap/bin ";
+        char *cmd = "PATH=veryverylongpath/home/leena/bin:/home/leena/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/leena/Documents/apache-opennlp-1.7.2/bin:/snap/bin ";
+
     export(cmd);
-    printf("%s \n %s \n %s \n", environ[0], environ[1], environ[3]);
+    printf("\n\n0: %s \n 3: %s \n 4: %s \n", environ[0], environ[3], environ[4]);
 }
 */
