@@ -68,9 +68,9 @@ int getcmd(char* buf, int max, int fd)
         }
 
         //end of line condition
-        if(c == '\r' || c == '\n' || cc == 0 || c = -1){
+        if(c == '\r' || c == '\n' || cc == 0 || c == -1){
             buf[i] = '\0';
-            if(c = -1)
+            if(c == -1)
             break;
         }else{
             buf[i] = c;
