@@ -52,7 +52,9 @@ int getcmd(char* buf, int max, int fd)
     char c;
 
     /* need to implement a prompt message */
-    printf("sbush> ");
+    if(fd == 0)
+        printf("sbush> ");
+    
     memset(buf, 0, max);
 
     for(i=0;i<max-1;++i){
@@ -403,7 +405,7 @@ int main(int argc, char *argv[], char *envp[]) {
     struct cmd* command;
     char* spam;
     int status;
-    int fdi = 1;
+    int fd = 0;
 
     pid_t  pid;
 
@@ -415,12 +417,14 @@ int main(int argc, char *argv[], char *envp[]) {
         }
     }
 
-    printf("%s\n", argv[0]);
-
     while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
 
         //clean up whitespaces
+        //
+        if(!(*buf)){
+            break;
+        }
         ptr = buf;
         while(*ptr == ' ') {
             ++ptr;
