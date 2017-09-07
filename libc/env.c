@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-extern char **environ;
+char **environ;
 char *getenv(char *name);
 
 
@@ -31,24 +31,29 @@ char *extractFromEnviron(char *var){
 
 char *getenv(char *name){
 
+    char *pa, *us, *hs, *ps;
     // env handling
     char* user="USER";
     char* home="HOME";
     char* path="PATH";
+    char* ps1 ="PS1";
 
-    char *PATH = extractFromEnviron(path);
-    char *USER = extractFromEnviron(user);
-    char *HOME = extractFromEnviron(home);
+    pa = extractFromEnviron(path);
+    us = extractFromEnviron(user);
+    hs = extractFromEnviron(home);
+    ps = extractFromEnviron(ps1);
 
     if(strcmp(name,"HOME") == 0){
-        return HOME;
+        return hs;
     }else if(strcmp(name,"PATH") == 0){
-        return PATH;
-    }else if (strcmp(name,"USER") == 0){
-        return USER;
-    }else{
-        // how to handle PS1
+        return ps;
+    }else if(strcmp(name,"USER") == 0){
+        return us;
+    }else if(strcmp(name,"PS1") == 0){
+        return ps;
     }
+
+    return 0;
 }
 
 /*
