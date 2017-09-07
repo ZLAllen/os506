@@ -4,6 +4,7 @@
 #include <env.h>
 
 char **environ;
+char *PS1;
 
 int setenv(const char *name, const char *value, int overwrite);
 char *extract_from_environ(char *var);
@@ -58,19 +59,18 @@ char *extract_from_environ(char *var){
 
 char *getenv(const char *name){
 
-    char *pa, *us, *hs, *ps;
+    char *pa, *us, *hs;
     // env handling
     char* user="USER";
     char* home="HOME";
     char* path="PATH";
     char* ps1 ="PS1";
-	char *extra = "@sbush$";
+    char *extra = "@sbush$";
 
     pa = extract_from_environ(path);
     us = extract_from_environ(user);
     hs = extract_from_environ(home);
 	// ps1 is user@sbush$
-    ps = strcat(us, extra);
 
 
     if(strcmp(name, home) == 0){
@@ -81,7 +81,12 @@ char *getenv(const char *name){
         return us;
     }
     else if(strcmp(name, ps1) == 0){
-        return ps;
+        if(!PS1){
+            PS1 = malloc(strlen(us)+strlen(extra)+1);
+            strncpy(PS1, us, strlen(us));
+            strncpy(PS1+strlen(us), extra, strlen(extra));
+        }
+        return PS1;
     }
     else{
         printf("env setting for this variable not implemented\n");

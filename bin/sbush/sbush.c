@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <syscalls.h>
+#include <env.h>
 
 #define MAX_ARGS 10
 
@@ -53,7 +54,7 @@ int getcmd(char* buf, int max, int fd)
 
     /* need to implement a prompt message */
     if(fd == 0)
-        printf("sbush> ");
+        printf("%s >", getenv("PS1"));
     
     memset(buf, 0, max);
 
