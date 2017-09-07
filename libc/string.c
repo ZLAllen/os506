@@ -16,6 +16,24 @@ int strcmp(const char *str1, const char *str2) {
     return *current2 - *current1;
 }
 
+// compare two strings up to character limit
+int strncmp(const char *str1, const char *str2, unsigned int num) {
+
+    int count = 0;
+    char *current1 = (char *)str1;
+    char *current2 = (char *)str2;
+
+    while (*current1 && *current2 && *current1 == *current2) {
+        current1++;
+        current2++;
+
+        if (++count == num)
+            return 0;
+    }
+
+    return *current2 - *current1;
+}
+
 // find next token in string
 char *strtok(char *str, const char *delimiters) {
 
