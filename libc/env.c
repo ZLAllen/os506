@@ -3,7 +3,12 @@
 #include <stdlib.h>
 #include <env.h>
 
-extern char **environ;
+char **environ;
+
+int setenv(const char *name, const char *value, int overwrite);
+char *extract_from_environ(char *var);
+char *getenv(const char *name);
+int get_value(const char* cmd);
 
 int setenv(const char *name, const char *value, int overwrite){
     // old value in environ
@@ -18,7 +23,7 @@ int setenv(const char *name, const char *value, int overwrite){
 
         // should be a more efficient way than search again
         // search and replace pointer
-        while(environ[c] != NULL) {
+        while(*environ[c] != 0) {
             if(strncmp(environ[c], name, strlen(name)) == 0) {
                 environ[c] = nc;
 
@@ -40,7 +45,7 @@ int setenv(const char *name, const char *value, int overwrite){
 
 char *extract_from_environ(char *var){
     int c = 0;
-    while(environ[c] != NULL) {
+    while(*environ[c] != 0) {
     if(strncmp(environ[c], var, strlen(var)) == 0) {
     // key=value; get pointer to the value
     return environ[c]+strlen(var)+1;
@@ -118,15 +123,15 @@ void export(char *cmd){
     else if(strcmp(env_type,"PATH") == 0){
         setenv(env_type, var_val, 1);
     }
-	else if(strcmp(env_type,"PS1") == 0){
-		setenv(env_type, var_val, 1);
-	}
-	else{
+    else if(strcmp(env_type,"PS1") == 0){
+        setenv(env_type, var_val, 1);
+    }else{
         printf("printf(\"env setting for this variable not implemented\n");
         return;
     }
-}
 
+    free(env_type);
+}
 
 /*
 int main(int argc, char *argv[], char*envp[])
@@ -139,5 +144,5 @@ int main(int argc, char *argv[], char*envp[])
 
     export(cmd);
     printf("\n\n0: %s \n 3: %s \n 4: %s \n", environ[0], environ[3], environ[4]);
-}*/
-
+}
+*/

@@ -11,6 +11,9 @@ int main(int argc, char *argv[], char *envp[]) {
         puts(environ[i]);
     }
 
+
+    puts(argv[0]);
+
     puts("sbush> ");
     exit(0);
     return 0;
