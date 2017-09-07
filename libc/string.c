@@ -1,4 +1,4 @@
-#include <sys/defs.h>
+#include <string.h>
 
 // follows standard C string signatures
 
@@ -108,4 +108,13 @@ char *strcat(char *dest, const char *src)
 	return dest;
 }
 
+void* memset(const void* addr, int pattern, int count){
+    void* ret;
+    __asm("cld; rep stosb"
+            :"=D"(ret), "=c"(cnt)
+            :"D"(addr), "a"(pattern), "c"(count)
+            :"cc", "memory"
+         );
 
+    return ret;
+}
