@@ -9,5 +9,6 @@ size_t strlen(const char *str);
 char* strcpy(char *target, const char *src);
 char* strncpy(char *target, const char *src, int n);
 char *strcat(char *dest, const char *src);
+char *strchr(const char *str, char character);
 void* memset(const void *src, int pattern, int count);
 #endif

@@ -108,6 +108,20 @@ char *strcat(char *dest, const char *src)
 	return dest;
 }
 
+// find character in string and return pointer to it
+// null if not found
+char *strchr(const char *str, char character) {
+    char *cursor = (char *)str;
+
+    while (cursor) {
+        if (*cursor == character)
+            return cursor;
+        cursor++;
+    }
+
+    return 0;
+}
+
 void* memset(const void* addr, int pattern, int count){
     void* ret;
     __asm("cld; rep stosb"
