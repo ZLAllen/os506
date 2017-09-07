@@ -54,7 +54,7 @@ int getcmd(char* buf, int max, int fd)
 
     /* need to implement a prompt message */
     if(fd == 0)
-        printf("%s >", getenv("PS1"));
+        printf("%s > ", getenv("PS1"));
     
     memset(buf, 0, max);
 
@@ -407,6 +407,8 @@ int main(int argc, char *argv[], char *envp[]) {
     char* spam;
     int status;
     int fd = 0;
+    extern char* dPath;
+    char* pw, *rs;
 
     pid_t  pid;
 
@@ -417,6 +419,15 @@ int main(int argc, char *argv[], char *envp[]) {
             exit(1);
         }
     }
+
+
+    pw = getenv("PWD");
+    rs = getenv("_");
+    dPath = malloc(strlen(pw)+strlen(rs));
+    strncpy(dPath, pw, strlen(pw));
+    strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
+
+
 
     while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);

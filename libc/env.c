@@ -59,17 +59,22 @@ char *extract_from_environ(char *var){
 
 char *getenv(const char *name){
 
-    char *pa, *us, *hs;
+    char *pa, *us, *hs, *rs, *pw;
     // env handling
     char* user="USER";
     char* home="HOME";
     char* path="PATH";
     char* ps1 ="PS1";
+    char* rootfs = "_";
+    char* pwd = "PWD";
     char *extra = "@sbush$";
 
     pa = extract_from_environ(path);
     us = extract_from_environ(user);
-    hs = extract_from_environ(home);
+    hs = extract_from_environ(home);  
+    rs = extract_from_environ(rootfs);
+    pw = extract_from_environ(pwd);
+
 	// ps1 is user@sbush$
 
 
@@ -79,6 +84,10 @@ char *getenv(const char *name){
         return pa;
     }else if(strcmp(name, user) == 0){
         return us;
+    }else if(strcmp(name, rootfs) == 0){
+        return rs;
+    }else if(strcmp(name, pwd) == 0){
+        return pw;
     }
     else if(strcmp(name, ps1) == 0){
         if(!PS1){

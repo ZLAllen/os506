@@ -9,6 +9,8 @@ extern char **environ;
 // default path when PATH is NULL
 #define DEFAULT_PATH "/bin:/usr/bin"
 
+char* dPath;
+
 
 int execve(const char *filename, char *const argv[], char *const envp[]);
 
@@ -32,7 +34,7 @@ char* concat(const char *s1, const char *s2)
     // length +1 for the NULL-terminator
     char *result = malloc(strlen(s1)+strlen(s2)+1);
     strcpy(result, s1);
-    strcat(result, s2);
+    strcpy(result+strlen(s1), s2);
     return result;
 }
 
@@ -43,6 +45,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
     char* path, *pbuffer, *token;
     char delim;
     char* ctoken, *citoken;
+    char* data;
 
     // check if the file is NULL
     if (*file == '\0') {
@@ -50,17 +53,19 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         return -1;
     }
 
+
     slash = 0;
 
     // don't search for the binary; if fail set the slash flag
     if (strchr(file, '/') != NULL){
-        int fd = open(file, 0);
-        if(fd > 0){
-            ret = execve(file, argv, envp);
+        data = concat(dPath, file); 
+        if((fd =  open(data, 0)) > 0){
+            ret = execve(data, argv, envp);
             return ret;
-        }else
+        }else{ 
             // set the flag and sarch in the PATH
-           slash = 1;
+            slash = 1;
+        }
     }
 
     path = getenvval("PATH");
@@ -76,7 +81,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
     delim = '/';
     while (token){
         token = strtok(NULL, ":");
-        // concat token and the actual path
+    // concat token and the actual path
         citoken = NULL;
         if(slash != 1) {
             citoken = concat(token, &delim);
