@@ -4,31 +4,35 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+extern char **environ;
+
 // default path when PATH is NULL
 #define DEFAULT_PATH "/bin:/usr/bin"
+
 
 int execve(const char *filename, char *const argv[], char *const envp[]);
 
 
-// TODO remove this when strcat added to string.c
-char *my_strcat(char *dest, const char *src)
-{
-    // allocate enough memory to dest else error
-    char *result = dest;
-
-    while (*dest)
-        dest++;
-    while (*dest++ == *src++)
-        ;
-    return result;
+char* getenvval(char* name){
+    int c = 0;
+    while(*environ[c] != NULL) {
+        if(strncmp(environ[c], name, strlen(name)) == 0) {
+            // key=value; get the value
+            return environ[c]+strlen(name)+1;
+        }
+        c++;
+    }
+    return NULL;
 }
+
+
 
 char* concat(const char *s1, const char *s2)
 {
     // length +1 for the NULL-terminator
     char *result = malloc(strlen(s1)+strlen(s2)+1);
     strcpy(result, s1);
-    my_strcat(result, s2);
+    strcat(result, s2);
     return result;
 }
 
@@ -51,8 +55,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
            slash = 1;
     }
 
-    // TODO replace getenv with custom setenv written in setenv.c
-    char *path = getenv ("PATH");
+    char *path = getenvval("PATH");
     // if path is NULL use a default value
     if (!path)
         path=DEFAULT_PATH;
@@ -92,6 +95,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
     free(pbuffer);
 }
 
+
 void main(){
 
     char *path = getenv ("PATH");
@@ -104,7 +108,7 @@ void main(){
 
     // /bin/ls and /ls and ls work
     char *args[2];
-    args[0] = "ls";
+    args[0] = "/bin/ls";
     args[1] = NULL;
 
     execvpe(args[0], args, NULL);
