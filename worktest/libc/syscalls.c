@@ -2,6 +2,9 @@
 #include <syscalls.h>
 #include <stdlib.h>
 
+
+char** environ;
+
 // in x86-64, we can free rcx and r11 for kernel
 
 int read(int fd, char* buf, int size){

@@ -46,7 +46,7 @@ char *getenv(char *name){
     if(strcmp(name,"HOME") == 0){
         return hs;
     }else if(strcmp(name,"PATH") == 0){
-        return ps;
+        return pa;
     }else if(strcmp(name,"USER") == 0){
         return us;
     }else if(strcmp(name,"PS1") == 0){

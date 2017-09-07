@@ -16,7 +16,7 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 char* getenvval(char* name){
     int c = 0;
     while(*environ[c] != 0) {
-        if(strncmp(environ[c], name, strlen(name)) == 0) {
+        if(strcmp(environ[c], name) == 0) {
             // key=value; get the value
             return environ[c]+strlen(name)+1;
         }
@@ -38,6 +38,7 @@ char* concat(const char *s1, const char *s2)
 
 int execvpe(const char *file, char *const argv[], char *const envp[]){
 
+    int ret = 0;
     // check if the file is NULL
     if (*file == '\0') {
         return -1;
@@ -81,7 +82,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         int fd = open(ctoken, 0);
         if (fd > 0) {
             //printf("executing:%s\n", ctoken);
-            execve(ctoken, argv, envp);
+            ret =  execve(ctoken, argv, envp);
             if(!citoken)
                 free(citoken);
             free(ctoken);
@@ -93,6 +94,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         }
     }
     free(pbuffer);
+    return ret;
 }
 
 /*

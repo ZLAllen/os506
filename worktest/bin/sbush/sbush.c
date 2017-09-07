@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 int main(int argc, char *argv[], char *envp[]) {
-    char* p, *q;
+    int i;
 
-    p = malloc(16);
-    free(p);
-    q = malloc(16);
+    extern char** environ;
 
-    free(q);
+    for(i=0; environ[i]; i++){
+        puts(environ[i]);
+    }
 
     puts("sbush> ");
     exit(0);
