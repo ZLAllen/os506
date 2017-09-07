@@ -12,7 +12,7 @@ Shell: sbush.c
 -- grep word (no quotation mark)[files...] 
 -- shell exit message
 
-
+-- execute script, a testscript example is provided
 
 
 Standard Library: .c files under libc
