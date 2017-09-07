@@ -432,10 +432,6 @@ int main(int argc, char *argv[], char *envp[]) {
         strncpy(dPath, argv[0], strlen(argv[0])-5);
     }
 
-
-    printf("%s\n", dPath);
-
-
     while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
 
