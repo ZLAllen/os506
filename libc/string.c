@@ -118,12 +118,18 @@ char *strcat(char *dest, const char *src)
     // hold original dest to return
     char *cursor = dest;
 
-	// allocate enough memory to dest else error
+    // move cursor to the end of dest
 	while (*cursor)
 		cursor++;
-	while (*cursor++ == *src++)
-		;
+
+    // add each char of src to cursor
+	while (*src) {
+        *cursor = *src;
+        cursor++;
+        src++;
+    }
 	return dest;
+
 }
 
 // find character in string and return pointer to it
