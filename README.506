@@ -2,15 +2,15 @@ This README containes all the functionalities tha we have added to our shell wit
 
 Shell: sbush.c
 
--- shell welcome message
+-- shell welcome message, greeting
 -- cd to change directory (must followed by directory)
 -- ls to list files and directories, takes a file name, a directory name, or ls current directory if no argument
 -- pipe 
 -- background process with & trailling 
--- export to set the environment variable. mainly HOME, USER, PPATH, and PS1. 
+-- export to set the environment variable. mainly HOME, USER, PATH, and PS1. 
 -- cat to read a file and output to standard library
 -- grep word (no quotation mark)[files...] 
--- shell exit message
+-- shell exit message, simple message for graceful exit
 
 
 
@@ -39,7 +39,9 @@ Contributing source: this project incoporates knowledge that we learn online, in
 3) linux x86_64 system call table
 4) Danluu's tutorial to malloc 
 5) MIT's tutorial on xv6 shell (the cmd structure in this project was influnced by the tutorial)
+6) http://www.cprogramming.com/tutorial/c/lesson17.html
 
 
+How to run the code?
 
-
+You can run it as suggested in the course README file. 
