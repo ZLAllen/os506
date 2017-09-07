@@ -146,7 +146,6 @@ void export(char *cmd){
 
     free(env_type);
 }
-
 /*
 int main(int argc, char *argv[], char*envp[])
 {
@@ -158,5 +157,4 @@ int main(int argc, char *argv[], char*envp[])
 
     export(cmd);
     printf("\n\n0: %s \n 3: %s \n 4: %s \n", environ[0], environ[3], environ[4]);
-}
-*/
+}*/

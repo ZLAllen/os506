@@ -70,7 +70,6 @@ int getcmd(char* buf, int max, int fd)
         if(c == '\r' || c == '\n' || cc == 0){
             buf[i] = '\0';
             if(cc == 0){
-                printf("eof reach\n");
                 return 0;
             }
             break;
@@ -430,8 +429,17 @@ int main(int argc, char *argv[], char *envp[]) {
         pw = getenv("PWD");
         rs = argv[0];
         dPath = malloc(strlen(pw)+strlen(rs));
-        strncpy(dPath, pw, strlen(pw));
-        strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
+
+        if (*rs == '/') { // absolute path
+            strncpy(dPath, rs, strlen(rs) - 5);
+        } else if (*rs != '/' && *rs != '.') { // relative path, no ./
+            strncpy(dPath, pw, strlen(pw));
+            strncpy(dPath + strlen(pw), "/", 1);
+            strncpy(dPath + 1 + strlen(pw), rs, strlen(rs) - 5);
+        } else { // relative path
+            strncpy(dPath, pw, strlen(pw));
+            strncpy(dPath+strlen(pw), rs+1, strlen(rs)-6);
+        }
     }else{
         dPath = malloc(strlen(argv[0]));
         strncpy(dPath, argv[0], strlen(argv[0])-5);
