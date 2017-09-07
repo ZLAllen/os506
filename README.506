@@ -1,3 +1,27 @@
 This README containes all the functionalities tha we have added to our shell with brief explanation.
 
- 
+Shell: sbush.c
+
+-- shell welcome message
+-- cd to change directory
+-- ls to list files and directories, takes a file name, a directory name, or both 
+-- pipe 
+-- export to set the environment variable. mainly HOME, USER, PPATH, and PS1. 
+-- cat to read a file and output to standard library
+-- shell exit message
+
+
+
+
+Standard Library: .c files under libc
+
+-- string library functionalities in string.c
+-- execvpe, a wrapper arround execve to allow passing of filename rather than a binary name
+
+
+
+
+
+
+
+
