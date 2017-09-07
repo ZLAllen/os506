@@ -63,21 +63,24 @@ int getcmd(char* buf, int max, int fd)
 
         if(cc < 0) {
             // error
-            printf("read failed\n");
             return -1;
         }
 
         //end of line condition
-        if(c == '\r' || c == '\n' || cc == 0 || c = -1){
+        if(c == '\r' || c == '\n' || cc == 0){
             buf[i] = '\0';
-            if(c = -1)
+            if(cc == 0){
+                printf("eof reach\n");
+                return 0;
+            }
             break;
         }else{
             buf[i] = c;
         }
     }
 
-    return 0;
+    //return something positive
+    return 1;
 
 }
 
@@ -409,6 +412,7 @@ int main(int argc, char *argv[], char *envp[]) {
     int fd = 0;
     extern char* dPath;
     char* pw, *rs;
+    int ret;
 
     pid_t  pid;
 
@@ -433,15 +437,11 @@ int main(int argc, char *argv[], char *envp[]) {
         strncpy(dPath, argv[0], strlen(argv[0])-5);
     }
 
-    while(getcmd(buf, sizeof(buf), fd) >= 0) {
+    while((ret = getcmd(buf, sizeof(buf), fd)) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
 
         //clean up whitespaces
         //
-        if(!(*buf)){
-            break;
-        }
-
         ptr = buf;
         while(*ptr == ' ') {
             ++ptr;
@@ -485,6 +485,10 @@ int main(int argc, char *argv[], char *envp[]) {
         }
         else {              /*parent waits on the child for completion*/
             wait(&status);
+
+            if(!ret){
+                break;
+            }
         } 
 
 
