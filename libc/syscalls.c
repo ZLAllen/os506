@@ -196,3 +196,16 @@ int wait4(pid_t upid, int* status, int options){
     return ret;
 }
 
+
+char *getcwd(char *buf, size_t size){
+    char* ret;
+
+    __asm
+        ("syscall"
+         :"=a"(ret)
+         :"0"(__NR_getcwd), "D"(buf), "S"(size)
+         :"cc", "rcx", "r11", "memory"
+        );
+
+    return ret;
+}

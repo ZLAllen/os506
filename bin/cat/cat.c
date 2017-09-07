@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #define BLOC 512
 
@@ -10,7 +11,7 @@ void cat(int fd){
     // 512 bytes per chunk
     while((nread = read(fd, buf, BLOC)) > 0){
         if(write(1, buf, nread) < 0){
-            puts("write data failed")
+            puts("write data failed");
             exit(1);
         }
     }
@@ -21,7 +22,7 @@ void cat(int fd){
 }
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[], char* envp[]){
     int fd;
 
    //if no file provide, read from stdin

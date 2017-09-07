@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-
+void handleInteger(int integer);
 
 int printf(const char *format, ...) {
 

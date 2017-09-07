@@ -111,7 +111,7 @@ char *strcat(char *dest, const char *src)
 void* memset(const void* addr, int pattern, int count){
     void* ret;
     __asm("cld; rep stosb"
-            :"=D"(ret), "=c"(cnt)
+            :"=D"(ret)
             :"D"(addr), "a"(pattern), "c"(count)
             :"cc", "memory"
          );

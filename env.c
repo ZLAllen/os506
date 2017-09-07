@@ -19,7 +19,7 @@ int setenv(char *name, char *value, int overwrite){
 char *extractFromEnviron(char *var){
     int c = 0;
     while(*environ[c] != 0) {
-    if(strncmp(environ[c], var, strlen(var)) == 0) {
+    if(strcmp(environ[c], var) == 0) {
     // key=value; get pointer to the value
     return environ[c]+strlen(var)+1;
     }

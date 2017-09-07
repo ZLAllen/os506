@@ -15,7 +15,7 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 
 char* getenvval(char* name){
     int c = 0;
-    while(*environ[c] != NULL) {
+    while(*environ[c] != 0) {
         if(strncmp(environ[c], name, strlen(name)) == 0) {
             // key=value; get the value
             return environ[c]+strlen(name)+1;
@@ -82,7 +82,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
         if (fd > 0) {
             //printf("executing:%s\n", ctoken);
             execve(ctoken, argv, envp);
-            if(citoken != NULL)
+            if(!citoken)
                 free(citoken);
             free(ctoken);
             break;
@@ -95,7 +95,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]){
     free(pbuffer);
 }
 
-
+/*
 void main(){
 
     char *path = getenv ("PATH");
@@ -113,4 +113,5 @@ void main(){
 
     execvpe(args[0], args, NULL);
 };
+*/
 
