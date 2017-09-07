@@ -415,6 +415,8 @@ int main(int argc, char *argv[], char *envp[]) {
         }
     }
 
+    printf("%s\n", argv[0]);
+
     while(getcmd(buf, sizeof(buf), fd) >= 0) {
         //  fprintf(stdout,"command is %s\n", buf);
 
