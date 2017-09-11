@@ -485,8 +485,8 @@ int main(int argc, char *argv[], char *envp[]) {
         // exit operation 
         char *exit_cmd = "exit";
         if(strncmp(ptr, exit_cmd, 4) == 0){
-                        printf("exiting the shell\n");
-                        exit(0);
+           //printf("exiting the shell\n");
+           exit(0);
         }
 
         pid = fork();
