@@ -49,5 +49,9 @@ void boot(void)
     *temp1;
     temp1 += 1, temp2 += 2
   ) *temp2 = *temp1;
+
+  kputs("Hello World!\n");
+
+
   while(1);
 }
