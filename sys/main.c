@@ -29,6 +29,7 @@ void boot(void)
 {
   // note: function changes rsp, local stack variables can't be practically used
   register char *temp1, *temp2;
+  int i;
 
   for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
   __asm__(
@@ -50,8 +51,9 @@ void boot(void)
     temp1 += 1, temp2 += 2
   ) *temp2 = *temp1;
 
-  kputs("Hello World!\n");
-
+  for(i = 0; i < 2081; i++){
+      kputchar('@');
+  }
 
   while(1);
 }
