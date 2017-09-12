@@ -412,6 +412,7 @@ int main(int argc, char *argv[], char *envp[]) {
     extern char* dPath;
     char* pw, *rs;
     int ret;
+    char* script = 0, *nsc = 0;
 
     pid_t  pid;
 
@@ -468,9 +469,18 @@ int main(int argc, char *argv[], char *envp[]) {
             // fprintf(stdout, "%s\n", pwd);
             printf("%s\n", pwd);
             continue;
+        }
+        else if(ptr[0] == '.' && ptr[1] == '/'){
+            nsc = malloc(strlen(ptr) + 6);
+            strncpy(nsc, "sbush ", 6);
+            strncpy(nsc+6, ptr+2, strlen(ptr-2));
         }else if(ptr[0] == '#' && ptr[1] == '!'){
+            script = malloc(strlen(ptr));
+            strncpy(script, ptr+2, strlen(ptr-2));
+            strncpy(script, " ", 1);
             continue;
         }
+
 
         // exit operation 
         char *exit_cmd = "exit";
@@ -483,7 +493,11 @@ int main(int argc, char *argv[], char *envp[]) {
 
 
         if (pid == 0) {          /*child process executes the command*/
-
+            if(script){
+                ptr = malloc(strlen(script)+strlen(buf));
+                strncpy(ptr, script, strlen(script));
+                strncpy(ptr+strlen(script), buf, strlen(buf));
+            }
             command = parsecmd(buf);
             runcmd(command);
         }

@@ -1,3 +1,3 @@
 #!/home/zhaoqli/workdir/rootfs/bin/sbush
 ls
-cat TestScript | grep ls
+cat README | grep ls

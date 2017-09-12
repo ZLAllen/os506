@@ -91,7 +91,7 @@ obj/%.asm.o: %.s
 
 clean:
 	find $(ROOTLIB) $(ROOTBIN) -type f ! -name .gitkeep -print -delete
-	rm -rfv obj kernel tarfs $(USER).iso $(USER).img $(ROOTBOOT)/kernel/kernel
+	rm -rfv obj kernel tarfs $(USER).iso $(USER).img $(USER)-data.img $(ROOTBOOT)/kernel/kernel
 
 SUBMITTO=/submit
 submit: clean $(USER)-data.img
