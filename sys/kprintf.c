@@ -43,6 +43,10 @@ void kprintf(const char *fmt, ...)
 					break;
 			    case 'd':
 					int_val = va_arg(arguments, int);
+					if (int_val < 0){
+						kputchar('-')';
+						int_val = -int_val;
+					}
 					// handle int
 					break;
 				case 'x':
@@ -75,7 +79,7 @@ void print_hex(unsigned int val){
 }
 
 void print_str(char *val){
-} */
+}*/
 
 
 void kputchar(const char c)
