@@ -24,7 +24,16 @@ void kprintf(const char *fmt, ...)
 
 
 	while(*fmt){
+		// look out for %
 		if(*fmt == '%'){
+			int lspcfr = 0;
+			// get the length by comparing to ASCII characters
+			if (lspcfr >= 0x30 && lspcfr <= 0x39){
+				lspcfr = *fmt;
+			}
+			fmt ++;
+		}
+			// get the specifier	
 			char *spcfr = *(fmt+1);
 			switch(spcfr){
 				case 'c':
@@ -66,7 +75,7 @@ void print_hex(unsigned int val){
 }
 
 void print_str(char *val){
-}*/
+} */
 
 
 void kputchar(const char c)
