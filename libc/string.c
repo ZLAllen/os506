@@ -1,5 +1,4 @@
 #include <string.h>
-#include <sys/kstring.h>
 
 // follows standard C string signatures
 

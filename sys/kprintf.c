@@ -1,5 +1,5 @@
-#include <sys/kprintf.h>
-#include <sys/kstring.h>
+#include <sys/system.h>
+#include <sys/defs.h>
 
 #define WIDTH 80
 #define HEIGHT 25
