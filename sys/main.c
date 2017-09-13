@@ -33,7 +33,7 @@ void boot(void)
   int i;
 
   for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
-  __asm__(
+  __asm__ volatile (
     "cli;"
     "movq %%rsp, %0;"
     "movq %1, %%rsp;"
@@ -57,5 +57,5 @@ void boot(void)
       kputchar('@');
   }
 
-  while(1);
+  while(1) __asm__ volatile ("hlt");
 }
