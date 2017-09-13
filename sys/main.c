@@ -24,13 +24,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   }
   kprintf("physfree %p\n", (uint64_t)physfree);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+
 }
 
 void boot(void)
 {
   // note: function changes rsp, local stack variables can't be practically used
   register char *temp1, *temp2;
-  int i;
 
   for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7 /* white */;
   __asm__ volatile (
@@ -53,9 +53,7 @@ void boot(void)
     temp1 += 1, temp2 += 2
   ) *temp2 = *temp1;
 
-  for(i = 0; i < 2081; i++){
-      kputchar('@');
-  }
 
+  __asm__ volatile ("int $0x0");
   while(1) __asm__ volatile ("hlt");
 }

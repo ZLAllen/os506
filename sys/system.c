@@ -18,7 +18,8 @@ void* memmove(void* src, void* dst, uint n){
 
 void* memsetw(const void* addr, int pattern, uint count){
     void* ret;
-    __asm("cld; rep stosw"
+    __asm__ volatile
+        ("cld; rep stosw"
             :"=D"(ret)
             :"D"(addr), "a"(pattern), "c"(count)
             :"cc", "memory"
@@ -30,11 +31,11 @@ void* memsetw(const void* addr, int pattern, uint count){
 //follow GAS format
 void outb(uint16_t port,uint8_t value) {
     
-    __asm("out %0, %1" : : "a"(value), "d"(port));
+    __asm__ volatile ("out %0, %1" : : "a"(value), "d"(port));
 }
 
 unsigned char inb(uint16_t port){
     unsigned char value;
-    __asm("in %1, %0" :"=a"(value): "d"(port));
+    __asm__ volatile ("in %1, %0" :"=a"(value): "d"(port));
     return value;
 }

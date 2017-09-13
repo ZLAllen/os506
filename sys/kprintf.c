@@ -11,9 +11,10 @@ int x = 0,y = 0;
 short arr[SIZE];
 
 
-/*
+
 void kprintf(const char *fmt, ...)
 {
+    /*
     va_list arguments;
 	va_start(arguments, fmt);
 
@@ -70,7 +71,9 @@ void kprintf(const char *fmt, ...)
 		}
 		fmt ++;
 	}
+        */
 }
+/*
 
 void print_int(int val){
 }

@@ -1,12 +1,8 @@
 #include <sys/defs.h>
-#include <sys/irq.h>
+#include <sys/isr.h>
 #include <sys/system.h>
 
 #define MAX_IDT 256
-
-#define INDEX 0x0010
-#define TI 0x0008
-#define DPL0 0x0000  
 
 
 // PIC init defs
@@ -40,7 +36,7 @@ struct idt_entry
 struct idtr_t
 {
     uint16_t limit;
-    uint32_t addr;
+    uint64_t addr;
 }__attribute__((packed));
 
 // 256 interrupts
@@ -49,7 +45,7 @@ static struct idt_entry idt[MAX_IDT];
 // pointer
 static struct idtr_t idtr;
 
-extern void _x86_64_asm_lidt(struct idtr_t* idtr); 
+void _x86_64_asm_lidt(struct idtr_t* idtr); 
 static void idt_set_gate(uint8_t num, uint64_t base, uint16_t sel, uint8_t flags);
 static void pic_remap();
 
@@ -62,10 +58,12 @@ void init_idt() {
 
     //set up IRQ resp
     //32-bit interrupt gate
-    idt_set_gate(32, (uint64_t)irq0, INDEX|TI|DPL0, 0x8E); 
+ 
+    idt_set_gate(0, (uint64_t)_isr0, 0x08, 0x8E); 
+    idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
 
     // load the table
-    idtr.limit = sizeof(struct idt_entry)*MAX_IDT-1;
+    idtr.limit = sizeof(struct idt_entry)*MAX_IDT;
     idtr.addr = (uint64_t)idt;
     _x86_64_asm_lidt(&idtr);
 
