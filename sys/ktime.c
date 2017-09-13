@@ -27,7 +27,6 @@ void addTick(){
             ++second;
             ticks = 0;
             ++s_cnt;
-            kputs("18 ticks\n");
             update_time(day, second);
         }
     }else{
@@ -37,7 +36,6 @@ void addTick(){
             ++second;
             ticks = 0;
             s_cnt = 0;
-            kputs("19 ticks\n");
             update_time(day, second);
         }
     }
@@ -48,7 +46,5 @@ void addTick(){
         update_time(day, second);
     }
 }
-
-
 
 

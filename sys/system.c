@@ -1,5 +1,14 @@
 #include <sys/system.h>
 
+
+
+
+
+
+
+
+
+/******************* MEMORY functions ************************/
 void* memmove(void* src, void* dst, uint n){
     char*a = src, *b = dst;
     //handle overlap
@@ -27,6 +36,9 @@ void* memsetw(const void* addr, int pattern, uint count){
 
     return ret;
 }
+
+/******************* IO functions ************************/
+
 
 //follow GAS format
 void outb(uint16_t port,uint8_t value) {

@@ -6,11 +6,13 @@
 #define BASE 0xb8000
 #define BLACK 0x0700
 
+#define CLOCK_OFFSET 15
 
 int x = 0,y = 0;
 short arr[SIZE];
 
 
+static void kputTime(int integer, short* loc);
 
 void kprintf(const char *fmt, ...)
 {
@@ -126,13 +128,46 @@ void kputs(const char* str){
 }
 
 void update_time(uint32_t day, uint32_t sec){
-   /*
     int minute, hour, second;
-    short* time = (short*)BASE + 80*25 - 15;
+    short* loc = (short*)BASE + 80*25 - CLOCK_OFFSET;
 
     //should define a struct to host it sometime
     hour = sec/3600;
     minute = (sec%3600)/60;
     second = (sec%3600)%60;
-    */
+
+    kputTime(hour, loc);
+    *(loc+2) = BLACK|0x003A;
+    kputTime(minute, loc+3);
+    *(loc+5) = BLACK|0x003A;
+    kputTime(second, loc+6);
+}
+
+static void kputTime(int integer, short* loc){
+    char digit = '0';
+    char digits[25];
+    int c = 0;
+    short* ptr;
+
+    ptr = loc;
+
+    if(integer<10){
+        digit += integer;
+        *ptr++ = BLACK|0x0030;
+        *ptr = BLACK|digit;
+        return;
+    }
+    else
+    {
+        while(integer){
+            // get the digit one by one
+            digits[c++]=integer % 10;
+            integer /= 10;
+        }
+        while(c > 0){
+            c--;
+            digit = digits[c] + '0';
+            *ptr++ = BLACK|digit;
+        }
+    }
 }
