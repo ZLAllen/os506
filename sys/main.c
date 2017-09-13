@@ -2,6 +2,7 @@
 #include <sys/gdt.h>
 #include <sys/idt.h>
 #include <sys/kprintf.h>
+#include <sys/ktime.h>
 #include <sys/tarfs.h>
 #include <sys/ahci.h>
 
@@ -42,6 +43,8 @@ void boot(void)
   );
   init_gdt();
   init_idt();
+  init_ktime();
+  __asm__ volatile ("sti");
   start(
     (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),
     (uint64_t*)&physbase,
@@ -53,7 +56,5 @@ void boot(void)
     temp1 += 1, temp2 += 2
   ) *temp2 = *temp1;
 
-
-  __asm__ volatile ("int $0x0");
   while(1) __asm__ volatile ("hlt");
 }

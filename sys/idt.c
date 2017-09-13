@@ -99,5 +99,4 @@ static void pic_remap(){
     // since we dont have an old value, just clear the data reg
     outb(PIC1_DATA, 0x00);
     outb(PIC2_DATA, 0x00);
-
 }

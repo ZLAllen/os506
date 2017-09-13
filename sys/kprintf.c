@@ -1,11 +1,11 @@
 #include <sys/system.h>
-#include <sys/defs.h>
 
 #define WIDTH 80
-#define HEIGHT 25
+#define HEIGHT 24
 #define SIZE ((WIDTH)*(HEIGHT))
 #define BASE 0xb8000
 #define BLACK 0x0700
+
 
 int x = 0,y = 0;
 short arr[SIZE];
@@ -103,7 +103,6 @@ void kputchar(const char c)
         y++;
     }
 
-    //TODO implement scroll up
 
     if(y >= HEIGHT){
         //scroll up screen first
@@ -124,4 +123,16 @@ void kputs(const char* str){
     const char *s;
     for(s=str; *s; ++s)
         kputchar(*s);
+}
+
+void update_time(uint32_t day, uint32_t sec){
+   /*
+    int minute, hour, second;
+    short* time = (short*)BASE + 80*25 - 15;
+
+    //should define a struct to host it sometime
+    hour = sec/3600;
+    minute = (sec%3600)/60;
+    second = (sec%3600)%60;
+    */
 }
