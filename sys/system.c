@@ -26,3 +26,15 @@ void* memsetw(const void* addr, int pattern, uint count){
 
     return ret;
 }
+
+//follow GAS format
+void outb(uint16_t port,uint8_t value) {
+    
+    __asm("out %0, %1" : : "a"(value), "d"(port));
+}
+
+unsigned char inb(uint16_t port){
+    unsigned char value;
+    __asm("in %1, %0" :"=a"(value): "d"(port));
+    return value;
+}
