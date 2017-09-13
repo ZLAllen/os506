@@ -21,7 +21,7 @@ void init_ktime(){
 void addTick(){
    //kputs("ticks\n");
     if(s_cnt < 4){
-        if(ticks < 36)
+        if(ticks < 18)
             ++ticks;
         else{
             ++second;
@@ -31,7 +31,7 @@ void addTick(){
             update_time(day, second);
         }
     }else{
-        if(ticks < 38)
+        if(ticks < 19)
             ++ticks;
         else{
             ++second;

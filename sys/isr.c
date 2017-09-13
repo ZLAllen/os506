@@ -37,8 +37,6 @@ void irq_handler(uint64_t num){
        (*funptr)();
     } 
 
-    addTick();
-
     //acknowledge device about EOI
     // slave target
     if(num >= 40){
