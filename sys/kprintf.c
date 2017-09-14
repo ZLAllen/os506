@@ -17,6 +17,7 @@ static char Rep[] = "0123456789ABCDEF";
 
 static void kputTime(int integer, short* loc);
 static void convert(unsigned long i, int base);
+static void updatecsr();
 
 /*
 void kprintf(const char *fmt, ...)
@@ -203,6 +204,19 @@ void kputchar(const char c)
         x = 0;
     }
 
+    updatecsr();
+
+}
+
+void updatecsr(){
+    unsigned short temp;
+
+    temp = y*80 + x;
+
+    outb(0x3D4, 14);
+    outb(0x3D5, temp >> 8);
+    outb(0x3D4, 15);
+    outb(0x3D5, temp);
 }
 
 void kputs(const char* str){
@@ -254,4 +268,20 @@ static void kputTime(int integer, short* loc){
             *ptr++ = BLACK|digit;
         }
     }
+}
+
+void clr(){
+    int i;
+    unsigned short blank;
+
+    blank = BLACK|0x20;
+
+    for(i = 0; i < 24; i++){
+        memsetw((short*)BASE+i*80, blank, 80); 
+        memsetw(arr+i*80, blank, 80);
+    }
+
+    x=0;
+    y=0;
+    updatecsr();
 }

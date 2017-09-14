@@ -7,6 +7,7 @@
 void kprintf(const char *fmt, ...);
 void kputchar(const char c);
 void kputs(const char* str);
+void clr();
 
 void update_time(uint32_t day, uint32_t sec);
 

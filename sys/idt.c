@@ -99,7 +99,6 @@ void init_idt() {
 
     _x86_64_asm_lidt(&idtr);
 
-    __asm__ volatile("sti");
 
 }
 

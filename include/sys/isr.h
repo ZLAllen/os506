@@ -3,8 +3,15 @@
 
 #include <sys/defs.h>
 
-void isr_handler(uint64_t num, uint64_t err);
-void irq_handler(uint64_t num);
+
+struct regs
+{
+    uint64_t rsp, rbq, rdi, rsi, rdx, rcx, rbx, rax;
+    uint64_t num, err;
+};
+
+
+void isr_handler(struct regs reg);
 
 extern void _isr0();
 extern void _isr1();
@@ -40,6 +47,7 @@ extern void _isr30();
 extern void _isr31();
 extern void _isr32();
 extern void _isr33();
+
 
 
 #endif

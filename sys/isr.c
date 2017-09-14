@@ -51,12 +51,34 @@ void *irq_func[16] = {
     0
 };
 
+//key code table here
+
+char kbtb[128] =
+{
+    0, 27, //ESC
+    '1', '2', '3', '4', '5', '6','7','8', //9
+    '9', '0','-','=','\b', 
+    '\t', 
+    'q', 'w', 'e', 'r', //19
+    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+    0, // handle control key in code
+
+
+};
+
+
 
 static void printkey(){
 
 }
 
-void isr_handler(uint64_t num, uint64_t err){
+void isr_handler(struct regs reg){
+
+    void (*funptr)() = 0;
+    uint64_t num = reg.num;
+    uint64_t err = reg.err;
+   
+
 
     if(num < 32){
         if(num > 18){
@@ -65,29 +87,28 @@ void isr_handler(uint64_t num, uint64_t err){
             kprintf("%s\n", msg[num]);
         }
 
-    }
+        if(err != num)
+            kprintf("Error Code: %d\n", err);
 
-}
-
-
-void irq_handler(uint64_t num){
-    void (*funptr)() = 0;
-
-
-    if(num >= 32 && num < 48){
+    }else if(num < 48){
+        
         funptr = irq_func[num-32];
+
+        if(funptr){
+           (*funptr)();
+        } 
+
+        
+        //acknowledge device about EOI
+        // slave target
+        if(num >= 40){
+            outb(0xA0, 0x20);
+        }
+
+        // master
+        outb(0x20, 0x20);
     }
 
-    if(funptr){
-       (*funptr)();
-    } 
-
-    //acknowledge device about EOI
-    // slave target
-    if(num >= 40){
-        outb(0xA0, 0x20);
-    }
-
-    // master
-    outb(0x20, 0x20);
 }
+
+
