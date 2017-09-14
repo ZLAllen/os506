@@ -1,6 +1,7 @@
 #include <sys/defs.h>
 #include <sys/isr.h>
 #include <sys/system.h>
+#include <sys/ktime.h>
 
 #define MAX_IDT 256
 
@@ -43,7 +44,7 @@ struct idtr_t
 static struct idt_entry idt[MAX_IDT];
 
 // pointer
-static struct idtr_t idtr;
+static struct idtr_t idtr = {sizeof(idt), (uint64_t)idt};
 
 void _x86_64_asm_lidt(struct idtr_t* idtr); 
 static void idt_set_gate(uint8_t num, uint64_t base, uint16_t sel, uint8_t flags);
@@ -56,17 +57,49 @@ void init_idt() {
     //
     pic_remap();
 
+    init_ktime();
+
     //set up IRQ resp
     //32-bit interrupt gate
  
     idt_set_gate(0, (uint64_t)_isr0, 0x08, 0x8E); 
+    idt_set_gate(1, (uint64_t)_isr1, 0x08, 0x8E); 
+    idt_set_gate(2, (uint64_t)_isr2, 0x08, 0x8E); 
+    idt_set_gate(3, (uint64_t)_isr3, 0x08, 0x8E); 
+    idt_set_gate(4, (uint64_t)_isr4, 0x08, 0x8E); 
+    idt_set_gate(5, (uint64_t)_isr5, 0x08, 0x8E); 
+    idt_set_gate(6, (uint64_t)_isr6, 0x08, 0x8E); 
+    idt_set_gate(7, (uint64_t)_isr7, 0x08, 0x8E); 
+    idt_set_gate(8, (uint64_t)_isr8, 0x08, 0x8E); 
+    idt_set_gate(9, (uint64_t)_isr9, 0x08, 0x8E); 
+    idt_set_gate(10, (uint64_t)_isr10, 0x08, 0x8E); 
+    idt_set_gate(11, (uint64_t)_isr11, 0x08, 0x8E); 
+    idt_set_gate(12, (uint64_t)_isr12, 0x08, 0x8E); 
+    idt_set_gate(13, (uint64_t)_isr13, 0x08, 0x8E); 
+    idt_set_gate(14, (uint64_t)_isr14, 0x08, 0x8E); 
+    idt_set_gate(15, (uint64_t)_isr15, 0x08, 0x8E); 
+    idt_set_gate(16, (uint64_t)_isr16, 0x08, 0x8E); 
+    idt_set_gate(17, (uint64_t)_isr17, 0x08, 0x8E); 
+    idt_set_gate(18, (uint64_t)_isr18, 0x08, 0x8E); 
+    idt_set_gate(19, (uint64_t)_isr19, 0x08, 0x8E); 
+    idt_set_gate(20, (uint64_t)_isr20, 0x08, 0x8E); 
+    idt_set_gate(21, (uint64_t)_isr21, 0x08, 0x8E); 
+    idt_set_gate(22, (uint64_t)_isr22, 0x08, 0x8E); 
+    idt_set_gate(23, (uint64_t)_isr23, 0x08, 0x8E); 
+    idt_set_gate(24, (uint64_t)_isr24, 0x08, 0x8E); 
+    idt_set_gate(25, (uint64_t)_isr25, 0x08, 0x8E); 
+    idt_set_gate(26, (uint64_t)_isr26, 0x08, 0x8E); 
+    idt_set_gate(27, (uint64_t)_isr27, 0x08, 0x8E); 
+    idt_set_gate(28, (uint64_t)_isr28, 0x08, 0x8E); 
+    idt_set_gate(29, (uint64_t)_isr29, 0x08, 0x8E); 
+    idt_set_gate(30, (uint64_t)_isr30, 0x08, 0x8E); 
+    idt_set_gate(31, (uint64_t)_isr31, 0x08, 0x8E); 
     idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
     idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E); 
 
-    // load the table
-    idtr.limit = sizeof(struct idt_entry)*MAX_IDT;
-    idtr.addr = (uint64_t)idt;
     _x86_64_asm_lidt(&idtr);
+
+    __asm__ volatile("sti");
 
 }
 

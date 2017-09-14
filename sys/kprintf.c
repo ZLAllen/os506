@@ -1,5 +1,6 @@
 #include <sys/system.h>
 #include <sys/stdarg.h>
+#include <sys/kprintf.h>
 
 #define WIDTH 80
 #define HEIGHT 24
@@ -12,6 +13,7 @@
 int x = 0,y = 0;
 short arr[SIZE];
 
+static char Rep[] = "0123456789ABCDEF";
 
 static void kputTime(int integer, short* loc);
 static void convert(unsigned long i, int base);
@@ -83,9 +85,8 @@ void kprintf(const char *fmt, ...)
 
 void kprintf(const char *fmt, ...)
 {
-    char* ptr;
+    const char* ptr;
     unsigned int i;
-    char c;
     char* s;
     unsigned long p;
 
@@ -94,43 +95,46 @@ void kprintf(const char *fmt, ...)
     va_list arg;
     va_start(arg, fmt);
 
-    for(ptr = fmt; *ptr; ++ptr)
+    ptr = fmt;
+    while(*ptr)
     {
         // check for formatter
-        while(*ptr != '%') 
+        if(*ptr != '%') 
         {
             kputchar(*ptr);
-            ++ptr;
         }
-
-        switch(*(++ptr))
+        else
         {
-            case 'c':
-                c = va_arg(arg, char);
-                kputchar(c);
-                break;
-         
-            case 'd':
-                d = va_arg(arg, int);
-                convert(i, 10);
-                break;
+            switch(*(++ptr))
+            {
+                case 'c':
+                    i = va_arg(arg, int);
+                    kputchar((char)i);
+                    break;
+             
+                case 'd':
+                    i = va_arg(arg, int);
+                    convert(i, 10);
+                    break;
 
-            case 's':
-                s = va_arg(arg, char*);
-                kputs(s);
-                break;
+                case 's':
+                    s = va_arg(arg, char*);
+                    kputs(s);
+                    break;
 
-            case 'x':
-                d = va_arg(arg, unsigned int);
-                convert(i, 16);
-                break;
+                case 'x':
+                    i = va_arg(arg, unsigned int);
+                    convert(i, 16);
+                    break;
 
-            case 'p':
-                p = va_arg(arg, unsigned long);
-                convert(p, 16);
-                break;
+                case 'p':
+                    p = va_arg(arg, unsigned long);
+                    kputs("0x");
+                    convert(p, 16);
+                    break;
+            }
         }
-
+        ++ptr;
     }
 
     va_end(arg);
@@ -139,8 +143,21 @@ void kprintf(const char *fmt, ...)
 
 static void convert(unsigned long i, int base)
 {
+    char* ptr;
+    static char buf[50];
 
+    ptr = &buf[49];
+    *ptr = '\0';
+
+    do
+    {
+        *--ptr = Rep[i%base];
+        i /= base;
+    }while(i != 0);
+
+    kputs(ptr);
 }
+
 
 /*
 
