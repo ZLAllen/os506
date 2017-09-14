@@ -61,6 +61,7 @@ void init_idt() {
  
     idt_set_gate(0, (uint64_t)_isr0, 0x08, 0x8E); 
     idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
+    idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E); 
 
     // load the table
     idtr.limit = sizeof(struct idt_entry)*MAX_IDT;

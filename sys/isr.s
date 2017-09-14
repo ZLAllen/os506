@@ -21,3 +21,4 @@ _isr\num:
 
 IRQ 0
 IRQ 32
+IRQ 33

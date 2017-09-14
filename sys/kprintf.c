@@ -1,4 +1,5 @@
 #include <sys/system.h>
+#include <sys/stdarg.h>
 
 #define WIDTH 80
 #define HEIGHT 24
@@ -13,68 +14,134 @@ short arr[SIZE];
 
 
 static void kputTime(int integer, short* loc);
+static void convert(unsigned long i, int base);
+
+/*
+void kprintf(const char *fmt, ...)
+{
+    
+    va_list arguments;
+    va_start(arguments, fmt);
+
+    char char_val = 0;
+    int int_val = 0;
+    unsigned int_hex = 0
+    char *str_val = NULL;
+
+
+    while(*fmt){
+            // look out for %
+            if(*fmt == '%'){
+                    int lspcfr = 0;
+                    // get the length by comparing to ASCII characters
+                    if (lspcfr >= 0x30 && lspcfr <= 0x39){
+                            lspcfr = *fmt;
+                    }
+                    fmt ++;
+            }
+                    // get the specifier	
+                    char *spcfr = *(fmt+1);
+                    switch(spcfr){
+                            case 'c':
+                                    char_val = va_arg(arguments, int);
+                                    // handle char
+                                    kputchar(char_val);
+                                    break;
+                        case 'd':
+                                    int_val = va_arg(arguments, int);
+                                    if (int_val < 0){
+                                            kputchar('-')';
+                                            int_val = -int_val;
+                                    }
+                                    // handle int
+                                    break;
+                            case 'x':
+                                    hex_val = va_arg(arguments, unsigned int);
+                                    / handle hex
+                                    break;
+                            case 's':
+                                    str_val = va_arg(arguments, char*);
+                                    //handle string
+                                    break;
+                            case 'p':
+                                    // handle a pointer?
+                                    break;
+                            deafult:
+                                    // some error message
+                                    break;
+                    }
+            }
+            else{
+                    // print the character
+            }
+            fmt ++;
+
+    }
+
+}
+*/
 
 void kprintf(const char *fmt, ...)
 {
-    /*
-    va_list arguments;
-	va_start(arguments, fmt);
-
-	char char_val = 0;
-	int int_val = 0;
-	unsigned int_hex = 0
-	char *str_val = NULL;
+    char* ptr;
+    unsigned int i;
+    char c;
+    char* s;
+    unsigned long p;
 
 
-	while(*fmt){
-		// look out for %
-		if(*fmt == '%'){
-			int lspcfr = 0;
-			// get the length by comparing to ASCII characters
-			if (lspcfr >= 0x30 && lspcfr <= 0x39){
-				lspcfr = *fmt;
-			}
-			fmt ++;
-		}
-			// get the specifier	
-			char *spcfr = *(fmt+1);
-			switch(spcfr){
-				case 'c':
-					char_val = va_arg(arguments, int);
-					// handle char
-					kputchar(char_val);
-					break;
-			    case 'd':
-					int_val = va_arg(arguments, int);
-					if (int_val < 0){
-						kputchar('-')';
-						int_val = -int_val;
-					}
-					// handle int
-					break;
-				case 'x':
-					hex_val = va_arg(arguments, unsigned int);
-					/ handle hex
-					break;
-				case 's':
-					str_val = va_arg(arguments, char*);
-					//handle string
-					break;
-				case 'p':
-					// handle a pointer?
-					break;
-				deafult:
-					// some error message
-					break;
-			}
-		}
-		else{
-			// print the character
-		}
-		fmt ++;
-	}
-        */
+
+    va_list arg;
+    va_start(arg, fmt);
+
+    for(ptr = fmt; *ptr; ++ptr)
+    {
+        // check for formatter
+        while(*ptr != '%') 
+        {
+            kputchar(*ptr);
+            ++ptr;
+        }
+
+        switch(*(++ptr))
+        {
+            case 'c':
+                c = va_arg(arg, char);
+                kputchar(c);
+                break;
+         
+            case 'd':
+                d = va_arg(arg, int);
+                convert(i, 10);
+                break;
+
+            case 's':
+                s = va_arg(arg, char*);
+                kputs(s);
+                break;
+
+            case 'x':
+                d = va_arg(arg, unsigned int);
+                convert(i, 16);
+                break;
+
+            case 'p':
+                p = va_arg(arg, unsigned long);
+                convert(p, 16);
+                break;
+        }
+
+    }
+
+    va_end(arg);
+
 }
+
+static void convert(unsigned long i, int base)
+{
+
+}
+
 /*
 
 void print_int(int val){

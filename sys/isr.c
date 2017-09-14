@@ -6,7 +6,7 @@
 // an array of interrupt routines
 void *irq_func[16] = {
     addTick, 
-    0,
+    printkey,
     0,
     0,
     0,
@@ -23,7 +23,12 @@ void *irq_func[16] = {
     0
 };
 
+static void printkey();
 
+static void printkey(){
+    char c;
+    c = inb(0x60);
+}
 
 void irq_handler(uint64_t num){
     void (*funptr)() = 0;
