@@ -51,7 +51,7 @@ void *irq_func[16] = {
     0
 };
 
-//key code table here
+//key code table here; scancode is an index in this table
 
 char kbtb[128] =
 {
@@ -99,14 +99,6 @@ char kbtb[128] =
 
 static void printkey(){
 
-	unsigned char scancode;
-	scancode = inportb(0x60);
-	if (scancode & 0x80){
-		// a key is released; handle Alt, CTRL etc
-	}
-	else{
-		putch(kbdus[scancode]); //print on the screen
-	}
 
 }
 
