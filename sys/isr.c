@@ -99,7 +99,6 @@ char kbtb[128] =
 
 static void printkey(){
 
-
 }
 
 void isr_handler(struct regs reg){
