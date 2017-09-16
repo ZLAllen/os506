@@ -57,18 +57,56 @@ char kbtb[128] =
 {
     0, 27, //ESC
     '1', '2', '3', '4', '5', '6','7','8', //9
-    '9', '0','-','=','\b', 
-    '\t', 
+    '9', '0','-','=','\b', //bckspace
+    '\t', //tab
     'q', 'w', 'e', 'r', //19
-    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-    0, // handle control key in code
-
+    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', //enter key
+    0, // handle control key in code	
+	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
+	'\'', '`', 0, //left shift
+	'\\', 'z', 'x', 'c', 'v', 'b', 'n', //49
+	'm', ',', '.', '/', 0, //right shift
+	'*',
+	0, //alt 
+	' ', //space
+    0, //caps
+	0, //59 F1 key
+	0, 0, 0, 0, 0, 0, 0, 0,
+	0, //F10
+	0, //69 num lock
+	0, //scroll lock
+	0, //home
+    0, //up arrow
+	0, //page up
+	'-', 
+	0, //left arrow
+	0,
+	0,  //right arrow
+	'+', //
+	0, //end key
+	0, //down arrow
+	0, //page down
+	0, //insert 
+	0, //delete
+	0, 0, 0
+	0, //f11 
+	0, //f12
+	0, //all the other keys are undefined	
 
 };
 
 
 
 static void printkey(){
+
+	unsigned char scancode;
+	scancode = inportb(0x60);
+	if (scancode & 0x80){
+		// a key is released; handle Alt, CTRL etc
+	}
+	else{
+		putch(kbdus[scancode]); //print on the screen
+	}
 
 }
 
