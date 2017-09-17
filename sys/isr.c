@@ -136,13 +136,13 @@ static void printkey(){
 				CTRL = 1;
 				break;	
 		}
-		else{ // key was just pressed
-			if (SHIFT == 1){// add 128 when shift is down	
-				kprintf("%s", kbtb[scancode + 0x80]);
-			}
-			else{	
-				kprintf("%s", kbtb[scancode]);
-			}
+	}
+	else{ // key was just pressed
+		if (SHIFT == 1){// add 128 when shift is down	
+			kprintf("%s", kbtb[scancode + 0x80]);
+		}
+		else{	
+			kprintf("%s", kbtb[scancode]);
 		}
 	}	
 }
