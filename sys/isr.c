@@ -12,6 +12,9 @@
 #define ENTER   0x9C
 #define BSPACE  0xE
 
+#define BASE 0xb8000
+#define BLACK 0x0700
+#define KEY_OFFSET 5
 
 volatile int READING = 0;
 volatile int ENTR = 0; 
@@ -22,6 +25,8 @@ volatile char* cursor;
 volatile char* current;
 
 void kprintf(const char *format, ...);
+
+
 static void printkey();
 
 char* msg[20] = {
@@ -113,7 +118,6 @@ char kbtb[128] =
 
 };
 
-
 //TODO add enter and bspace 
 static void printkey(){
 
@@ -139,19 +143,23 @@ static void printkey(){
 	}
 	else{ // key was just pressed
 		if (SHIFT == 1){// add 128 when shift is down	
-			kprintf("%s", kbtb[scancode + 0x80]);
+			//kprintf("%s", kbtb[scancode + 0x80]);
+			update_kkbd(kbtb[scancode + 0x80]) ;
 		}
 		else{	
-			kprintf("%s", kbtb[scancode]);
+			//kprintf("%s", kbtb[scancode]);
+			update_kkbd(kbtb[scancode]);
 		}
 	}	
 }
 
-void isr_handler(struct regs* reg){
+
+
+void isr_handler(struct regs reg){
 
     void (*funptr)() = 0;
-    uint64_t num = reg->num;
-    uint64_t err = reg->err;
+    uint64_t num = reg.num;
+    uint64_t err = reg.err;
    
 
 
@@ -185,5 +193,18 @@ void isr_handler(struct regs* reg){
     }
 
 }
+
+void update_kkbd(char key){
+        short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
+	short* ptr;  
+
+        ptr = loc;
+
+        //*ptr++ = BLACK|0x0030;
+        *ptr = BLACK|key;
+        return;
+
+}
+
 
 

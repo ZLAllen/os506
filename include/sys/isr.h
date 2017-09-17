@@ -11,7 +11,7 @@ struct regs
 };
 
 
-void isr_handler(struct regs* reg);
+void isr_handler(struct regs reg);
 
 extern void _isr0();
 extern void _isr1();
@@ -48,6 +48,6 @@ extern void _isr31();
 extern void _isr32();
 extern void _isr33();
 
-
+void update_kkbd(char key);
 
 #endif
