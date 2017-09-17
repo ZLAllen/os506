@@ -7,16 +7,16 @@
 #define SHIFT_UP 0xAA
 #define SHIFT_DWN 0x2A
 #define CTRL_UP 0x9D
-#define CTRL_DN 0x1D
+#define CTRL_DWN 0x1D
 
 #define ENTER   0x9C
 #define BSPACE  0xE
 
 
 volatile int READING = 0;
-volatile int ENTER = 0; 
+volatile int ENTR = 0; 
 volatile int SHIFT = 0;
-volatile int CONTROL = 0;
+volatile int CTRL = 0;
 
 volatile char* cursor;
 volatile char* current;
@@ -106,7 +106,7 @@ char kbtb[128] =
 	0, //page down
 	0, //insert 
 	0, //delete
-	0, 0, 0
+	0, 0, 0,
 	0, //f11 
 	0, //f12
 	0, //all the other keys are undefined	
@@ -119,7 +119,7 @@ static void printkey(){
 
 	unsigned char scancode;
 	// read input from the kbd data buffer
-	scancode = inportb(0x60);
+	scancode = inb(0x60);
 	// a key was just released
 	if (scancode & 0x80){
 		switch(scancode) {
