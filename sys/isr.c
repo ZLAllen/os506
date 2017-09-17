@@ -3,7 +3,25 @@
 #include <sys/system.h>
 #include <sys/ktime.h>
 
+// define ASCII for special keys
+#define SHIFT_UP 0xAA
+#define SHIFT_DWN 0x2A
+#define CTRL_UP 0x9D
+#define CTRL_DN 0x1D
 
+#define ENTER   0x9C
+#define BSPACE  0xE
+
+
+volatile int READING = 0;
+volatile int ENTER = 0; 
+volatile int SHIFT = 0;
+volatile int CONTROL = 0;
+
+volatile char* cursor;
+volatile char* current;
+
+void kprintf(const char *format, ...);
 static void printkey();
 
 char* msg[20] = {
@@ -96,10 +114,39 @@ char kbtb[128] =
 };
 
 
-
+//TODO add enter and bspace 
 static void printkey(){
 
+	unsigned char scancode;
+	// read input from the kbd data buffer
+	scancode = inportb(0x60);
+	// a key was just released
+	if (scancode & 0x80){
+		switch(scancode) {
+			case SHIFT_UP:
+				SHIFT = 0;
+		    	break;
+	    	case SHIFT_DWN:
+		    	SHIFT = 1;
+				break;
+	 		case CTRL_UP:
+				CTRL = 0;
+				break;
+			case CTRL_DWN:
+				CTRL = 1;
+				break;	
+		}
+		else{ // key was just pressed
+			if (SHIFT == 1){// add 128 when shift is down	
+				kprintf("%s", kbtb[scancode + 0x80]);
+			}
+			else{	
+				kprintf("%s", kbtb[scancode]);
+			}
+		}
+	}	
 }
+
 
 void isr_handler(struct regs reg){
 
