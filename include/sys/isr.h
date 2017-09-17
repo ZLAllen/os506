@@ -11,7 +11,7 @@ struct regs
 };
 
 
-void isr_handler(struct regs reg);
+void isr_handler(struct regs* reg);
 
 extern void _isr0();
 extern void _isr1();
