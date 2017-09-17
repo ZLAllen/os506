@@ -73,9 +73,8 @@ irq_common:
     pushq %rdi
     pushq %rbp
     pushq %rsp
-
+    movq %rsp, %rdi
     call isr_handler
-
     popq %rsp
     popq %rbp
     popq %rdi
@@ -85,5 +84,4 @@ irq_common:
     popq %rbx
     popq %rax
     add $16, %rsp #pop the num byte and err code
-    sti
     iretq

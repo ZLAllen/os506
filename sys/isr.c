@@ -147,12 +147,11 @@ static void printkey(){
 	}	
 }
 
-
-void isr_handler(struct regs reg){
+void isr_handler(struct regs* reg){
 
     void (*funptr)() = 0;
-    uint64_t num = reg.num;
-    uint64_t err = reg.err;
+    uint64_t num = reg->num;
+    uint64_t err = reg->err;
    
 
 
