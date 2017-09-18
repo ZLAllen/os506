@@ -48,6 +48,5 @@ extern void _isr31();
 extern void _isr32();
 extern void _isr33();
 
-void update_kkbd(char key, int ctrl_flag);
 
 #endif

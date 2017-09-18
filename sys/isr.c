@@ -22,7 +22,7 @@ static volatile int SHIFT = 0;
 static volatile int CTRL = 0;
 
 
-void kprintf(const char *format, ...);
+void update_kkbd(char key);
 
 
 static void printkey();
@@ -116,13 +116,56 @@ char kbtb[128] =
 
 };
 
+char shift_tb[] = {
+
+
+
+};
+
+
 
 //TODO add enter and bspace 
 static void printkey(){
 
 	unsigned char scancode;
+        unsigned char decode;
 	// read input from the kbd data buffer
 	scancode = inb(0x60);
+        kprintf("scan code is %x\n", scancode);
+	// a key was just released
+        if(!(scancode&0x80)){
+            switch(scancode) {
+
+                            /*
+                            */
+                    case SHIFT_DWN:
+                            SHIFT = 1;
+                            break;
+                    case CTRL_DWN:
+                            CTRL = 1;
+                            break;	
+            }
+
+            decode = scancode&0x7F;
+             // key was just pressed
+            if (SHIFT == 1){// add 128 when shift is down	
+                    if(kbtb[decode] > 96 && kbtb[decode] < 126)
+                        update_kkbd(kbtb[decode]-32); 
+            } else{	
+                    //kprintf("%s", kbtb[scancode]);
+                    update_kkbd(kbtb[decode]);
+            }
+        }else{
+
+            if(scancode == SHIFT_UP)
+                SHIFT = 0;
+
+            if(scancode == CTRL_UP)
+                CTRL = 0;
+        }
+
+        /*
+=======
 
 	// a key was just released
 	switch(scancode) {
@@ -138,9 +181,9 @@ static void printkey(){
 		case CTRL_DWN:
 			CTRL = 1;
 			break;
-		/*case BLANKSP:
+		case BLANKSP:
 			update_kkbd(' ', CTRL);
-			break;*/
+			break;
 		default:
 			if((scancode & 0xff) < 87 && (scancode & 0xff) >= 0){
 				if((scancode & 0xff) == BLANKSP){
@@ -163,6 +206,7 @@ static void printkey(){
 	if (scancode == ENTER){
 		ENTR = 1;
 	}
+        */
 }
 
 
@@ -206,12 +250,12 @@ void isr_handler(struct regs reg){
 
 }
 
-void update_kkbd(char key, int ctrl_flag){
+void update_kkbd(char key){
         short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
 	short* ptr;  
 
         ptr = loc;
-		
+	/*	
 	if (ctrl_flag == 1){
         	*ptr++ = BLACK|'^';
         	*ptr = BLACK|key;
@@ -221,6 +265,14 @@ void update_kkbd(char key, int ctrl_flag){
 		*ptr++ = BLACK|' ';
 		*ptr = BLACK|key;
 	}
+
+        */
+        if(CTRL){
+            *ptr++ = BLACK|0x5E;
+        }
+        //*ptr++ = BLACK|0x0030;
+        *ptr++ = BLACK|key;
+        *ptr = BLACK|0x20;
 
         return;
 
