@@ -10,7 +10,7 @@
 #define CTRL_DWN 0x1D
 
 
-#define ENTER   0x9C
+#define ENTER   0x1C
 #define BLANKSP  0xE
 #define BASE 0xb8000
 #define BLACK 0x0700
@@ -22,7 +22,7 @@ static volatile int SHIFT = 0;
 static volatile int CTRL = 0;
 
 
-void update_kkbd(char key);
+void update_kkbd(char key, int flag);
 
 
 static void printkey();
@@ -82,7 +82,7 @@ short kbtb[128] =
     ('('<<8)|'9',(')'<<8)|'0',('_'<<8)|'-',('+'<<8)|'=','\b', //bckspace
     '\t', //tab
     'q', 'w', 'e', 'r', //19
-    't', 'y', 'u', 'i', 'o', 'p', ('{'<<8)|'[', ('}'<<8)|']', '\n', //enter key
+    't', 'y', 'u', 'i', 'o', 'p', ('{'<<8)|'[', ('}'<<8)|']', 'M', //enter key
     0, // handle control key in code	
 	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', (':'<<8)|';',
 	('\"'<<8)|'\'', ('~'<<8)|'`', 0, //left shift
@@ -117,9 +117,6 @@ short kbtb[128] =
 
 };
 
-char shift_tb[] = {
-
-};
 
 
 
@@ -131,25 +128,35 @@ static void printkey(){
 	// read input from the kbd data buffer
 	scancode = inb(0x60);
 	// a key was just released
+
+        decode = scancode&0x7F;
+        if(scancode == ENTER){
+           update_kkbd(kbtb[decode],1);
+           return;
+        }
+
         if(!(scancode&0x80)){
-            if(scancode == SHIFT_DWN)
+            if(scancode == SHIFT_DWN){
                 SHIFT = 1;
+                return;
+            }
+        
 
-            if(scancode == CTRL_DWN)
+            if(scancode == CTRL_DWN){
                 CTRL = 1;
+                return;
+            }
 
-
-             decode = scancode&0x7F;
              // key was just pressed
             if (SHIFT == 1){// add 128 when shift is down	
                 if(kbtb[decode] > 96 && kbtb[decode] < 126)
-                    update_kkbd(kbtb[decode]-32);
+                    update_kkbd(kbtb[decode]-32, CTRL);
                 else
-                    update_kkbd(kbtb[decode]>>8);
+                    update_kkbd(kbtb[decode]>>8, CTRL);
             } 
             else{	
                 //kprintf("%s", kbtb[scancode]);
-                update_kkbd(kbtb[decode]);
+                update_kkbd(kbtb[decode], CTRL);
             }
         }else{
 
@@ -246,7 +253,7 @@ void isr_handler(struct regs reg){
 
 }
 
-void update_kkbd(char key){
+void update_kkbd(char key, int ctrl){
         short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
 	short* ptr;  
 
@@ -263,7 +270,7 @@ void update_kkbd(char key){
 	}
 
         */
-        if(CTRL){
+        if(ctrl){
             *ptr++ = BLACK|0x5E;
             if(key > 96 && key < 126)
                 key = key - 32;
