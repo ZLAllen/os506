@@ -130,18 +130,18 @@ static void printkey(){
         unsigned char decode;
 	// read input from the kbd data buffer
 	scancode = inb(0x60);
-        kprintf("scan code is %x\n", scancode);
 	// a key was just released
         if(!(scancode&0x80)){
-            if(scancode == SHIFT_DOWN)
+            if(scancode == SHIFT_DWN)
                 SHIFT = 1;
 
-            if(scancode == CTRL_DOWN)
+            if(scancode == CTRL_DWN)
                 CTRL = 1;
 
+
+             decode = scancode&0x7F;
              // key was just pressed
             if (SHIFT == 1){// add 128 when shift is down	
-                decode = scancode&0x7F;
                 if(kbtb[decode] > 96 && kbtb[decode] < 126)
                     update_kkbd(kbtb[decode]-32);
                 else
