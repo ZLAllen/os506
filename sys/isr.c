@@ -269,6 +269,8 @@ void update_kkbd(char key){
         */
         if(CTRL){
             *ptr++ = BLACK|0x5E;
+            if(key > 96 && key < 126)
+                key = key - 32;
         }
         //*ptr++ = BLACK|0x0030;
         *ptr++ = BLACK|key;
