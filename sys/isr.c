@@ -118,39 +118,54 @@ char kbtb[128] =
 
 };
 
+char shift_tb[] = {
+
+
+
+};
+
+
+
 //TODO add enter and bspace 
 static void printkey(){
 
 	unsigned char scancode;
+        unsigned char decode;
 	// read input from the kbd data buffer
 	scancode = inb(0x60);
+        kprintf("scan code is %x\n", scancode);
 	// a key was just released
-	if (scancode & 0x80){
-		switch(scancode) {
-			case SHIFT_UP:
-				SHIFT = 0;
-		    	break;
-	    	case SHIFT_DWN:
-		    	SHIFT = 1;
-				break;
-	 		case CTRL_UP:
-				CTRL = 0;
-				break;
-			case CTRL_DWN:
-				CTRL = 1;
-				break;	
-		}
-	}
-	else{ // key was just pressed
-		if (SHIFT == 1){// add 128 when shift is down	
-			//kprintf("%s", kbtb[scancode + 0x80]);
-			update_kkbd(kbtb[scancode + 0x80]) ;
-		}
-		else{	
-			//kprintf("%s", kbtb[scancode]);
-			update_kkbd(kbtb[scancode]);
-		}
-	}	
+        if(!(scancode&0x80)){
+            switch(scancode) {
+
+                            /*
+                    case SHIFT_UP:
+                            SHIFT = 0;
+                            break;
+
+                    case CTRL_UP:
+                            CTRL = 0;
+                            break;
+                            */
+                    case SHIFT_DWN:
+                            SHIFT = 1;
+                            break;
+                    case CTRL_DWN:
+                            CTRL = 1;
+                            break;	
+            }
+
+            decode = scancode&0x7F;
+             // key was just pressed
+            if (SHIFT == 1){// add 128 when shift is down	
+                    kprintf("shift\n");
+                    if(kbtb[decode] > 96 && kbtb[decode] < 126)
+                        update_kkbd(kbtb[decode]-32); 
+            } else{	
+                    //kprintf("%s", kbtb[scancode]);
+                    update_kkbd(kbtb[decode]);
+            }
+        }
 }
 
 
@@ -200,6 +215,9 @@ void update_kkbd(char key){
 
         ptr = loc;
 
+        if(CTRL){
+            *ptr++ = BLACK|0x5E;
+        }
         //*ptr++ = BLACK|0x0030;
         *ptr = BLACK|key;
         return;
