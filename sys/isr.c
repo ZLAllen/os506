@@ -9,20 +9,18 @@
 #define CTRL_UP 0x9D
 #define CTRL_DWN 0x1D
 
-#define ENTER   0x9C
-#define BSPACE  0xE
 
+#define ENTER   0x9C
+#define BLANKSP  0xE
 #define BASE 0xb8000
 #define BLACK 0x0700
 #define KEY_OFFSET 5
 
-volatile int READING = 0;
-volatile int ENTR = 0; 
-volatile int SHIFT = 0;
-volatile int CTRL = 0;
 
-volatile char* cursor;
-volatile char* current;
+static volatile int ENTR = 0; 
+static volatile int SHIFT = 0;
+static volatile int CTRL = 0;
+
 
 void kprintf(const char *format, ...);
 
@@ -118,39 +116,53 @@ char kbtb[128] =
 
 };
 
+
 //TODO add enter and bspace 
 static void printkey(){
 
 	unsigned char scancode;
 	// read input from the kbd data buffer
 	scancode = inb(0x60);
+
 	// a key was just released
-	if (scancode & 0x80){
-		switch(scancode) {
-			case SHIFT_UP:
-				SHIFT = 0;
-		    	break;
-	    	case SHIFT_DWN:
-		    	SHIFT = 1;
-				break;
-	 		case CTRL_UP:
-				CTRL = 0;
-				break;
-			case CTRL_DWN:
-				CTRL = 1;
-				break;	
-		}
+	switch(scancode) {
+		case SHIFT_UP:
+			SHIFT = 0;
+			break;
+		case SHIFT_DWN:
+			SHIFT = 1;
+			break;
+		case CTRL_UP:
+			CTRL = 0;
+			break;
+		case CTRL_DWN:
+			CTRL = 1;
+			break;
+		/*case BLANKSP:
+			update_kkbd(' ', CTRL);
+			break;*/
+		default:
+			if((scancode & 0xff) < 87 && (scancode & 0xff) >= 0){
+				if((scancode & 0xff) == BLANKSP){
+					//kprintf("shift 1: %c\n", ' ');
+					update_kkbd(' ', CTRL);
+				}
+				else{
+					if (SHIFT == 1){// add 128 when shift is down	
+						//kprintf("shift 1: %c\n", kbtb[scancode]);
+						update_kkbd(kbtb[scancode], CTRL);
+					}
+					else{	
+						//kprintf("shift 0: %c\n", kbtb[scancode]);
+						update_kkbd(kbtb[scancode], CTRL);
+					}
+				}	
+			}
+			break;
 	}
-	else{ // key was just pressed
-		if (SHIFT == 1){// add 128 when shift is down	
-			//kprintf("%s", kbtb[scancode + 0x80]);
-			update_kkbd(kbtb[scancode + 0x80]) ;
-		}
-		else{	
-			//kprintf("%s", kbtb[scancode]);
-			update_kkbd(kbtb[scancode]);
-		}
-	}	
+	if (scancode == ENTER){
+		ENTR = 1;
+	}
 }
 
 
@@ -194,14 +206,22 @@ void isr_handler(struct regs reg){
 
 }
 
-void update_kkbd(char key){
+void update_kkbd(char key, int ctrl_flag){
         short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
 	short* ptr;  
 
         ptr = loc;
+		
+	if (ctrl_flag == 1){
+        	*ptr++ = BLACK|'^';
+        	*ptr = BLACK|key;
+	}
+	else
+	{
+		*ptr++ = BLACK|' ';
+		*ptr = BLACK|key;
+	}
 
-        //*ptr++ = BLACK|0x0030;
-        *ptr = BLACK|key;
         return;
 
 }
