@@ -74,19 +74,20 @@ void *irq_func[16] = {
 
 //key code table here; scancode is an index in this table
 
-char kbtb[128] =
+short kbtb[128] =
 {
     0, 27, //ESC
-    '1', '2', '3', '4', '5', '6','7','8', //9
-    '9', '0','-','=','\b', //bckspace
+    ('!'<< 8)|'1',('@'<<8)|'2', ('#'<<8)|'3',('$'<<8)|'4',('%'<<8)|'5', ('^'<<8)|'6',('&'<<8)|'7',
+    ('*'<<8)|'8', //9
+    ('('<<8)|'9',(')'<<8)|'0',('_'<<8)|'-',('+'<<8)|'=','\b', //bckspace
     '\t', //tab
     'q', 'w', 'e', 'r', //19
-    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', //enter key
+    't', 'y', 'u', 'i', 'o', 'p', ('{'<<8)|'[', ('}'<<8)|']', '\n', //enter key
     0, // handle control key in code	
-	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
-	'\'', '`', 0, //left shift
-	'\\', 'z', 'x', 'c', 'v', 'b', 'n', //49
-	'm', ',', '.', '/', 0, //right shift
+	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', (':'<<8)|';',
+	('\"'<<8)|'\'', ('~'<<8)|'`', 0, //left shift
+	('|'<<8)|'\\', 'z', 'x', 'c', 'v', 'b', 'n', //49
+	'm', ('<'<<8)|',', ('>'<<8)|'.', ('?'<<8)|'/', 0, //right shift
 	'*',
 	0, //alt 
 	' ', //space
@@ -118,8 +119,6 @@ char kbtb[128] =
 
 char shift_tb[] = {
 
-
-
 };
 
 
@@ -134,26 +133,23 @@ static void printkey(){
         kprintf("scan code is %x\n", scancode);
 	// a key was just released
         if(!(scancode&0x80)){
-            switch(scancode) {
+            if(scancode == SHIFT_DOWN)
+                SHIFT = 1;
 
-                            /*
-                            */
-                    case SHIFT_DWN:
-                            SHIFT = 1;
-                            break;
-                    case CTRL_DWN:
-                            CTRL = 1;
-                            break;	
-            }
+            if(scancode == CTRL_DOWN)
+                CTRL = 1;
 
-            decode = scancode&0x7F;
              // key was just pressed
             if (SHIFT == 1){// add 128 when shift is down	
-                    if(kbtb[decode] > 96 && kbtb[decode] < 126)
-                        update_kkbd(kbtb[decode]-32); 
-            } else{	
-                    //kprintf("%s", kbtb[scancode]);
-                    update_kkbd(kbtb[decode]);
+                decode = scancode&0x7F;
+                if(kbtb[decode] > 96 && kbtb[decode] < 126)
+                    update_kkbd(kbtb[decode]-32);
+                else
+                    update_kkbd(kbtb[decode]>>8);
+            } 
+            else{	
+                //kprintf("%s", kbtb[scancode]);
+                update_kkbd(kbtb[decode]);
             }
         }else{
 
