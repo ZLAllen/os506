@@ -11,6 +11,8 @@
 
 
 #define ENTER   0x1C
+#define BACKSPACE 0x0E
+#define TAB 0x0F
 #define BLANKSP  0xE
 #define BASE 0xb8000
 #define BLACK 0x0700
@@ -79,8 +81,8 @@ short kbtb[128] =
     0, 27, //ESC
     ('!'<< 8)|'1',('@'<<8)|'2', ('#'<<8)|'3',('$'<<8)|'4',('%'<<8)|'5', ('^'<<8)|'6',('&'<<8)|'7',
     ('*'<<8)|'8', //9
-    ('('<<8)|'9',(')'<<8)|'0',('_'<<8)|'-',('+'<<8)|'=','\b', //bckspace
-    '\t', //tab
+    ('('<<8)|'9',(')'<<8)|'0',('_'<<8)|'-',('+'<<8)|'=','H', //bckspace
+    'I', //tab
     'q', 'w', 'e', 'r', //19
     't', 'y', 'u', 'i', 'o', 'p', ('{'<<8)|'[', ('}'<<8)|']', 'M', //enter key
     0, // handle control key in code	
@@ -130,7 +132,7 @@ static void printkey(){
 	// a key was just released
 
         decode = scancode&0x7F;
-        if(scancode == ENTER){
+        if(scancode == ENTER || scancode == TAB || scancode == BACKSPACE){
            update_kkbd(kbtb[decode],1);
            return;
         }
