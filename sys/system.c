@@ -10,7 +10,7 @@
 
 /******************* MEMORY functions ************************/
 void* memmove(void* src, void* dst, uint n){
-    char*a = src, *b = dst;
+    char*a = dst, *b = src;
     //handle overlap
     if(src>dst && src+n < dst){
         a = a+n;
@@ -49,5 +49,17 @@ void outb(uint16_t port,uint8_t value) {
 unsigned char inb(uint16_t port){
     unsigned char value;
     __asm__ volatile ("in %1, %0" :"=a"(value): "d"(port));
+    return value;
+}
+
+void out32(uint32_t port, uint32_t value) 
+{
+    __asm__ volatile ("outl %0, %w1" : : "a"(value), "Nd"(port));
+}
+
+uint32_t in32(uint32_t port)
+{
+    uint32_t value;
+    __asm__ volatile ("inl %w1, %0" :"=a"(value): "Nd"(port));
     return value;
 }
