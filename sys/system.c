@@ -37,6 +37,17 @@ void* memsetw(const void* addr, int pattern, uint count){
     return ret;
 }
 
+void* memset(const void* addr, int pattern, uint count){
+    void* ret;
+    __asm("cld; rep stosb"
+            :"=D"(ret)
+            :"D"(addr), "a"(pattern), "c"(count)
+            :"cc", "memory"
+         );
+
+    return ret;
+}
+
 /******************* IO functions ************************/
 
 

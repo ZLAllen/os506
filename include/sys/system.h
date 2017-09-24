@@ -8,6 +8,7 @@
 
 // memory 
 void* memsetw(const void* addr, int pattern, uint count);
+void* memset(const void* addr, int pattern, uint count);
 void* memmove(void* src, void* dst, uint n);
 void outb(uint16_t port,uint8_t value);
 unsigned char inb(uint16_t port);
