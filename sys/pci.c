@@ -82,7 +82,7 @@ int pciCheckModel(uint8_t bus, uint8_t slot, uint32_t model)
 {
     uint32_t reg;
 
-    if((reg = pciConfigReadWord(bus, slot, 0, 0)) == model)
+    if((reg = pciConfigReadWord(bus, slot, 0, 0)) != 0xFFFFFFFF)
     {
        // kprintf("Bus %d, Device %d\n", bus, slot);
         //kprintf("Vendor ID is %x\n", reg & 0xFFFF);
