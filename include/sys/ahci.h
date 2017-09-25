@@ -1,6 +1,8 @@
 #ifndef _AHCI_H
 #define _AHCI_H
 
+#include <sys/defs.h>
+
 #define HBA_GHC_AE     (1U << 31)
 #define HBA_GHC_IE     (1U << 1)
 #define HBA_GHC_HR     (1U)
@@ -27,8 +29,21 @@
 
 #define CMD_FIS_DEV_LBA (1U << 6)
 
+#define SATA_SIG_ATAPI 0xEB140101
+#define SATA_SIG_SEMB  0xC33C0101
+#define SATA_SIG_PM    0x96690101
+#define HBA_PORT_DET_PRESENT 3
+#define HBA_PORT_IPM_ACTIVE  1
+#define AHCI_BASE 0x400000
+#define ATA_CMD_READ_DMA_EX 0x25
+#define ATA_CMD_WRITE_DMA_EX 0x35
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
+
 #define MAX_CMD_SLOT_CNT 32
 #define MAX_PORT_CNT     32
+
 
 typedef enum {
   FIS_TYPE_REG_H2D = 0x27,   // Register FIS - host to device
@@ -333,5 +348,13 @@ typedef volatile struct {
   // 0x100 - 0x10FF, Port control registers
   hba_port_t ports[MAX_PORT_CNT]; // 1 ~ 32
 }__attribute__((__packed__)) hba_mem_t;
+
+
+/*type def mature */
+void probe_port(hba_mem_t* abar);
+void port_rebase(hba_port_t* port, int portno);
+int read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
+int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
+void ahciTest();
 
 #endif
