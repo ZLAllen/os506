@@ -398,13 +398,15 @@ void pciWalk_bf()
                     kprintf("%x\n", abar->pi);
                     probe_port(abar);
                     port_rebase(&abar->ports[1], 1);
+
+					//  write 100 4kb blocks
                     for(k = 0; k < 100; ++k)
                     {
                         memset(buf, k, 4*1024);
                         if(!write(&abar->ports[1],8*k,0,8,(uint64_t)buf))
                             kprintf("write data failed\n");
                     }
-
+					// read the data back for verification
                     for(k = 0; k < 100; ++k)
                     {
                         memset(buf, 0, 4*1024);
