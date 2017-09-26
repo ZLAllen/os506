@@ -9,8 +9,9 @@
 #define SUBCLASS_SATA 0x06
 #define PROG_AHCI 0x01
 
+//#define ABAR_BASE 0x86000
+#define BUF_BASE 0x30C000
 #define ABAR_BASE 0x30000000
-
 typedef struct {
     uint16_t vendor;
     uint16_t device;

@@ -74,7 +74,7 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
         kprintf("Port is hung\n");
         return 0;
     }
-    
+   
     port->ci = 1<<slot;
 
     while(1)
@@ -166,7 +166,7 @@ int read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uin
         kprintf("Port is hung\n");
         return 0;
     }
-    
+   
     port->ci = 1<<slot;
 
     while(1)
@@ -290,7 +290,7 @@ void probe_port(hba_mem_t* abar)
     uint32_t pi = abar->pi;
     int i = 0;
 
-
+/*
 
     //reset ahci
     abar->ghc |= (1 << 31);
@@ -300,7 +300,8 @@ void probe_port(hba_mem_t* abar)
 
     abar->ghc |= (1 << 31);
 
-
+*/
+    kprintf("start probing\n");
     while(i < 32)
     {
         if(pi&1)
@@ -336,7 +337,8 @@ void probe_port(hba_mem_t* abar)
 
 void ahciTest()
 {
-    char* buf1 = (char*)0x30C000;
+    char* buf1 = (char*)BUF_BASE;
+    //char* buf1 = (char*)0x800000;
     char* buf2 = buf1 + 4*1024;
     char* ptr;
     int error = 0, flag = 0;
@@ -350,10 +352,14 @@ void ahciTest()
     ahci.prog = (uint8_t)PROG_AHCI;
     ahci.header = (uint8_t)0;
 
-    pciWalk_bf(&ahci);
+    if(!pciWalk_bf(&ahci))
+    {
+        kprintf("no device found\n");
+    }
+
 
     hba_mem_t* abar = (hba_mem_t*)((uint64_t)(0xffffffff80000000 + ahci.bar5));
-    kprintf("%x\n", abar->pi);
+    kprintf("pi is %x\n", abar->pi);
     probe_port(abar);
     port_rebase(&abar->ports[1], 1);
 
