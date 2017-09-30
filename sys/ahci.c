@@ -77,7 +77,7 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
     kprintf("sact: %x\n", port->sact);
     kprintf("cmd: %x\n", port->cmd);
     kprintf("PxIS: %x\n", port->is_rwc);
-    kprintf("clb: %x\n", port->clb);
+    kprintf("tfd: %x\n", port->tfd);
    
 
 
@@ -273,7 +273,13 @@ void stop_cmd(hba_port_t* port)
 {
     port->cmd &= ~HBA_PxCMD_ST;
 
+    while(port->cmd & HBA_PxCMD_CR);
+
     port->cmd &= ~HBA_PxCMD_FRE;
+
+    while(port->cmd & HBA_PxCMD_FR);
+    
+    /*
     while(1)
     {
         if(port->cmd & HBA_PxCMD_FR)
@@ -282,6 +288,7 @@ void stop_cmd(hba_port_t* port)
             continue;
         break;
     }
+    */
 
 }
 
@@ -336,7 +343,6 @@ static int check_type(hba_port_t* port)
     port->cmd |= (1 << 1);
 
   //  port->cmd |= (1 << 0);
-
 /*
    port->cmd &= ~(1 << 0);
 
