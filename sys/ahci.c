@@ -13,11 +13,12 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
 
     port->is_rwc = (int)-1;
     //port->serr_rwc &= ~(1 << 16);
-
+/*
     kprintf("write status: %x\n", port->is_rwc);
     kprintf("ssts: %x\n", port->ssts);
     kprintf("pxcmd %x\n", port->cmd);
-    int spin = 0;
+    */
+    uint32_t spin = 0;
     int slot = find_cmdslot(port);
     int i = 0;
     char* ptr = (char*)buf;
@@ -42,7 +43,7 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
     {
         cmdtbl->prdt_entry[i].dba = (uint64_t)ptr;
         cmdtbl->prdt_entry[i].dbc = 16*512-1;
-        cmdtbl->prdt_entry[i].i = 0;
+        cmdtbl->prdt_entry[i].i = 1;
         ptr += 16*512; 
         count -= 16;
     }
@@ -69,8 +70,17 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
     cmdfis->lba5 = (uint8_t)(starth>>8);
 
     cmdfis->count = (uint16_t)count;
-    
-    kprintf("tfd is: %x\n", port->tfd);
+
+    kprintf("write flags debug:\n");
+    kprintf("ssts: %x\n", port->ssts);
+    kprintf("serr: %x\n", port->serr_rwc);
+    kprintf("sact: %x\n", port->sact);
+    kprintf("cmd: %x\n", port->cmd);
+    kprintf("PxIS: %x\n", port->is_rwc);
+    kprintf("clb: %x\n", port->clb);
+   
+
+
     while((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 3000000)
     {
         spin++;
@@ -79,15 +89,16 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
     if(spin == 3000000)
     {
         kprintf("Port is hung\n");
-       // return 0;
+        return 0;
     }
-    
+  
 
     port->ci = 1<<slot;
 
     while(1)
     {
         if((port->ci & (1 << slot)) == 0)
+       // if(port->is_rwc & (1 << 5))
             break;
         if(port->is_rwc & HBA_PxIS_TFES)
         {
@@ -109,7 +120,7 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
 int read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf)
 {
     port->is_rwc = 0xFFFFFFFF;
-    int spin = 0;
+    uint32_t spin = 0;
     int slot = find_cmdslot(port);
     int i;
     char* ptr = (char*)buf;
@@ -218,10 +229,10 @@ void port_rebase(hba_port_t* port, int portno)
 {
     int i;
 
-    kprintf("pxcmd %x\n", port->cmd);
+   // kprintf("pxcmd %x\n", port->cmd);
     stop_cmd(port);
 
-    kprintf("pxcmd %x\n", port->cmd);
+  //  kprintf("pxcmd %x\n", port->cmd);
 
     // command list offset
     port->clb = ((uint64_t)(AHCI_BASE + (portno << 10)))& 0xFFFFFFFF;
@@ -244,7 +255,7 @@ void port_rebase(hba_port_t* port, int portno)
 
     start_cmd(port);
 
-    kprintf("pxcmd %x\n", port->cmd);
+   // kprintf("pxcmd %x\n", port->cmd);
 }
 
 void start_cmd(hba_port_t* port)
@@ -276,7 +287,7 @@ void stop_cmd(hba_port_t* port)
 
 static int check_type(hba_port_t* port)
 {
-    //uint32_t i;
+    uint32_t i = 0;
 
     /*
     uint32_t ssts = port->ssts;
@@ -288,27 +299,30 @@ static int check_type(hba_port_t* port)
     uint8_t det, ipm;
 
 
-/*
-    //port reset
-    port->cmd &= ~(1 << 0);
-    while(port->cmd & (1 << 15))
 
+    //port reset
+
+    stop_cmd(port);
+
+    kprintf("port->tfd: %x\n", port->tfd);
+    kprintf("port->is: %x\n", port->is_rwc);
+
+    // trigger reset
     port->sctl = 0x1;
-    i = 0;
     while(i < 100000){
-        ++i;
+        ++i;            //wait
     }
-    port->sctl &= ~(0xF);
-    port->tfd = 0x7F;
-    while((det = (port->ssts & 0x0F)) != 0x3);
-    ipm = (port->ssts >> 8)& 0x0F;
-    port->serr_rwc = (int)-1;
+    // stop reset
+    port->sctl = 0;
+    while((det = (port->ssts & 0x0F)) != 0x3); // wait for reset packet
+    port->serr_rwc = (int)-1; // clear interrupt flags
    
    // kprintf("serr: %x\n", port->serr_rwc);
 
    // kprintf("ssts is %x\n",port->ssts);
    // kprintf("sig is %x\n", port->sig);
 
+    //disable sleep mode
     port->sctl = (7 << 8);
 
    // port->cmd |= HBA_PxCMD_ST;
@@ -318,12 +332,12 @@ static int check_type(hba_port_t* port)
 
   // port->cmd &= ~(1 << 0);
 
+    // allow spin
     port->cmd |= (1 << 1);
 
-   port->cmd |= HBA_PxCMD_ST;
   //  port->cmd |= (1 << 0);
-*/
 
+/*
    port->cmd &= ~(1 << 0);
 
    port->cmd |= (1 << 1);
@@ -331,8 +345,9 @@ static int check_type(hba_port_t* port)
     
    port->sctl = (7 << 8);
    port->cmd |= HBA_PxCMD_ST;
+   */
 
-    kprintf("new port tfd is %x\n", port->tfd);
+   // kprintf("new port tfd is %x\n", port->tfd);
 
     ipm = (port->ssts >> 8)& 0x0F;
     det = port->ssts & 0x0F;
@@ -362,25 +377,30 @@ static int check_type(hba_port_t* port)
 }
 void probe_port(hba_mem_t* abar)
 {
-    uint32_t pi = abar->pi;
+    uint32_t pi;
     int i = 0;
     int dt;
-    uint32_t j = 0;
 
-    
-    abar->ghc = (1 << 31);
-    abar->ghc = (1 << 0);
+
+
+    //abar init
+    abar->cap &= ~(1 << 26); //disable aggressive power
+    abar->cap &= ~(1 << 14);
+
+    kprintf("abar->cap: %x\n", abar->cap);
+   
+
+    //HBA reset
+    abar->ghc |= (1 << 31);
+
+    abar->ghc |= (1 << 0);
 
     while(abar->ghc & (1 << 0));
    
     
 
     pi = abar->pi;
-    kprintf("reset pi is %x\n", pi);
     kprintf("start probing\n");
-
-    while(j < 300000)
-        j++;
 
     while(i < 32)
     {
@@ -440,22 +460,22 @@ void ahciTest()
 
 
     hba_mem_t* abar = (hba_mem_t*)((uint64_t)(ahci.bar5));
-    kprintf("pi is %x\n", abar->pi);
+   // kprintf("pi is %x\n", abar->pi);
     //kprintf("version is %x\n", abar->vs);
     probe_port(abar);
-    port_rebase(&(abar->ports[1]), 1);
+    port_rebase(&(abar->ports[0]), 0);
 
     for(k = 1; k < 2; ++k)
     {
         memset(buf1, k, 4*1024);
-        if(!write(&abar->ports[1],8*k,0,8,(uint64_t)buf1))
+        if(!write(&abar->ports[0],8*k,0,8,(uint64_t)buf1))
             kprintf("Write data failed\n");
     }
 
     for(k = 1; k < 2; ++k)
     {
         memset(buf2, 0, 4*1024);
-        if(!read(&abar->ports[1],8*k,0, 8, (uint64_t)buf2))
+        if(!read(&abar->ports[0],8*k,0, 8, (uint64_t)buf2))
             kprintf("Read data failed\n");
 
 
