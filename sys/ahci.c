@@ -294,7 +294,7 @@ void stop_cmd(hba_port_t* port)
 
 static int check_type(hba_port_t* port)
 {
-    uint32_t i = 0;
+    //uint32_t i = 0;
 
     /*
     uint32_t ssts = port->ssts;
@@ -306,7 +306,7 @@ static int check_type(hba_port_t* port)
     uint8_t det, ipm;
 
 
-
+/*
     //port reset
 
     stop_cmd(port);
@@ -343,18 +343,9 @@ static int check_type(hba_port_t* port)
     port->cmd |= (1 << 1);
 
   //  port->cmd |= (1 << 0);
-/*
-   port->cmd &= ~(1 << 0);
-
-   port->cmd |= (1 << 1);
-
-    
-   port->sctl = (7 << 8);
-   port->cmd |= HBA_PxCMD_ST;
-   */
 
    // kprintf("new port tfd is %x\n", port->tfd);
-
+*/
     ipm = (port->ssts >> 8)& 0x0F;
     det = port->ssts & 0x0F;
 
@@ -471,14 +462,14 @@ void ahciTest()
     probe_port(abar);
     port_rebase(&(abar->ports[0]), 0);
 
-    for(k = 1; k < 2; ++k)
+    for(k = 0; k < 100; ++k)
     {
         memset(buf1, k, 4*1024);
         if(!write(&abar->ports[0],8*k,0,8,(uint64_t)buf1))
             kprintf("Write data failed\n");
     }
 
-    for(k = 1; k < 2; ++k)
+    for(k = 0; k < 100; ++k)
     {
         memset(buf2, 0, 4*1024);
         if(!read(&abar->ports[0],8*k,0, 8, (uint64_t)buf2))

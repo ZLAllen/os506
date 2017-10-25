@@ -12,26 +12,16 @@ extern char kernmem, physbase;
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
-  struct smap_t {
-    uint64_t base, length;
-    uint32_t type;
-  }__attribute__((packed)) *smap;
 
-  clr();
-  while(modulep[0] != 0x9001) modulep += modulep[1]+2;
- 
-  for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
-    if (smap->type == 1  && smap->length != 0) {
-      kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-    }
-  }
-  
-  kprintf("physfree %p\n", (uint64_t)physfree);
-  kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+    clr();
+    pmap_init(modulep, physbase, physfree);
 
-  
-  ahciTest();
-  while(1) __asm__ volatile ("hlt");
+    kprintf("physfree %p\n", (uint64_t)physfree);
+    kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+
+
+    //ahciTest()
+    while(1) __asm__ volatile ("hlt");
 }
 
 void boot(void)
