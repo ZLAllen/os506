@@ -15,7 +15,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 {
 
     clr();
-
+   /* 
     while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
     for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) 
@@ -26,9 +26,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
             kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length); 
         }
     }
-   
-    
-    // pmap_init(modulep, physbase, physfree);
+*/    
+    pmap_init(modulep, physbase, physfree);
 
     kprintf("physfree %p\n", (uint64_t)physfree);
     kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
