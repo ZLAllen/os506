@@ -5,7 +5,7 @@
 #define WIDTH 80
 #define HEIGHT 24
 #define SIZE ((WIDTH)*(HEIGHT))
-#define BASE 0xb8000
+#define BASE (KERN + 0xb8000)
 #define BLACK 0x0700
 
 #define CLOCK_OFFSET 15

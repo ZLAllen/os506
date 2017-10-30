@@ -1,15 +1,13 @@
 #ifndef _PMAP_H_
 #define _PMAP_H_
 
-#include <sys/defs.h>
+#include <sys/system.h>
 
 struct smap_t {
     uint64_t base, length;
     uint32_t type;
 }__attribute__((packed)) *smap;
 
-
-#define PGSIZE 0x1000
 
 #define ALIGN_UP(x) ((x & ~(PGSIZE-1)) + PGSIZE)
 

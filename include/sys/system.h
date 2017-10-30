@@ -14,4 +14,18 @@ void outb(uint16_t port,uint8_t value);
 unsigned char inb(uint16_t port);
 void out32(uint32_t port, uint32_t value);
 uint32_t in32(uint32_t port);
+
+//asm 
+static inline void cr3_w(uint64_t value)
+{
+    __asm__ volatile("movq %0, %%cr3" :: "r"(value): "memory");
+}
+
+// kernel address
+#define KERN 0xFFFFFFFF80000000
+
+
+// page
+#define PGSIZE 4096
+
 #endif

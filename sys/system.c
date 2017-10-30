@@ -74,3 +74,9 @@ uint32_t in32(uint32_t port)
     __asm__ volatile ("inl %w1, %0" :"=a"(value): "Nd"(port));
     return value;
 }
+
+
+
+
+/*********** Registers **************/
+
