@@ -19,7 +19,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     init_pging((uint64_t)physfree);
 
-    //pmap_init(modulep, physbase, physfree);
+    // pml4e + pdpt + pdt + pt
+    physfree += (3 + ENTRIES)*PGSIZE + KERN;
+
+
+    kprintf("new physfree %p\n", physfree);
+
+    pmap_init(modulep,&kernmem, physfree);
 
     //kprintf("physfree %p\n", (uint64_t)physfree);
     kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);

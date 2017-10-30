@@ -5,7 +5,6 @@
 #define WIDTH 80
 #define HEIGHT 24
 #define SIZE ((WIDTH)*(HEIGHT))
-#define BASE (KERN + 0xb8000)
 #define BLACK 0x0700
 
 #define CLOCK_OFFSET 15
@@ -60,8 +59,8 @@ void kprintf(const char *fmt, ...)
                     break;
 
                 case 'x':
-                    i = va_arg(arg, unsigned int);
-                    convert(i, 16);
+                    p = va_arg(arg, unsigned long);
+                    convert(p, 16);
                     break;
 
                 case 'p':

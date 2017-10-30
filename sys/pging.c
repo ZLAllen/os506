@@ -44,7 +44,7 @@ void init_pging(uint64_t physfree)
 
     kprintf("%x, %x\n", PML4E(KERN), PDPE(KERN));
     kprintf("%x, %x, %x, %x\n", pml4, pdpt, pdt, pt);
-    kprintf("%x, %x\n", pdt[4], pt[4*512]);
+    kprintf("%x, %x\n", pdt[511], pt[512]);
 
     cr3_w((uint64_t)pml4);
 

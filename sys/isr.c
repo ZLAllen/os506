@@ -14,7 +14,6 @@
 #define BACKSPACE 0x0E
 #define TAB 0x0F
 #define BLANKSP  0xE
-#define BASE 0xb8000
 #define BLACK 0x0700
 #define KEY_OFFSET 5
 

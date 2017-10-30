@@ -2,8 +2,6 @@
 #include <sys/kprintf.h>
 #include <sys/system.h>
 
-#define PHYBEGIN 0x300000
-
 struct freelist_entry{
     uint64_t base;
     int map_count;
@@ -28,7 +26,7 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     uint32_t low_mem;
     uint32_t ext_mem;
     uint64_t low_base;
-    uint64_t ext_base, util_base; // we might share util_base for both page table and descriptors
+    uint64_t ext_base; // we might share util_base for both page table and descriptors
     struct freelist_entry* prev;
 
     while(modulep[0] != 0x9001) modulep += modulep[1]+2;
@@ -57,33 +55,37 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     // 640 KB
     smap = (struct smap_t*)smap_arr[0];
     low_mem = (smap->length)/PGSIZE;
-    low_base = smap->base;
+    low_base = smap->base + KERN;
     
 
     // util_base to above kernel
     smap = (struct smap_t*)smap_arr[1];
-    util_base = smap->base;
+    ext_base = smap->base + KERN;
+    ext_mem = (smap->length)/PGSIZE; 
 
-    ext_mem = (smap->length - PHYBEGIN + smap->base)/PGSIZE; // subtract 1MB
-    ext_base = (uint64_t)PHYBEGIN; // we start from physfree, if it does not work out, we will see
-
-    kprintf("low mem block %d, low mem base %p, util base %p, ext mem block %d, ext mem base %p\n", 
-            low_mem, low_base, util_base, ext_mem, ext_base);
+    kprintf("low mem block %d, low mem base %p, ext mem block %d, ext mem base %p\n", 
+            low_mem, low_base, ext_mem, ext_base);
 
 
-    entry_count = ext_mem;
+    entry_count = ext_mem + low_mem;
     free_pg_count = entry_count;
 
     //memset
 
+   
+   // memsetw((void*)(low_base), 0, (low_mem*PGSIZE)/2);
+    //memsetw((void*)ext_base, 0, ext_mem*PGSIZE/2);
     
-    //memsetw((void*)(low_base), 0, (100*PGSIZE)/2);
-    memsetw((void*)ext_base, 0, ext_mem*PGSIZE/2);
-    
-    //clean up space for physical descriptor after physfree
-    memsetw((void*)physfree, 0, (ext_mem)*sizeof(struct freelist_entry)/2);
+    // clean up space for physical descriptor after physfree
+    //memsetw((void*)physfree, 0, (ext_mem)*sizeof(struct freelist_entry)/2);
     
 
+    real_physfree = (uint64_t)physfree + ((entry_count*sizeof(struct freelist_entry)) & ~(PGSIZE-1)) + PGSIZE;
+
+    kprintf("new physfree is %p\n", real_physfree);
+
+
+    memsetw(physfree, 0, (real_physfree - (uint64_t)physfree)/2);
 
 
  
@@ -91,25 +93,36 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     // generate the head
     freelist_head = (struct freelist_entry*)physfree;
     list_arr = freelist_head;  // keep a reference point of the beginning of descriptors
-    freelist_head->base = ext_base;
+    freelist_head->base = low_base;
     freelist_head->map_count = -1;
     freelist_head->next = 0;
 
+
+
     prev = freelist_head;
-/*
+
     // span over 640 KB
     for(i = 1; i < low_mem; ++i)
     {
         list_arr[i].base = low_base + i*PGSIZE;
+        list_arr[i].map_count = -1;
         prev->next = (uint64_t)&list_arr[i];
         prev = (struct freelist_entry*)&list_arr[i];
     }
-    */
+    
 
     // span over high mem
-    for(i = 1; i < entry_count; ++i)
+    for(i = low_mem; i < entry_count; ++i)
     {
-        list_arr[i].base = ext_base + i*PGSIZE;
+        list_arr[i].base = ext_base + (i-low_mem)*PGSIZE;
+        if(list_arr[i].base >= (uint64_t)physbase && list_arr[i].base < real_physfree)
+        {
+            list_arr[i].map_count = 0;
+            list_arr[i].next = 0;
+            free_pg_count--;
+            continue;
+        }
+
         list_arr[i].map_count = -1;
         prev->next = (uint64_t)&list_arr[i];
         prev = (struct freelist_entry*)&list_arr[i];
@@ -117,16 +130,24 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
 
     // set the tail
     prev->next = 0;
+
+    kprintf("entry count %d, free: %d\n", entry_count, free_pg_count);
+/*
+    struct freelist_entry* hello = walk_list((void*)(physbase-PGSIZE));
+    struct freelist_entry* hi = walk_list((void*)real_physfree);
+    kprintf("hi: %p, count %d, next %p\n", hi->base, hi->map_count, hi->next);
+    kprintf("hello: %p, count %d, next %p\n", hello->base, hello->map_count, hello->next);
+    */
+
+
+
 /*
     for(i = 0; i < 10; ++i) 
     {
         kprintf("entry %d with base %p\n", i, list_arr[i].base);
     }
-    */
+*/
 
-    real_physfree = (uint64_t)physfree + ext_mem*sizeof(struct freelist_entry);
-
-    kprintf("new physfree is %p\n", real_physfree);
 
 }
 

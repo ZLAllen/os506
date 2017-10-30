@@ -11,4 +11,9 @@ void clr();
 
 void update_time(uint32_t day, uint32_t sec);
 
+// defines
+
+#define BASE (KERN + 0xb8000)
+
+
 #endif
