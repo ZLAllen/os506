@@ -48,7 +48,11 @@ void init_pging(uint64_t physfree)
 
     cr3_w((uint64_t)pml4);
 
+    kprintf("cr0: %x, cr3: %x\n", cr0_r(), cr3_r());
+
     kprintf("switch to new page table successfully\n");
 
 }
+
+
 

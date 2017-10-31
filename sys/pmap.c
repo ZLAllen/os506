@@ -4,7 +4,7 @@
 
 struct freelist_entry{
     uint64_t base;
-    int map_count;
+    uint64_t map_count;
     uint64_t next;
 }__attribute__((__packed__));
 
@@ -28,6 +28,10 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     uint64_t low_base;
     uint64_t ext_base; // we might share util_base for both page table and descriptors
     struct freelist_entry* prev;
+
+    memset(smap_arr, 0, sizeof(uint64_t)*8);
+
+    kprintf("size of freelist_entry %d\n", sizeof(struct freelist_entry));
 
     while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
@@ -72,8 +76,9 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
 
     //memset
 
-   
-   // memsetw((void*)(low_base), 0, (low_mem*PGSIZE)/2);
+  
+    
+    //memsetw((void*)(low_base), 0, (low_mem*PGSIZE)/2);
     //memsetw((void*)ext_base, 0, ext_mem*PGSIZE/2);
     
     // clean up space for physical descriptor after physfree
@@ -94,7 +99,7 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     freelist_head = (struct freelist_entry*)physfree;
     list_arr = freelist_head;  // keep a reference point of the beginning of descriptors
     freelist_head->base = low_base;
-    freelist_head->map_count = -1;
+    freelist_head->map_count = 0;
     freelist_head->next = 0;
 
 
@@ -105,7 +110,7 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     for(i = 1; i < low_mem; ++i)
     {
         list_arr[i].base = low_base + i*PGSIZE;
-        list_arr[i].map_count = -1;
+        list_arr[i].map_count = 0;
         prev->next = (uint64_t)&list_arr[i];
         prev = (struct freelist_entry*)&list_arr[i];
     }
@@ -117,16 +122,17 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
         list_arr[i].base = ext_base + (i-low_mem)*PGSIZE;
         if(list_arr[i].base >= (uint64_t)physbase && list_arr[i].base < real_physfree)
         {
-            list_arr[i].map_count = 0;
+            list_arr[i].map_count = 1;
             list_arr[i].next = 0;
             free_pg_count--;
             continue;
         }
 
-        list_arr[i].map_count = -1;
+        list_arr[i].map_count = 0;
         prev->next = (uint64_t)&list_arr[i];
         prev = (struct freelist_entry*)&list_arr[i];
     }
+
 
     // set the tail
     prev->next = 0;
@@ -160,9 +166,18 @@ void* get_free_page()
     }
 
     struct freelist_entry* entry = freelist_head;
-    entry->map_count = 0;
+
+    if(entry->map_count != 0) 
+    {
+        kprintf("panic: free page with nonzero map_count\n");
+        return 0;
+    }
+
+    entry->map_count = 1;
 
     freelist_head = (struct freelist_entry*)freelist_head->next;
+
+    entry->next = 0;
 
     return (void*) (entry->base);
 }
@@ -171,7 +186,6 @@ void* get_free_page()
 
 void release_page(void* ptr)
 {
-
     struct freelist_entry* entry;
     //traverse the list to verify pointer
     entry = walk_list(ptr);
@@ -182,7 +196,7 @@ void release_page(void* ptr)
     }
     else
     {
-        if(entry->map_count < 0)
+        if(entry->map_count <= 0)
         {
             kprintf("panic: freeing unallocated page!\n");
             return;
@@ -190,7 +204,7 @@ void release_page(void* ptr)
 
         entry->map_count -= 1;
 
-        if(entry->map_count < 0)
+        if(entry->map_count == 0)
         {
             // append this page to freelist
             entry->next = (uint64_t)freelist_head;
@@ -214,7 +228,7 @@ void inc_map_count(void* ptr)
         return;
     }
 
-    if(entry->map_count < 0)
+    if(entry->map_count <= 0)
     {
         kprintf("panic: increment mapping count of unallocated page!\n");
         return;

@@ -59,7 +59,7 @@ void boot(void)
         (uint64_t*)(uint64_t)loader_stack[4]
       );
       for(
-        temp1 = "!!!!! start() returned !!!!!", temp2 = (char*)0xb8000;
+        temp1 = "!!!!! start() returned !!!!!", temp2 = (char*)(KERN + 0xb8000);
         *temp1;
         temp1 += 1, temp2 += 2
       ) *temp2 = *temp1;
