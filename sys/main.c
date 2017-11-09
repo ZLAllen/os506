@@ -17,19 +17,21 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     clr();
 
-    init_pging((uint64_t)physfree);
 
     // pml4e + pdpt + pdt + pt
-    physfree += (3 + ENTRIES)*PGSIZE + KERN;
+    //physfree += (3 + ENTRIES)*PGSIZE + KERN;
 
 
-    kprintf("new physfree %p\n", physfree);
+    kprintf("old physfree %p\n", physfree);
 
-    pmap_init(modulep,&kernmem, physfree);
+    uint64_t real_physfree = pmap_init(modulep,physbase, physfree);
 
-    //kprintf("physfree %p\n", (uint64_t)physfree);
+    kprintf("new physfree is %p\n", real_physfree);
+
     kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
+
+    init_pging((uint64_t)real_physfree);
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

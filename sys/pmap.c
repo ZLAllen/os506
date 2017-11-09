@@ -4,29 +4,27 @@
 
 struct freelist_entry{
     uint64_t base;
-    uint64_t map_count;
+    uint32_t map_count;
     uint64_t next;
 }__attribute__((__packed__));
+
 
 struct freelist_entry* freelist_head;
 uint32_t free_pg_count;
 uint32_t entry_count;
 struct freelist_entry* list_arr;  //descriptr array
-uint64_t real_physfree;
 
 static struct freelist_entry* walk_list(void* ptr);
 
 
-void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
+uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree)
 {
     // push all available smap_t pointers to an array, send the array to pmap init function
 
     uint64_t smap_arr[8];
-    int num = 0, i;
-    uint32_t low_mem;
-    uint32_t ext_mem;
-    uint64_t low_base;
-    uint64_t ext_base; // we might share util_base for both page table and descriptors
+    int num = 0, i, j;
+    uint32_t size;
+    uint64_t base;
     struct freelist_entry* prev;
 
     memset(smap_arr, 0, sizeof(uint64_t)*8);
@@ -41,10 +39,14 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
         if (smap->type == 1  && smap->length != 0) 
         {
             kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
-            if(num < 8)
+
+            if(smap->length >= PGSIZE*10)
             {
-                smap_arr[num] = (uint64_t)smap;
-                num++;
+                if(num < 8)
+                {
+                    smap_arr[num] = (uint64_t)smap;
+                    num++;
+                }
             }
             
         }
@@ -55,24 +57,23 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     // we should know that the first block is 640KB, the second block we start after physfree
     // we might extract other blocks for future use
 
+    if(!num) 
+    {
+        kprintf("no physical memory detected\n");
+        return 0;
+    }
     
-    // 640 KB
-    smap = (struct smap_t*)smap_arr[0];
-    low_mem = (smap->length)/PGSIZE;
-    low_base = smap->base + KERN;
-    
-
-    // util_base to above kernel
-    smap = (struct smap_t*)smap_arr[1];
-    ext_base = smap->base + KERN;
-    ext_mem = (smap->length)/PGSIZE; 
-
-    kprintf("low mem block %d, low mem base %p, ext mem block %d, ext mem base %p\n", 
-            low_mem, low_base, ext_mem, ext_base);
+    // count number of physical pages
+    for(i = 0; i < num; ++i)
+    {
+        smap = (struct smap_t*)smap_arr[i];
+        size = smap->length/PGSIZE;
+        entry_count += size;
+    }
 
 
-    entry_count = ext_mem + low_mem;
     free_pg_count = entry_count;
+
 
     //memset
 
@@ -85,9 +86,8 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     //memsetw((void*)physfree, 0, (ext_mem)*sizeof(struct freelist_entry)/2);
     
 
-    real_physfree = (uint64_t)physfree + ((entry_count*sizeof(struct freelist_entry)) & ~(PGSIZE-1)) + PGSIZE;
+    uint64_t real_physfree = (uint64_t)physfree + ((entry_count*sizeof(struct freelist_entry)) & ~(PGSIZE-1)) + PGSIZE + PGSIZE*4;
 
-    kprintf("new physfree is %p\n", real_physfree);
 
 
     memsetw(physfree, 0, (real_physfree - (uint64_t)physfree)/2);
@@ -98,71 +98,103 @@ void pmap_init(uint32_t *modulep, void *physbase, void *physfree)
     // generate the head
     freelist_head = (struct freelist_entry*)physfree;
     list_arr = freelist_head;  // keep a reference point of the beginning of descriptors
-    freelist_head->base = low_base;
-    freelist_head->map_count = 0;
-    freelist_head->next = 0;
-
-
-
     prev = freelist_head;
 
-    // span over 640 KB
-    for(i = 1; i < low_mem; ++i)
-    {
-        list_arr[i].base = low_base + i*PGSIZE;
-        list_arr[i].map_count = 0;
-        prev->next = (uint64_t)&list_arr[i];
-        prev = (struct freelist_entry*)&list_arr[i];
-    }
-    
 
-    // span over high mem
-    for(i = low_mem; i < entry_count; ++i)
+
+
+    uint32_t cnt = 0;
+    for(i = 0; i < num; ++i)
     {
-        list_arr[i].base = ext_base + (i-low_mem)*PGSIZE;
-        if(list_arr[i].base >= (uint64_t)physbase && list_arr[i].base < real_physfree)
+        smap = (struct smap_t*)smap_arr[i];
+        base = smap->base;
+        size = smap->length/PGSIZE;
+
+        for(j = cnt; j-cnt < size; ++j)
         {
-            list_arr[i].map_count = 1;
-            list_arr[i].next = 0;
-            free_pg_count--;
-            continue;
+            list_arr[j].base = base + (j-cnt)*PGSIZE;
+            if(i > 0 && j == cnt + 256) 
+            {
+                kprintf("test: %p, physbase: %p\n", list_arr[j].base, physbase);
+            }
+            if((list_arr[j].base >= (uint64_t)physbase) && (list_arr[j].base < real_physfree))
+            {
+                list_arr[j].map_count = 1;
+                list_arr[j].next = 0;
+                free_pg_count--;
+                continue;
+            }
+            list_arr[j].map_count = 0;
+            if(i == 0 && j == 0)
+            {
+                freelist_head = (struct freelist_entry*)(VADDR(freelist_head));
+            }
+            else
+            {
+                prev->next = (uint64_t)(VADDR(&list_arr[j]));
+                prev = &list_arr[j];
+            }
         }
-
-        list_arr[i].map_count = 0;
-        prev->next = (uint64_t)&list_arr[i];
-        prev = (struct freelist_entry*)&list_arr[i];
+        cnt += size;
     }
-
 
     // set the tail
     prev->next = 0;
+    
+    // switch to virtual address
+    list_arr = (struct freelist_entry*)VADDR(list_arr);
 
     kprintf("entry count %d, free: %d\n", entry_count, free_pg_count);
+
+
 /*
+    // testing page alloc and free
+    char* a = get_free_page();
+    kprintf("first page %p, map count %d\n", a, (walk_list(a))->map_count);
+    char* b = get_free_page();
+    char* c = get_free_page();
+
+    *a = 'a';
+    *b = 'b';
+    *c = 'c';
+
+    release_page(a);
+    release_page(b);
+    release_page(c);
+
+    char* d = get_free_page();
+    kprintf("%c\n", *d);
+    release_page(d + 1);
+    kprintf("reference count: %d\n", (walk_list(d))->map_count);
+*/
+/*
+
     struct freelist_entry* hello = walk_list((void*)(physbase-PGSIZE));
     struct freelist_entry* hi = walk_list((void*)real_physfree);
     kprintf("hi: %p, count %d, next %p\n", hi->base, hi->map_count, hi->next);
     kprintf("hello: %p, count %d, next %p\n", hello->base, hello->map_count, hello->next);
-    */
-
-
+    
+*/
 
 /*
+
     for(i = 0; i < 10; ++i) 
     {
         kprintf("entry %d with base %p\n", i, list_arr[i].base);
     }
 */
 
+    return real_physfree;
 
 }
 
 void* get_free_page()
 {
+
     if(!freelist_head)
     {
         kprintf("panic: out of memory!\n");
-        return 0;
+        return (void*)-1;
     }
 
     struct freelist_entry* entry = freelist_head;
@@ -170,7 +202,7 @@ void* get_free_page()
     if(entry->map_count != 0) 
     {
         kprintf("panic: free page with nonzero map_count\n");
-        return 0;
+        return (void*)-1;
     }
 
     entry->map_count = 1;
@@ -179,7 +211,22 @@ void* get_free_page()
 
     entry->next = 0;
 
-    return (void*) (entry->base);
+    return (void*)(entry->base);
+}
+
+void* get_zero_page()
+{
+    void *addr = get_free_page();
+
+    if(addr < 0)
+    {
+        kprintf("error getting free page\n");
+        return 0;
+    }
+
+    memsetw(addr, 0, PGSIZE/2);
+
+    return addr;
 }
 
 
@@ -189,6 +236,7 @@ void release_page(void* ptr)
     struct freelist_entry* entry;
     //traverse the list to verify pointer
     entry = walk_list(ptr);
+
     if(!entry)
     {
         kprintf("panic: freeing invalid page at %p\n", ptr);
@@ -245,7 +293,9 @@ static struct freelist_entry* walk_list(void* ptr)
     for(i = 0; i < entry_count; ++i)
     {
         if(list_arr[i].base == (uint64_t)ptr)
+        {
             return &list_arr[i];
+        }
     }
 
     return 0;

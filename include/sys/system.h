@@ -44,10 +44,12 @@ static inline uint64_t cr0_r()
 // kernel address
 #define KERN 0xFFFFFFFF80000000
 
+#define KERNBASE 0xFFFFFFFF80200000
+
 
 // page
 #define PGSIZE 4096
-
+#define VADDR(x) (KERN + (uint64_t)(x))
 
 //error
 void panic(char *s);
