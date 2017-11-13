@@ -1,6 +1,7 @@
 #include <sys/pging.h>
 #include <sys/kprintf.h>
 #include <sys/pmap.h>
+#include <sys/kmalloc.h>
 
 #define PMLE_REF 0xFFFFFF7FBFDFE000UL
 #define PDPE_REF 0xFFFFFF7FBFC00000UL
@@ -64,50 +65,52 @@ void init_pging(uint64_t physfree)
 
 
     map_page(0xb8000, VIDEO);
+
+    // set a top virtual address
+    set_kern_free_addr((void*)(KERN + physfree));
+
+
+    // test for kmalloc
+    /*
+    char* test_addr = kmalloc();
+
+    uint64_t* phy = getPhys((uint64_t)test_addr);
+   
+    kprintf("%p, %p\n", phy, *phy);
+
+
+    memmove("Hello World", test_addr, 11);
+
+    kprintf("%s\n", test_addr);
+
+    kfree(test_addr);
+
+
+    test_addr = kmalloc();
+
+     phy = getPhys((uint64_t)test_addr);
+   
+    kprintf("%p, %p\n", phy, *phy);
+
+
+    memmove("Hello World", test_addr, 11);
+
+    kprintf("%s\n", test_addr);
     
 
-    //this extra page is for page table 0-2M
-   /*
-    pt = (uint64_t*)physfree + PGSIZE*4;
-    vaddr = VIDEO;
-    pde_off = vaddr >> 21 & 0x1FF;
-    uint16_t pt_off = vaddr >> 12 & 0x1FF;
-    pdt[pde_off] = (uint64_t)pt|PAGE_RW|PAGE_P;
+    test_addr = kmalloc();
 
-    pt[pt_off] = 0xb8000;
+     phy = getPhys((uint64_t)test_addr);
+   
+    kprintf("%p, %p\n", phy, *phy);
 
+
+    memmove("Hello World", test_addr, 11);
+
+    kprintf("%s\n", test_addr);
 */
-    
 
 
-
-
-
-
-    //kprintf("switch to new page table successfully\n");
-    //map kernel
-
-
-/*
-
-    // supervisor mode, read/write/present
-
-    for(i = 0; i < ENTRIES; ++i)
-    {
-        //zero out pml4, pdpt first
-        pml4[i] = 0;
-        pdpt[i] = 0;
-        // set pdt entries
-        pdt[i] = pde + i*PGSIZE;
-        for(j = 0; j < ENTRIES; ++j)
-        {
-            pt[i*ENTRIES+j] = pte + i*PDE_SIZE + j*PTE_SIZE;
-        }
-    }
-
-    pml4[PML4E(KERN)] = (uint64_t)pdpt|PAGE_RW|PAGE_P;
-    pdpt[PDPE(KERN)] = (uint64_t)pdt|PAGE_RW|PAGE_P;
-*/
 
 /*
     kprintf("%x, %x\n", PML4E(KERN), PDPE(KERN));
@@ -118,6 +121,13 @@ void init_pging(uint64_t physfree)
     kprintf("cr0: %x, cr3: %x\n", cr0_r(), cr3_r());
 
 */
+}
+
+void* getPhys(uint64_t vaddr)
+{
+    uint64_t pte = ((vaddr << 16 >> 28 << 3) | PTE_REF);
+
+    return (void*)pte;
 }
 
 
@@ -156,6 +166,9 @@ void map_page(uint64_t paddr, uint64_t vaddr)
 
     if(!IS_PRESENT(*pte))
         *pte = paddr|PAGE_RW|PAGE_P;
-    else
+    else{
+        kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
+    }
+
 }

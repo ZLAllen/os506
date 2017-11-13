@@ -13,7 +13,6 @@ struct smap_t {
 
 uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree);
 void* get_free_page();
-void* get_zero_page();
 void release_page(void* ptr);
 void inc_map_count(void* ptr);
 

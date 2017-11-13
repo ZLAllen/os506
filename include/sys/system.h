@@ -41,6 +41,11 @@ static inline uint64_t cr0_r()
     return ret;
 }
 
+static inline void invlpg(uint64_t addr)
+{
+    __asm__ volatile("invlpg (%0)"::"r"(addr):"memory");
+}
+
 // kernel address
 #define KERN 0xFFFFFFFF80000000
 

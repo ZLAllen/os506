@@ -3,8 +3,6 @@
 
 #include <sys/system.h>
 
-void init_pging(uint64_t physfree);
-
 #define ENTRIES 512
 
 #define PAGE_U (1UL << 2)
@@ -22,5 +20,13 @@ void init_pging(uint64_t physfree);
 #define PML4E(va) ((va >> 39) & ((1UL << 9) - 1))
 #define PDPE(va) ((va >> 30) & ((1UL << 9) -1))
 
+#define PA_MASK 0x0000FFFFFFFFF000
+
+
+void init_pging(uint64_t physfree);
+
+void map_page(uint64_t paddr, uint64_t vaddr);
+
+void* getPhys(uint64_t vaddr);
 
 #endif
