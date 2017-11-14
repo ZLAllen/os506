@@ -24,7 +24,7 @@ void init_pging(uint64_t physfree)
 
     pml4 = (uint64_t*)(physfree-PGSIZE*4);
 
-    init_pml4 = (uint64_t)VADDR(pml4);
+    init_pml4 = (uint64_t*)VADDR(pml4);
 
 
     //self reference
