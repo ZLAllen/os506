@@ -6,6 +6,7 @@
 #include <sys/ahci.h>
 #include <sys/pmap.h>
 #include <sys/pging.h>
+#include <sys/tarfs.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -32,6 +33,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
+
+    kprintf("call to tarfs methods\n");
+    tfs_open("hello.txt", 0);
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

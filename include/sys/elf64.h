@@ -3,6 +3,7 @@
 
 #define EI_NIDENT 16
 
+// elf data types
 typedef uint64_t Elf64_Addr;
 typedef uint16_t Elf64_Half;
 typedef uint64_t Elf64_Lword;
@@ -12,7 +13,7 @@ typedef uint64_t Elf64_Sxword
 typedef uint32_t Elf64_Word;
 typedef uint64_t Elf64_Xword;
 
-
+// elf header
 typedef struct {
   unsigned char e_ident[EI_NIDENT];
   Elf64_Half    e_type;
@@ -30,6 +31,7 @@ typedef struct {
   Elf64_Half    e_shstrndx;
 } Elf64_Ehdr;
 
+// elf program header
 typedef struct {
   Elf64_Word    p_type;
   Elf64_Word    p_flags;
