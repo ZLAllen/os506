@@ -168,49 +168,6 @@ static void printkey(){
                 CTRL = 0;
         }
 
-        /*
-=======
-
-	// a key was just released
-	switch(scancode) {
-		case SHIFT_UP:
-			SHIFT = 0;
-			break;
-		case SHIFT_DWN:
-			SHIFT = 1;
-			break;
-		case CTRL_UP:
-			CTRL = 0;
-			break;
-		case CTRL_DWN:
-			CTRL = 1;
-			break;
-		case BLANKSP:
-			update_kkbd(' ', CTRL);
-			break;
-		default:
-			if((scancode & 0xff) < 87 && (scancode & 0xff) >= 0){
-				if((scancode & 0xff) == BLANKSP){
-					//kprintf("shift 1: %c\n", ' ');
-					update_kkbd(' ', CTRL);
-				}
-				else{
-					if (SHIFT == 1){// add 128 when shift is down	
-						//kprintf("shift 1: %c\n", kbtb[scancode]);
-						update_kkbd(kbtb[scancode], CTRL);
-					}
-					else{	
-						//kprintf("shift 0: %c\n", kbtb[scancode]);
-						update_kkbd(kbtb[scancode], CTRL);
-					}
-				}	
-			}
-			break;
-	}
-	if (scancode == ENTER){
-		ENTR = 1;
-	}
-        */
 }
 
 
@@ -253,6 +210,9 @@ void isr_handler(struct regs reg){
     }
 
 }
+
+
+
 
 void update_kkbd(char key, int ctrl){
         short* loc = (short*)BASE + 80*25 - KEY_OFFSET;

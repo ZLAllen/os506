@@ -96,9 +96,9 @@ uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree
  
 
     // generate the head
-    freelist_head = (struct freelist_entry*)physfree;
-    list_arr = freelist_head;  // keep a reference point of the beginning of descriptors
-    prev = freelist_head;
+    list_arr = (struct freelist_entry*)physfree;
+    
+    prev = 0;
 
 
 
@@ -127,7 +127,8 @@ uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree
             list_arr[j].map_count = 0;
             if(i == 0 && j == 0)
             {
-                freelist_head = (struct freelist_entry*)(VADDR(freelist_head));
+                freelist_head = (struct freelist_entry*)(VADDR(&list_arr[j]));
+                prev = &list_arr[j];
             }
             else
             {
@@ -207,27 +208,13 @@ void* get_free_page()
 
     entry->map_count = 1;
 
-    freelist_head = (struct freelist_entry*)freelist_head->next;
+    freelist_head = (struct freelist_entry*)(freelist_head->next);
 
     entry->next = 0;
 
     return (void*)(entry->base);
 }
 
-void* get_zero_page()
-{
-    void *addr = get_free_page();
-
-    if(addr < 0)
-    {
-        kprintf("error getting free page\n");
-        return 0;
-    }
-
-    memsetw(addr, 0, PGSIZE/2);
-
-    return addr;
-}
 
 
 
