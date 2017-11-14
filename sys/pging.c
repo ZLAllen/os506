@@ -3,14 +3,15 @@
 #include <sys/pmap.h>
 #include <sys/kmalloc.h>
 
-#define PMLE_REF 0xFFFFFF7FBFDFE000UL
+#define PMLE_REF 0xFFFFFF7FBFDFE000UL  //think of it as recursively visiting pml4, then use page offset to locate pmle 
 #define PDPE_REF 0xFFFFFF7FBFC00000UL
 #define PDE_REF  0xFFFFFF7F80000000UL
 #define PTE_REF  0xFFFFFF0000000000UL
 
 #define VIDEO 0xFFFFFFFF800B8000UL
 
-void map_page(uint64_t paddr, uint64_t vaddr);
+uint64_t* init_pml4;  //Virtual address reference
+
 
 void init_pging(uint64_t physfree)
 {
@@ -22,6 +23,9 @@ void init_pging(uint64_t physfree)
     
 
     pml4 = (uint64_t*)(physfree-PGSIZE*4);
+
+    init_pml4 = (uint64_t)VADDR(pml4);
+
 
     //self reference
     pml4[510] = (uint64_t)pml4|PAGE_RW|PAGE_P;
@@ -172,3 +176,6 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     }
 
 }
+
+// copy on write 
+
