@@ -26,6 +26,9 @@ void switch_to(
          : // clobbered registers
 	);
 
+    // set current to next
+    current = next;
+
 	// check if kernel process or user process
 	// switch to ring 3 if needed
 }
