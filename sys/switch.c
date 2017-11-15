@@ -22,15 +22,18 @@ void thread1()
     kprintf("Thread 1\n");
     context_switch(task1, task2);
 
-    set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
+   // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
 }
 
 void thread2()
 {
     kprintf("Thread 2\n");
-    while(1);
     context_switch(task2, task1);
+
+   // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
+    __asm__ volatile("retq");
+
 }
 
 
@@ -60,7 +63,6 @@ void init_thread()
 
     context_switch(task2, task1);
 
-    set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
 
 }
