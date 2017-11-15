@@ -12,7 +12,9 @@ struct task_struct {
     struct task_struct *parent; // parent task
 };*/
 
-typedef struct task_struct task_struct;
+//typedef struct task_struct task_struct;
+#define KSTACK_SIZE 512
+#define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
 
 void switch_to(task_struct *me, task_struct *next);
 void schedule();

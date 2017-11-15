@@ -1,11 +1,12 @@
 #include <sys/switch.h>
+#include <sys/schedule.h>
 
 task_struct *task1, *task2;
 
 void thread1()
 {
     kprintf("Thread 1\n");
-    context_switch(task1, task2);
+    switch_to(task1, task2);
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
@@ -14,7 +15,7 @@ void thread1()
 void thread2()
 {
     kprintf("Thread 2\n");
-    context_switch(task2, task1);
+    switch_to(task2, task1);
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -46,15 +47,15 @@ void init_thread()
 
     task2->pid = 1;
 
-    context_switch(task2, task1);
+    switch_to(task2, task1);
 
     __asm__ volatile("retq");
 
 }
-
+/* SEE switch_to in schedule instead
 void context_switch(task_struct *task1, task_struct *task2)
 {
     __asm__ volatile("movq %[next_rsp], %%rsp"::[next_rsp]"m"(task2->rsp));
 
 
-}
+}*/

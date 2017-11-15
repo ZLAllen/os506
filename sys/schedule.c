@@ -1,7 +1,7 @@
 #include <sys/schedule.h>
 #include <sys/kmalloc.h>
 
-struct task_struct *prev;
+//struct task_struct *prev;
 struct task_struct *current; // current task and head of the task list
 static pid_t pid; // pid counter
 
@@ -17,13 +17,13 @@ void switch_to(
          : // clobbered registers
 	);
 
-	prev->rsp = me->rsp;
+	//prev->rsp = me->rsp;
 
 	// switch to next task
     __asm__ __volatile__
         ("movq %0, %%rsp"
          : // no output registers
-         :"D" (next->rsp) // replace stack pointer with next task
+         :"m" (next->rsp) // replace stack pointer with next task
          : // clobbered registers
 	);
 
