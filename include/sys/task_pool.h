@@ -5,7 +5,7 @@ enum state{READY, RUNNING, ZOMBIE};
 
 
 #include <sys/defs.h>
-
+/*
 typedef struct task_struct{
     uint32_t state;
     pid_t pid;
@@ -15,7 +15,19 @@ typedef struct task_struct{
     struct task_struct* parent;
     struct task_struct* free;
 }task_struct;
+*/
 
+// process struct
+typedef struct task_struct {
+    pid_t pid; // unique process ID, starting at 0
+    uint64_t *kstack; // bottom of kernel stack
+	//uint64_t rip; // location of rip register
+    uint64_t rsp; // location of rsp register
+    struct task_struct *next; // next task
+    struct task_struct *prev; // previous task 
+    struct task_struct *parent; // parent task
+    struct task_struct *free; //next free task_struct 
+}task_struct;
 
 typedef struct vma_struct{
     uint64_t vm_start;
