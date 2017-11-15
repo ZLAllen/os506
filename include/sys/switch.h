@@ -17,3 +17,6 @@ typedef struct task_struct task_struct;
 void switch_to(task_struct *me, task_struct *next);
 void schedule();
 void init_thread();
+void create_idle_process();
+task_struct *create_new_task(void (*main)(void));
+

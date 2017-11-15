@@ -4,6 +4,7 @@
 #include <sys/kprintf.h>
 
 static int check_type(hba_port_t* port);
+
 static void start_cmd(hba_port_t* port);
 static void stop_cmd(hba_port_t* port);
 static int find_cmdslot(hba_port_t* port);
