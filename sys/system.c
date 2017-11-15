@@ -64,6 +64,17 @@ int memcmp(const void *str1, const void *str2, uint count)
     return 0;	
 }
 
+
+void *memcpy(const void *src, void *dst, uint count)
+{
+	char *d = dst;
+	const char *s = src;
+
+	while (count--)
+		*d++ = *s++;
+	return dst;
+}
+
 /******************* IO functions ************************/
 
 

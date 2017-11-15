@@ -35,7 +35,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     init_pging((uint64_t)real_physfree);
 
     kprintf("call to tarfs methods\n");
-    tfs_open("hello.txt", 0);
+    tfs_open("/usr", 0);
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

@@ -15,7 +15,7 @@ unsigned char inb(uint16_t port);
 void out32(uint32_t port, uint32_t value);
 uint32_t in32(uint32_t port);
 int memcmp(const void *, const void *, uint);
-
+void *memcpy(const void *src, void *dst, uint count);
 
 //asm 
 static inline void cr3_w(uint64_t value)
