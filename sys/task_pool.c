@@ -2,6 +2,7 @@
 #include <sys/kmalloc.h>
 #include <sys/error.h>
 #include <sys/system.h>
+#include <sys/kprintf.h>
 
 // consider each type of struct having their own pools
 
@@ -27,13 +28,16 @@ void reload_task_struct()
     uint64_t num = (uint64_t)ptr + sizeof(task_struct);
     prev = free_task_struct;
 
-    for(; num < (uint64_t)ptr + PGSIZE; num += sizeof(task_struct))
+
+    for(; num + sizeof(task_struct) < (uint64_t)ptr + PGSIZE; num += sizeof(task_struct))
     {
         prev->free = (task_struct*)num;
         prev = (task_struct*)num;
     }
 
     prev->free = 0;
+
+
 }
 
 
@@ -48,7 +52,7 @@ void reload_mm_struct()
     uint64_t num = (uint64_t)ptr + sizeof(mm_struct);
     prev = free_mm_struct;
 
-    for(; num < (uint64_t)ptr + PGSIZE; num += sizeof(mm_struct))
+    for(; num + sizeof(mm_struct)< (uint64_t)ptr + PGSIZE; num += sizeof(mm_struct))
     {
         prev->free = (mm_struct*)num;
         prev = (mm_struct*)num;
@@ -71,7 +75,7 @@ void reload_vma_struct()
     uint64_t num = (uint64_t)ptr + sizeof(vma_struct);
     prev = free_vma_struct;
 
-    for(; num < (uint64_t)ptr + PGSIZE; num += sizeof(vma_struct))
+    for(; num + sizeof(vma_struct) < (uint64_t)ptr + PGSIZE; num += sizeof(vma_struct))
     {
         prev->free = (vma_struct*)num;
         prev = (vma_struct*)num;

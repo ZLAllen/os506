@@ -1,6 +1,7 @@
 #include <sys/defs.h>
-
+#include <sys/task_pool.h>
 // process struct
+/*
 struct task_struct {
     pid_t pid; // unique process ID, starting at 0
     char *kstack; // bottom of kernel stack
@@ -12,7 +13,7 @@ struct task_struct {
 };
 
 typedef struct task_struct task_struct;
-
+*/
 void switch_to(task_struct *me, task_struct *next);
 void schedule();
-
+void init_thread();
