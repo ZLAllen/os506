@@ -3,7 +3,6 @@
 #include <sys/defs.h>
 #include <sys/system.h>
 
-#define MIN(x, y) (((x)<(y))?(x):(y))
 
 // ptr to the first tarfs header 
 static inline struct posix_header_ustar *get_tfs_first(void)
@@ -31,7 +30,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
                 return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
-        hdr += 1 + size/512 + (size % 512 != 0); //512 byte sectors
+        hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
         if (hdr->name[0]== '\0')
         {
                 kprintf("header name is NULL\n");
@@ -85,7 +84,7 @@ int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *off
 		return 0;
 	}
 	bytes_left = f_size - *offset;
-	bytes_to_read = MIN(bytes_left, count);
+	bytes_to_read = (bytes_left < count) ? bytes_left:count;
 	data_begin = (char *)(hdr + 1);
 	memcpy(buf, *offset + data_begin, bytes_to_read);
 	*offset += bytes_to_read;
