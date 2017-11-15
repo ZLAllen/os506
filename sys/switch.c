@@ -26,27 +26,25 @@ void thread2()
 
 void init_thread()
 {
+    task1 = create_new_task(&thread1);
+    task2 = create_new_task(&thread2);
+
+    /*
     task1 = get_task_struct();
     task2 = get_task_struct();
 
     task1->kstack = kmalloc();
     task2->kstack = kmalloc();
 
-
     //rsp
     task1->kstack[KSTACK_SIZE-2] = (uint64_t)&thread1;
-
     task1->rsp = (uint64_t)&(task1->kstack[KSTACK_SIZE-2]);
-
     task1->pid = 0;
 
 
     task2->kstack[KSTACK_SIZE-2] = (uint64_t)&thread2;
-
     task2->rsp = (uint64_t)&(task2->kstack[KSTACK_SIZE-2]);
-
-    task2->pid = 1;
-
+    task2->pid = 1;*/
     switch_to(task2, task1);
 
     __asm__ volatile("retq");

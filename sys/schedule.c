@@ -1,9 +1,8 @@
 #include <sys/schedule.h>
 #include <sys/kmalloc.h>
 
-//struct task_struct *prev;
 struct task_struct *current; // current task and head of the task list
-static pid_t pid; // pid counter
+static pid_t pid = 0; // pid counter
 
 void switch_to(
     struct task_struct *me,
@@ -38,9 +37,18 @@ void schedule() {
 
 }
 
-void create_idle_process() {
-    task_struct *new_task;
-    new_task = kmalloc(sizeof(*new_task));
-
-    new_task->pid = pid++;
+pid_t get_next_pid() {
+    return pid++;
 }
+
+task_struct *create_new_task(function thread_fn) {
+    task_struct *new_task = get_task_struct();
+    new_task->kstack = kmalloc();
+
+    // task rsp
+    new_task->kstack[KSTACK_SIZE-2] = (uint64_t)thread_fn;
+    new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
+    new_task->pid = get_next_pid();
+
+    return new_task;
+ }
