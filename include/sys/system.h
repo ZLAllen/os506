@@ -14,6 +14,8 @@ void outb(uint16_t port,uint8_t value);
 unsigned char inb(uint16_t port);
 void out32(uint32_t port, uint32_t value);
 uint32_t in32(uint32_t port);
+int memcmp(const void *, const void *, uint);
+
 
 //asm 
 static inline void cr3_w(uint64_t value)

@@ -48,6 +48,22 @@ void* memset(const void* addr, int pattern, uint count){
     return ret;
 }
 
+
+int memcmp(const void *str1, const void *str2, uint count)
+{
+	unsigned char c1, c2;
+    	for ( ; count-- ; str1++, str2++) 
+	{
+		c1 = * (unsigned char *) str1;
+		c2 = * (unsigned char *) str2;
+		if ( c1 != c2) 
+		{
+	    		return (c1-c2);
+		}
+    	}
+    return 0;	
+}
+
 /******************* IO functions ************************/
 
 
