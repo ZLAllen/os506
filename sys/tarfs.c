@@ -30,7 +30,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
                 return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
-        hdr += 1 + size/512 + (size % 512 != 0);
+        hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
         if (hdr->name[0]== '\0')
         {
                 kprintf("header name is NULL\n");
@@ -41,12 +41,18 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
 
 
 //open a tarfs file
-struct file *tfs_open(const char *path, int flags) 
+struct posix_header_ustar *tfs_open(const char *path, int flags) 
 {
 	kprintf("tarfs open\n");
 	if (! path)
 	{
 		kprintf("path name is NULL\n");
+		return NULL;
+	}
+	// check for read only operations
+	if(flags & (O_RDWR | O_WRONLY | O_CREAT | O_TRUNC))
+	{
+		kprintf("ERROR: write operations not allowed");
 		return NULL;
 	}
 	struct posix_header_ustar *hdr;
@@ -56,21 +62,33 @@ struct file *tfs_open(const char *path, int flags)
 		if(memcmp(path+1, hdr->name, sizeof(hdr->name)) == 0)
 		{
 			kprintf("found the file");
+			return hdr;
 		}
 		kprintf("found file: %s\n", hdr->name);
 		//print_tfs_metadata(hdr);
 	}
 	return NULL;
-
-
 }
 
 
-// closes a tarfs file
-int tfs_close()
+//reads a tarfs file 
+int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
 {
-	kprintf("tarfs close");
-	return 0;
+	kprintf("tarfs read");
+	size_t bytes_left, bytes_to_read;
+	char *data_begin;
+	unsigned long f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
+	if(*offset == f_size || count == 0)
+	{
+		kprintf("reading 0 bytes");
+		return 0;
+	}
+	bytes_left = f_size - *offset;
+	bytes_to_read = (bytes_left < count) ? bytes_left:count;
+	data_begin = (char *)(hdr + 1);
+	memcpy(buf, *offset + data_begin, bytes_to_read);
+	*offset += bytes_to_read;
+	return bytes_to_read;
 }
 
 // octal string to integer

@@ -38,6 +38,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     //kprintf("call to tarfs methods\n");
     //tfs_open("hello.txt", 0);
+    kprintf("call to tarfs methods\n");
+    tfs_open("/usr", 0);
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

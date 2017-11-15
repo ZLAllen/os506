@@ -29,6 +29,8 @@ struct posix_header_ustar {
 };
 
 
+enum { O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x02, O_TRUNC = 0x04 };
+
 #define TFS_FILE1 0
 #define TFS_FILE2 '\0'
 #define TFS_DIR 5
@@ -36,8 +38,7 @@ struct posix_header_ustar {
 
 //octal to binary
 uint64_t oct_to_bin(char *optr, int length);
-struct file *tfs_open(const char *path, int flags);
-int tfs_close();
-
+struct posix_header_ustar *tfs_open(const char *path, int flags);
+int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset);
 
 #endif
