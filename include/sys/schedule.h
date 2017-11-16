@@ -8,6 +8,7 @@ typedef void (*function)();
 
 void switch_to(task_struct *me, task_struct *next);
 void schedule();
+void add_task(task_struct *new_task);
 pid_t get_next_pid();
 task_struct *create_new_task(function thread_fn);
 
