@@ -63,4 +63,7 @@ void release_mm_struct(mm_struct* ptr);
 
 void release_vma_struct(vma_struct* ptr);
 
+
+extern task_struct *current;
+
 #endif
