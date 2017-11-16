@@ -13,7 +13,6 @@ void thread1()
 
     kprintf("Back again in thread 1\n");
     switch_to(task1, task2);
-    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
@@ -27,7 +26,6 @@ void thread2()
     switch_to(task2, task1);
     kprintf("Back again in thread 2\n");
 
-    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
    __asm__ volatile("retq");

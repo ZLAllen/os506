@@ -12,3 +12,7 @@ void add_task(task_struct *new_task, int test);
 pid_t get_next_pid();
 task_struct *create_new_task(function thread_fn);
 
+// utility functions
+void push_regs();
+void pop_regs();
+
