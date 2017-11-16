@@ -23,7 +23,10 @@ void switch_to(
              : // save stack pointer into current task
              : // clobbered registers
         );
-    } 
+    } else {
+        // this crashes...
+        kprintf("Me prev null\n");
+    }
 	//prev->rsp = me->rsp;
 
     // set current to next
@@ -31,6 +34,9 @@ void switch_to(
 
     // add prev task to list again (mostly just for testing)
     //schedule();
+
+    // add task to end of list for now
+    // should set me->prev value for next time
     //add_task(me, 2);
 
 	// switch to next task
