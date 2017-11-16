@@ -102,9 +102,6 @@ void add_task(task_struct *new_task, int test) {
 		available_tasks = new_task;
 	} else {
 		kprintf("Hello\n");
-		if (test == 2) {
-			while(1) {} 
-		}
 		// traverse to the end of the list
 		task_struct *cursor = available_tasks;
 		while (cursor->next != NULL) {
