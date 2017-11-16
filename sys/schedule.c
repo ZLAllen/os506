@@ -23,9 +23,15 @@ void switch_to(
              : // save stack pointer into current task
              : // clobbered registers
         );
-    }
-
+    } 
 	//prev->rsp = me->rsp;
+
+    // set current to next
+    current = next;
+
+    // add prev task to list again (mostly just for testing)
+    //schedule();
+    //add_task(me, 2);
 
 	// switch to next task
     __asm__ __volatile__
@@ -35,12 +41,6 @@ void switch_to(
          : // clobbered registers
 	);
 
-    // set current to next
-    current = next;
-
-    // add prev task to list again (mostly just for testing)
-    add_task(me);
-
 	// check if kernel process or user process
 	// switch to ring 3 if needed
 }
@@ -49,16 +49,24 @@ void schedule() {
 	// select next task
 	//task_struct *current, *next;
 	//switch_to(current, next);
+
+    // testing - move to next task
+    available_tasks = available_tasks->next;
 }
 
-void add_task(task_struct *new_task) {
+void add_task(task_struct *new_task, int test) {
 
     // is this the first task?
     if (available_tasks == NULL) {
+        kprintf("First\n");
         available_tasks = new_task;
     } else {
+        kprintf("Hello\n");
+        if (test == 2) {
+            while(1) {} 
+        }
         // traverse to the end of the list
-        task_struct *cursor = new_task;
+        task_struct *cursor = available_tasks;
         while (cursor->next != NULL) {
             cursor = cursor->next;
         }
