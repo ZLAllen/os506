@@ -14,6 +14,7 @@ static pid_t pid = 0;
 void switch_to(
 		struct task_struct *me,
 		struct task_struct *next) {
+	//push_regs(); -- crashes
 	__asm__ __volatile__(
 			"pushq %rax; "\
 			"pushq %rcx; "\
@@ -29,8 +30,10 @@ void switch_to(
 			"pushq %r12;" \
 			"pushq %r13;" \
 			"pushq %r14;" \
-			"pushq %r15;" 
+			"pushq %r15;" \
 			);
+	kprintf("Testing\n");
+	while(1) {}
 
 	if (me->prev != NULL) {
 		// save current processes's stack pointer
@@ -40,49 +43,27 @@ void switch_to(
 			 : // save stack pointer into current task
 			 : // clobbered registers
 			);
-	} else {
 	}
-	//prev->rsp = me->rsp;
 
 	// set current to next
 	current = next;
-
-	// add prev task to list again (mostly just for testing)
-	//schedule();
-
-	// add task to end of list for now
-	// should set me->prev value for next time
-	//add_task(me, 2);
 
 	// switch to next task
 	__asm__ __volatile__
 		("movq %0, %%rsp"
 		 : // no output registers
 		 :"m" (next->rsp) // replace stack pointer with next task
-		 :"%rsp" // clobbered registers
+		 : // clobbered registers
 		);
+
 
 	// check if kernel process or user process
 	// switch to ring 3 if needed
 
 	// pop registers back
-	__asm__ __volatile__(
-			"popq %r15;" \
-			"popq %r14;" \
-			"popq %r13;" \
-			"popq %r12;" \
-			"popq %r11;" \
-			"popq %r10;" \
-			"popq %r9;"  \
-			"popq %r8;"  \
-			"popq %rdi; "\
-			"popq %rsi; "\
-			"popq %rbp; "\
-			"popq %rbx; "\
-			"popq %rdx; "\
-			"popq %rcx; "\
-			"popq %rax; "
-			);
+	if (me->prev != NULL) {
+		pop_regs();
+	}
 }
 
 void schedule() {
@@ -139,20 +120,34 @@ void push_regs() {
 			"pushq %rcx; "\
 			"pushq %rdx; "\
 			"pushq %rbx; "\
-			"pushq %rsp; "\
 			"pushq %rbp; "\
 			"pushq %rsi; "\
-			"pushq %rdi; "
+			"pushq %rdi; "\
+			"pushq %r8;"  \
+			"pushq %r9;"  \
+			"pushq %r10;" \
+			"pushq %r11;" \
+			"pushq %r12;" \
+			"pushq %r13;" \
+			"pushq %r14;" \
+			"pushq %r15;" \
 			);
 }
 
 void pop_regs() {
 	//__asm__ __volatile__("popa");
 	__asm__ __volatile__(
+			"popq %r15;" \
+			"popq %r14;" \
+			"popq %r13;" \
+			"popq %r12;" \
+			"popq %r11;" \
+			"popq %r10;" \
+			"popq %r9;"  \
+			"popq %r8;"  \
 			"popq %rdi; "\
 			"popq %rsi; "\
 			"popq %rbp; "\
-			"popq %rsp; "\
 			"popq %rbx; "\
 			"popq %rdx; "\
 			"popq %rcx; "\
