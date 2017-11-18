@@ -27,6 +27,7 @@ typedef struct task_struct {
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct 
+    uint64_t fd_arr[64];   // file descriptor array
 }task_struct;
 
 typedef struct vma_struct{
@@ -42,7 +43,11 @@ typedef struct vma_struct{
 typedef struct mm_struct{
     vma_struct* vm;
     int vma_no;
+    int mm_no;
+    struct mm_struct* next;
     struct mm_struct* free;
+    uint64_t pml4;
+
 }mm_struct;
 
 void reload_task_struct();

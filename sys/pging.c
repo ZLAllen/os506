@@ -13,10 +13,18 @@
 
 uint64_t* init_pml4;  //Virtual address reference
 
+uint64_t* pml4;
+
+
+void* get_kern_pml4()
+{
+    return pml4;
+}
+
 void init_pging(uint64_t physfree)
 {
     // 4 level page tables
-    uint64_t *pml4, *pdpt, *pdt, *pt;
+    uint64_t  *pdpt, *pdt, *pt;
 
 
     //might need to check paging mode
@@ -177,10 +185,21 @@ void map_page(uint64_t paddr, uint64_t vaddr)
 
 }
 
-// copy on write 
-void pml4_cpy()
+void* alloc_pml4(){
+    // when we create a new pml4, the default contains kernel mapping and self reference
+    // which is pml4[511] and pml4[510]
+    
+    uint64_t* pml4;
+
+    pml4 = get_free_page(); // a phys addr
+
+    uint64_t* vir_pml4 = get_kern_free_addr();
+
+    
+
+}
+
+void* walk_pt(void* vaddr)
 {
-
-
 
 }

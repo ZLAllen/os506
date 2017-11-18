@@ -23,15 +23,17 @@ void switch_to(
              : // save stack pointer into current task
              : // clobbered registers
         );
-    }
 
-	//prev->rsp = me->rsp;
+    }	//prev->rsp = me->rsp;
 
     // set current to next
     current = next;
 
     // add prev task to list again (mostly just for testing)
     //schedule();
+
+    // add task to end of list for now
+    // should set me->prev value for next time
     //add_task(me, 2);
 
 	// switch to next task
