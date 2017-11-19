@@ -21,7 +21,7 @@ void switch_to(
 
     //__asm__ __volatile__(PUSHREGS);
 
-    if (me != NULL && me->prev != NULL) {
+    if (me != NULL) {
         // save current processes's stack pointer
         __asm__ __volatile__
             ("movq %%rsp, %0"

@@ -22,6 +22,8 @@ void thread2()
 	kprintf("Thread 2 \n");
     run_next_task();
     kprintf("Back in thread 2\n");
+    run_next_task();
+    kprintf("Back again in thread 2\n");
     //switch_to(task2, task1);
     //kprintf("Back again in thread 2\n");
 
@@ -55,8 +57,8 @@ void init_thread()
     task2->kstack[KSTACK_SIZE-2] = (uint64_t)&thread2;
     task2->rsp = (uint64_t)&(task2->kstack[KSTACK_SIZE-2]);
     task2->pid = 1;*/
-	schedule(task2);
-    schedule(task1);
+	schedule(task1);
+    schedule(task2);
 
     run_next_task();
 
