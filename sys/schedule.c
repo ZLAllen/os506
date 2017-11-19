@@ -19,8 +19,6 @@ void switch_to(
         task_struct *me,
         task_struct *next) {
 
-    //__asm__ __volatile__(PUSHREGS);
-
     if (me != NULL) {
         // save current processes's stack pointer
         __asm__ __volatile__
@@ -31,8 +29,6 @@ void switch_to(
             );
     }
 
-    //prev->rsp = me->rsp;
-
     // switch to next task
     __asm__ __volatile__
         ("movq %0, %%rsp"
@@ -41,33 +37,12 @@ void switch_to(
          : // clobbered registers
         );
 
-    // ADD ME TO END OF TASK LIST
-    // same as schedule(me)
-    // Ideally, I would call schedule(me) here, but calling a function screws things up,
-    // despite registers being the same.
-    // TESTING WITH NO FUNCTION CALLS FOR NOW
+    // schedule "me" prev task
     if (me != NULL) {
-        if (available_tasks == NULL) {
-            available_tasks = me;
-        } else {
-            // traverse to the end of the list
-            task_struct *cursor = available_tasks;
-            while (cursor->next != NULL) {
-                cursor = cursor->next;
-            }
-
-            cursor->next = me;
-            me->prev = cursor;
-            me->next = NULL;
-        }
+        __asm__ __volatile__(PUSHREGS);
+        schedule(me);
+        __asm__ __volatile__(POPREGS);
     }
-
-    // add prev task to list again (mostly just for testing)
-    __asm__ __volatile__(PUSHREGS);
-    //schedule(me);
-    __asm__ __volatile__(POPREGS);
-
-    //kprintf("Test\n");
 
     // check if kernel process or user process
     // switch to ring 3 if needed
