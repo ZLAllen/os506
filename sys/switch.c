@@ -58,7 +58,7 @@ void init_thread()
 	schedule(task2);
     schedule(task1);
 
-    switch_to(task2, task1);
+    run_next_task();
 
     __asm__ volatile("retq");
 

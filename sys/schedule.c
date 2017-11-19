@@ -11,11 +11,17 @@ task_struct *available_tasks;
 /** pid counter */
 static pid_t pid = 0;
 
+/**
+ * Switch from me process to next process
+ * Me is currently NULL on the first process
+ */
 void switch_to(
     task_struct *me,
     task_struct *next) {
 
-	if (me->prev != NULL) {
+	//__asm__ __volatile__(PUSHREGS);
+
+	if (me != NULL && me->prev != NULL) {
 		// save current processes's stack pointer
 		__asm__ __volatile__
 			("movq %%rsp, %0"
@@ -35,26 +41,25 @@ void switch_to(
          : // clobbered registers
 	);
 
-	// set current to next
-    current = next;
-
     // ADD ME TO END OF TASK LIST
     // same as schedule(me)
     // Ideally, I would call schedule(me) here, but calling a function screws things up,
     // despite registers being the same.
     // TESTING WITH NO FUNCTION CALLS FOR NOW
-    if (available_tasks == NULL) {
-        available_tasks = me;
-    } else {
-        // traverse to the end of the list
-        task_struct *cursor = available_tasks;
-        while (cursor->next != NULL) {
-            cursor = cursor->next;
-        }
+    if (me != NULL) {
+        if (available_tasks == NULL) {
+            available_tasks = me;
+        } else {
+            // traverse to the end of the list
+            task_struct *cursor = available_tasks;
+            while (cursor->next != NULL) {
+                cursor = cursor->next;
+            }
 
-        cursor->next = me;
-        me->prev = cursor;
-        me->next = NULL;
+            cursor->next = me;
+            me->prev = cursor;
+            me->next = NULL;
+        }
     }
 
     // add prev task to list again (mostly just for testing)
