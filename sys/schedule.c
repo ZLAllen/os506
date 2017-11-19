@@ -39,7 +39,11 @@ void switch_to(
     current = next;
 
     // add prev task to list again (mostly just for testing)
+	__asm__ __volatile__(PUSHREGS);
     //add_task(me);
+	__asm__ __volatile__(POPREGS);
+
+    //kprintf("Test\n");
 
 	// check if kernel process or user process
 	// switch to ring 3 if needed
