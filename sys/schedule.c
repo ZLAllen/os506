@@ -16,30 +16,30 @@ static pid_t pid = 0;
  * Me is currently NULL on the first process
  */
 void switch_to(
-    task_struct *me,
-    task_struct *next) {
+        task_struct *me,
+        task_struct *next) {
 
-	//__asm__ __volatile__(PUSHREGS);
+    //__asm__ __volatile__(PUSHREGS);
 
-	if (me != NULL && me->prev != NULL) {
-		// save current processes's stack pointer
-		__asm__ __volatile__
-			("movq %%rsp, %0"
-			 :"=r" (me->rsp) // save stack pointer into current task
-			 :
-			 : // clobbered registers
-		);
-	}
+    if (me != NULL && me->prev != NULL) {
+        // save current processes's stack pointer
+        __asm__ __volatile__
+            ("movq %%rsp, %0"
+             :"=r" (me->rsp) // save stack pointer into current task
+             :
+             : // clobbered registers
+            );
+    }
 
-	//prev->rsp = me->rsp;
+    //prev->rsp = me->rsp;
 
-	// switch to next task
+    // switch to next task
     __asm__ __volatile__
         ("movq %0, %%rsp"
          : // no output registers
          :"m" (next->rsp) // replace stack pointer with next task
          : // clobbered registers
-	);
+        );
 
     // ADD ME TO END OF TASK LIST
     // same as schedule(me)
@@ -63,14 +63,14 @@ void switch_to(
     }
 
     // add prev task to list again (mostly just for testing)
-	__asm__ __volatile__(PUSHREGS);
+    __asm__ __volatile__(PUSHREGS);
     //schedule(me);
-	__asm__ __volatile__(POPREGS);
+    __asm__ __volatile__(POPREGS);
 
     //kprintf("Test\n");
 
-	// check if kernel process or user process
-	// switch to ring 3 if needed
+    // check if kernel process or user process
+    // switch to ring 3 if needed
 }
 
 /**
@@ -137,7 +137,7 @@ task_struct *create_new_task(function thread_fn) {
     new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
     new_task->pid = get_next_pid();
 
-	kprintf("Process PID %d created\n", new_task->pid);
+    kprintf("Process PID %d created\n", new_task->pid);
 
     return new_task;
- }
+}
