@@ -1,20 +1,29 @@
 #include <sys/schedule.h>
 #include <sys/kmalloc.h>
+#include <sys/kprintf.h>
 
-struct task_struct *current; // current task and head of the task list
-static pid_t pid = 0; // pid counter
+/** current task */
+task_struct *current; 
+
+/** list of available tasks - schedule() orders this */
+task_struct *available_tasks;
+
+/** pid counter */
+static pid_t pid = 0;
 
 void switch_to(
-    struct task_struct *me,
-    struct task_struct *next) {
+    task_struct *me,
+    task_struct *next) {
 
-	// save current processes's stack pointer
-    __asm__ __volatile__
-        ("movq %%rsp, %0"
-         : // no output registers
-         :"r" (me->rsp) // save stack pointer into current task
-         : // clobbered registers
-	);
+	if (me->prev != NULL) {
+		// save current processes's stack pointer
+		__asm__ __volatile__
+			("movq %%rsp, %0"
+			 :"=r" (me->rsp) // save stack pointer into current task
+			 :
+			 : // clobbered registers
+		);
+	}
 
 	//prev->rsp = me->rsp;
 
@@ -26,11 +35,31 @@ void switch_to(
          : // clobbered registers
 	);
 
-    // set current to next
+	// set current to next
     current = next;
+
+    // add prev task to list again (mostly just for testing)
+    //add_task(me);
 
 	// check if kernel process or user process
 	// switch to ring 3 if needed
+}
+
+void add_task(task_struct *new_task) {
+
+    // is this the first task?
+    if (available_tasks == NULL) {
+        available_tasks = new_task;
+    } else {
+        // traverse to the end of the list
+        task_struct *cursor = new_task;
+        while (cursor->next != NULL) {
+            cursor = cursor->next;
+        }
+
+        cursor->next = new_task;
+        new_task->prev = cursor;
+    }
 }
 
 void schedule() {
@@ -52,6 +81,8 @@ task_struct *create_new_task(function thread_fn) {
     new_task->kstack[KSTACK_SIZE-2] = (uint64_t)thread_fn;
     new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
     new_task->pid = get_next_pid();
+
+	kprintf("Process PID %d created", new_task->pid);
 
     return new_task;
  }

@@ -5,8 +5,13 @@ task_struct *task1, *task2;
 
 void thread1()
 {
-    kprintf("Thread 1\n");
+	kprintf("Thread 1\n");
     switch_to(task1, task2);
+    kprintf("Back in thread 1\n");
+    switch_to(task1, task2);
+
+    kprintf("Back again in thread 1\n");
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
@@ -14,8 +19,13 @@ void thread1()
 
 void thread2()
 {
-    kprintf("Thread 2\n");
+	kprintf("Thread 2 \n");
     switch_to(task2, task1);
+    kprintf("Back in thread 2\n");
+    //switch_to(task2, task1);
+    //kprintf("Back again in thread 2\n");
+
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -45,6 +55,9 @@ void init_thread()
     task2->kstack[KSTACK_SIZE-2] = (uint64_t)&thread2;
     task2->rsp = (uint64_t)&(task2->kstack[KSTACK_SIZE-2]);
     task2->pid = 1;*/
+	add_task(task2);
+    add_task(task1);
+
     switch_to(task2, task1);
 
     __asm__ volatile("retq");
