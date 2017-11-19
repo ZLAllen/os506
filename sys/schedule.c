@@ -38,6 +38,23 @@ void switch_to(
 	// set current to next
     current = next;
 
+    // ADD ME TO END OF TASK LIST
+    // TESTING WITH NO FUNCTION CALLS FOR NOW
+    // is this the first task?
+    if (available_tasks == NULL) {
+        available_tasks = me;
+    } else {
+        // traverse to the end of the list
+        task_struct *cursor = available_tasks;
+        while (cursor->next != NULL) {
+            cursor = cursor->next;
+        }
+
+        cursor->next = me;
+        me->prev = cursor;
+        me->next = NULL;
+    }
+
     // add prev task to list again (mostly just for testing)
 	__asm__ __volatile__(PUSHREGS);
     //add_task(me);
@@ -50,19 +67,18 @@ void switch_to(
 }
 
 void add_task(task_struct *new_task) {
-
-    // is this the first task?
     if (available_tasks == NULL) {
         available_tasks = new_task;
     } else {
         // traverse to the end of the list
-        task_struct *cursor = new_task;
+        task_struct *cursor = available_tasks;
         while (cursor->next != NULL) {
             cursor = cursor->next;
         }
 
         cursor->next = new_task;
         new_task->prev = cursor;
+        new_task->next = NULL;
     }
 }
 
