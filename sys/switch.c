@@ -6,9 +6,9 @@ task_struct *task1, *task2;
 void thread1()
 {
 	kprintf("Thread 1\n");
-    switch_to(task1, task2);
+    run_next_task();
     kprintf("Back in thread 1\n");
-    switch_to(task1, task2);
+    run_next_task();
 
     kprintf("Back again in thread 1\n");
     while(1) {}
@@ -20,7 +20,7 @@ void thread1()
 void thread2()
 {
 	kprintf("Thread 2 \n");
-    switch_to(task2, task1);
+    run_next_task();
     kprintf("Back in thread 2\n");
     //switch_to(task2, task1);
     //kprintf("Back again in thread 2\n");
@@ -55,8 +55,8 @@ void init_thread()
     task2->kstack[KSTACK_SIZE-2] = (uint64_t)&thread2;
     task2->rsp = (uint64_t)&(task2->kstack[KSTACK_SIZE-2]);
     task2->pid = 1;*/
-	add_task(task2);
-    add_task(task1);
+	schedule(task2);
+    schedule(task1);
 
     switch_to(task2, task1);
 

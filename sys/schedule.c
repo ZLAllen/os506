@@ -39,8 +39,10 @@ void switch_to(
     current = next;
 
     // ADD ME TO END OF TASK LIST
+    // same as schedule(me)
+    // Ideally, I would call schedule(me) here, but calling a function screws things up,
+    // despite registers being the same.
     // TESTING WITH NO FUNCTION CALLS FOR NOW
-    // is this the first task?
     if (available_tasks == NULL) {
         available_tasks = me;
     } else {
@@ -57,7 +59,7 @@ void switch_to(
 
     // add prev task to list again (mostly just for testing)
 	__asm__ __volatile__(PUSHREGS);
-    //add_task(me);
+    //schedule(me);
 	__asm__ __volatile__(POPREGS);
 
     //kprintf("Test\n");
@@ -66,7 +68,11 @@ void switch_to(
 	// switch to ring 3 if needed
 }
 
-void add_task(task_struct *new_task) {
+/**
+ * Schedule new task
+ * Basic round-robin for now, just adds to the end of the list
+ */
+void schedule(task_struct *new_task) {
     if (available_tasks == NULL) {
         available_tasks = new_task;
     } else {
@@ -82,17 +88,41 @@ void add_task(task_struct *new_task) {
     }
 }
 
-void schedule() {
-	// select next task
-	//task_struct *current, *next;
-	//switch_to(current, next);
-
+/**
+ * Get next available runnable task
+ * Removes it from the list of available tasks
+ */
+task_struct *get_next_task() {
+    if (available_tasks == NULL) {
+        // TODO - idle process
+        return NULL;
+    } else {
+        task_struct *next_struct = available_tasks;
+        available_tasks = available_tasks->next;
+        return next_struct;
+    }
 }
 
+/**
+ * Run the next available runnable task
+ */
+void run_next_task() {
+    task_struct *prev = current;
+    current = get_next_task();
+    switch_to(prev, current);
+}
+
+/**
+ * Get next available PID
+ */
 pid_t get_next_pid() {
     return pid++;
 }
 
+/**
+ * Create a new task
+ * This does not schedule the task.
+ */
 task_struct *create_new_task(function thread_fn) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
@@ -102,7 +132,7 @@ task_struct *create_new_task(function thread_fn) {
     new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
     new_task->pid = get_next_pid();
 
-	kprintf("Process PID %d created", new_task->pid);
+	kprintf("Process PID %d created\n", new_task->pid);
 
     return new_task;
  }
