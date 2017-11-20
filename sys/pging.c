@@ -185,6 +185,7 @@ void map_page(uint64_t paddr, uint64_t vaddr)
 
 }
 
+/*
 void* alloc_pml4(){
     // when we create a new pml4, the default contains kernel mapping and self reference
     // which is pml4[511] and pml4[510]
@@ -203,3 +204,4 @@ void* walk_pt(void* vaddr)
 {
 
 }
+*/
