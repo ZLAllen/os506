@@ -9,6 +9,8 @@
 
 void thread1();
 void thread2();
+void thread3();
+void thread4();
 void init_thread();
 //void context_switch(task_struct *task1, task_struct *task2);
 
