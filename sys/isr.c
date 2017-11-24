@@ -23,10 +23,6 @@ static volatile int SHIFT = 0;
 static volatile int CTRL = 0;
 
 
-void update_kkbd(char key, int flag);
-
-
-static void printkey();
 
 char* msg[20] = {
     "Divison By Zero Exeception",
@@ -68,7 +64,7 @@ void *irq_func[16] = {
     0,
     0,
     0,
-    0,
+    handle_pg_fault,
     0,
     0
 };
@@ -122,7 +118,7 @@ short kbtb[128] =
 
 
 //TODO add enter and bspace 
-static void printkey(){
+void printkey(){
 
 	unsigned char scancode;
         unsigned char decode;
@@ -169,7 +165,6 @@ static void printkey(){
         }
 
 }
-
 
 
 void isr_handler(struct regs reg){
@@ -245,4 +240,9 @@ void update_kkbd(char key, int ctrl){
 }
 
 
+void handle_pg_fault()
+{
+        kprintf("page fault");
+
+}
 
