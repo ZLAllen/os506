@@ -16,6 +16,8 @@ static inline struct posix_header_ustar *get_tfs_first(void)
 }
 
 
+
+
 //ptr to the next tarf header
 static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 {
@@ -23,7 +25,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
         {
                 kprintf("header is NULL\n");
                 return NULL;
-        }
+        } 
         else if (hdr->name[0] == '\0')
         {
                 kprintf("header name is NULL\n");
@@ -31,7 +33,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
         hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
-        if (hdr->name[0]== '\0')
+        if (hdr->name[0] == '\0')
         {
                 kprintf("header name is NULL\n");
                 return NULL;
@@ -40,11 +42,12 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
 }
 
 
+
 //open a tarfs file
 struct file *tfs_open(const char *path, int flags) 
 {
 	kprintf("tarfs open\n");
-	struct file *fp;
+	struct file *filep;
 	if (! path)
 	{
 		kprintf("path name is NULL\n");
@@ -53,22 +56,25 @@ struct file *tfs_open(const char *path, int flags)
 	// check for read only operations
 	if(flags & (O_RDWR | O_WRONLY | O_CREAT | O_TRUNC))
 	{
-		kprintf("ERROR: write operations not allowed");
+		kprintf("ERROR: write operations not allowed\n");
 		return NULL;
 	}
 	struct posix_header_ustar *hdr;
 	//iterate tarfs section till file is found
-	for(hdr = get_tfs_first(); hdr != NULL; hdr = get_tfs_next(hdr))
-	{
-		if(memcmp(path+1, hdr->name, sizeof(hdr->name)) == 0)
+        hdr = get_tfs_first();
+	while(hdr != NULL)
+	{      
+                //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+		if(memcmp(path, hdr->name, 5) == 0) //bytes to compare??
 		{
-			kprintf("found the file");
-			fp = kmalloc();
-			fp->fdata = hdr;
-			fp->fd = 1;
-			return fp;
+			kprintf("found the file\n");
+			filep = kmalloc();
+			filep->fdata = hdr;
+			filep->fd = 1;
+			return filep;
 		}
-		print_tfs_metadata(hdr);
+		//print_tfs_metadata(hdr);
+                hdr = get_tfs_next(hdr);
 	}
 	return NULL;
 }
