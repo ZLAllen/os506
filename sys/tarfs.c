@@ -3,6 +3,7 @@
 #include <sys/defs.h>
 #include <sys/system.h>
 #include <sys/kmalloc.h>
+#include <sys/fs.h>
 
 // ptr to the first tarfs header 
 static inline struct posix_header_ustar *get_tfs_first(void)
@@ -64,8 +65,6 @@ struct file *tfs_open(const char *path, int flags)
 		{
 			kprintf("found the file");
 			fp = kmalloc();
-			fp->fdata = hdr;
-			fp->fd = 1;
 			return fp;
 		}
 		print_tfs_metadata(hdr);
@@ -103,73 +102,12 @@ int tfs_close(struct file *fp)
 		kprintf("file is NULL");
 		return -1;
 	}
-	fp->fd--;
+
 	memset(fp, 0, sizeof(struct file));		
 	kfree(fp);
 	return 0;
 }
 
-
-
-void *opendir(const char *dirname)
-{
-        //perform checks
-        if(!dirname)
-                return NULL;
-
-        struct dstream *dirp;
-
-	// fix this
-        int fd = 0;
-        if(fd < 0)
-	{
-                kprintf("fd is < 0");
-                return NULL;
-	}
-        dirp = kmalloc();
-        if(!dirp)
-	{
-                kprintf("could not allocate memory for dirp");
-                return NULL;
-
-	}
-        //check this
-        dirp->fd = fd;
-        return dirp;
-
-}
-
-
-struct dirent *readdir(struct dstream *dirp)
-{
-
-	if(!dirp)
-	{
-		kprintf("dirp is NULL");
-		return NULL;
-	}
-
-	struct dirent *dirent = NULL;	
-	return dirent;
-
-}
-
-
-int closedir(struct dstream *dirp)
-{
-	int fd;
-	
-	if(!dirp)	
-	{
-		kprintf("dirp is NULL");
-		return -1;
-	}
-	fd = dirp->fd;
-	kfree(dirp);
-
-	return fd;
-
-}
 
 /*
 helper functions

@@ -28,26 +28,7 @@ struct posix_header_ustar {
   char pad[12];
 };
 
-//file struct
-struct file 
-{
-	void *fdata;
-	int fd;
-}file;
 
-struct dstream
-{
-        int fd;
-        int size;
-        int offset;
-};
-
-struct dirent
-{
-	int d_ino;
-	int d_off;
-	char name[];
-};
 
 enum {O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x02, O_TRUNC = 0x04, O_DIRECTORY = 0x10000 };
 
@@ -65,10 +46,6 @@ int print_tfs_metadata(struct posix_header_ustar *hdr);
 struct file *tfs_open(const char *path, int flags);
 int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset);
 int tfs_close(struct file *fp);
-
-void *opendir(const char *dirname);
-struct dirent *readdir(struct dstream *dirp);
-int closedir(struct dstream *dirp);
 
 
 #endif
