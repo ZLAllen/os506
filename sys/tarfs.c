@@ -5,6 +5,15 @@
 #include <sys/kmalloc.h>
 #include <sys/fs.h>
 
+
+
+struct file_ops tarfs_file_ops =
+{
+    
+    close: tfs_close
+};
+
+
 // ptr to the first tarfs header 
 static inline struct posix_header_ustar *get_tfs_first(void)
 {
@@ -45,7 +54,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
 struct file *tfs_open(const char *path, int flags) 
 {
 	kprintf("tarfs open\n");
-	struct file *fp;
+	struct file *filep;
 	if (! path)
 	{
 		kprintf("path name is NULL\n");
@@ -64,8 +73,10 @@ struct file *tfs_open(const char *path, int flags)
 		if(memcmp(path+1, hdr->name, sizeof(hdr->name)) == 0)
 		{
 			kprintf("found the file");
-			fp = kmalloc();
-			return fp;
+			filep = kmalloc();
+			filep->private_data = hdr;
+			filep->f_op = &tarfs_file_ops;
+			return filep;
 		}
 		print_tfs_metadata(hdr);
 	}
