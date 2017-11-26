@@ -9,7 +9,7 @@
 
 extern char _binary_tarfs_start;
 extern char _binary_tarfs_end;
-extern struct file_ops tarfs_file_ops;
+extern struct file_ops tfs_file_ops;
 
 
 struct posix_header_ustar {
@@ -46,8 +46,8 @@ uint64_t oct_to_bin(char *optr, int length);
 int print_tfs_metadata(struct posix_header_ustar *hdr);
 
 //functions
-struct file* tfs_open(const char *path, int flags);
-int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset);
+struct file *tfs_open(const char *path, int flags);
+ssize_t tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset);
 int tfs_close(struct file *filep);
 
 

@@ -47,14 +47,32 @@ typedef struct {
   Elf64_Xword   p_align;
 } Elf64_Phdr;
 
+//elf section header
+typedef struct elf64_shdr 
+{
+    Elf64_Word sh_name;       
+    Elf64_Word sh_type;       
+    Elf64_Xword sh_flags;     
+    Elf64_Addr sh_addr;       
+    Elf64_Off sh_offset;      
+    Elf64_Xword sh_size;      
+    Elf64_Word sh_link;       
+    Elf64_Word sh_info;       
+    Elf64_Xword sh_addralign; 
+    Elf64_Xword sh_entsize;   
+} Elf64_Shdr;
+
+
+
 
 int identify_hdr(Elf64_Ehdr *hdr);
 int identify_phdr(Elf64_Ehdr *hdr);
 Elf64_Ehdr* get_hdr(struct file *filep);
 Elf64_Phdr* get_phdr(int ph_num, Elf64_Ehdr *hdr);
+Elf64_Shdr* get_shdr(int sh_num, Elf64_Ehdr *hdr);
 int load_elf(struct file *filep, struct mm_struct *mm);
 
 void print_phdr(Elf64_Phdr *phdr);
-
+void print_shdr(Elf64_Ehdr *hdr, Elf64_Shdr *shdr);
 
 #endif

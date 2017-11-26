@@ -13,8 +13,9 @@ struct file
 };
 
 struct file_ops 
-{  
-    int (*read) (struct file *, char *, size_t, off_t *);
+{ 
+    struct file* (*open) (const char *, int);
+    ssize_t (*read) (struct file *, char *, size_t, off_t *);
     int (*close) (struct file *);
 };
 

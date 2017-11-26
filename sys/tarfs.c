@@ -6,10 +6,11 @@
 #include <sys/fs.h>
 
 
-
-struct file_ops tarfs_file_ops =
+//file operations table
+struct file_ops tfs_file_ops =
 {
-    
+    open: tfs_open,
+    //read: tfs_read,
     close: tfs_close
 };
 
@@ -75,7 +76,7 @@ struct file *tfs_open(const char *path, int flags)
 			kprintf("found the file");
 			filep = kmalloc();
 			filep->private_data = hdr;
-			filep->f_op = &tarfs_file_ops;
+			filep->f_op = &tfs_file_ops;
 			return filep;
 		}
 		print_tfs_metadata(hdr);
@@ -85,10 +86,10 @@ struct file *tfs_open(const char *path, int flags)
 
 
 //reads a tarfs file 
-int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
+ssize_t tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
 {
 	kprintf("tarfs read");
-	size_t bytes_left, bytes_to_read;
+	ssize_t bytes_left, bytes_to_read;
 	char *data_begin;
 	unsigned long f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
 	if(*offset == f_size || count == 0)
@@ -105,17 +106,17 @@ int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *off
 }
 
 //closes a tarfs file
-int tfs_close(struct file *fp)
+int tfs_close(struct file *filep)
 {
 	kprintf("tarfs close");
-	if (!fp)
+	if (!filep)
 	{
 		kprintf("file is NULL");
 		return -1;
 	}
 
-	memset(fp, 0, sizeof(struct file));		
-	kfree(fp);
+	memset(filep, 0, sizeof(struct file));		
+	kfree(filep);
 	return 0;
 }
 

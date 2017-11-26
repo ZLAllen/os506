@@ -124,6 +124,20 @@ Elf64_Ehdr* get_hdr(struct file *filep)
 	return hdr;
 }
 
+
+Elf64_Shdr* get_shdr(int sh_num, Elf64_Ehdr *hdr) 
+{
+    if(!hdr)
+    {
+	kprintf("hdr is NULL");
+	//return NULL;
+    }
+    Elf64_Shdr *shdr;
+    shdr = (Elf64_Shdr *)(((uint64_t)hdr) + hdr->e_shoff + sh_num);
+    return shdr;
+}
+
+
 void print_elf(Elf64_Ehdr* hdr)
 {
 	kprintf("*** Displaying ELF info ***\n");
@@ -133,16 +147,35 @@ void print_elf(Elf64_Ehdr* hdr)
 	kprintf("e_type: %d\n", hdr->e_type);
 	kprintf("e_entry: %p\n", hdr->e_entry);
 
+	kprintf("Program Header\n");
 	Elf64_Phdr *phdr;
 	for(int n = 0; n < hdr->e_phnum; n++)
 	{
 		phdr = get_phdr(n, hdr);
 		print_phdr(phdr);
 	} 
+
+	kprintf("Section Header\n");
+	Elf64_Shdr *shdr;
+	for(int n = 0; n < hdr->e_shnum; n++) 
+	{
+		shdr = get_shdr(n, hdr);
+		print_shdr(hdr, shdr);
+	}
 }
 
+char *elf_lookup_string(Elf64_Ehdr *hdr, Elf64_Word sh_name) 
+{ 
+    char *name = NULL;//(char*)hdr + get_shdr(hdr->e_shstrndx, hdr)->sh_offset;
+    if(name == NULL)
+    {
+        kprintf("name is NULL");
+	//return NULL;
+    }
+    return name + sh_name;
+}
 
-
+//print program header fields
 void print_phdr(Elf64_Phdr *phdr)
 {
 	if(!phdr)
@@ -150,12 +183,15 @@ void print_phdr(Elf64_Phdr *phdr)
 		kprintf("PHDR is NULL.\n");
 		return;
 	}
-	kprintf("Program Header\n");
 
 	kprintf("p_type: %d\n", phdr->p_type);
 	kprintf("p_offset: %d\n", phdr->p_offset);
-
-	
 	
 }
 
+//print section header fields
+void print_shdr(Elf64_Ehdr *hdr, Elf64_Shdr *shdr)
+{
+	char *name = elf_lookup_string(hdr, shdr->sh_name);
+	kprintf("section name %s", name);
+}
