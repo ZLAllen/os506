@@ -28,4 +28,6 @@ typedef long blkcnt_t; //struct stat
 
 typedef unsigned int uint;
 
+typedef enum { false = 0, true = !false } bool;
+
 #endif
