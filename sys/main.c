@@ -8,6 +8,8 @@
 #include <sys/pging.h>
 #include <sys/tarfs.h>
 #include <sys/switch.h>
+#include <sys/fs.h>
+#include <sys/elf64.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -20,7 +22,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     clr();
 
 
-    // pml4e + pdpt + pdt + pt
+    //pml4e + pdpt + pdt + pt
     //physfree += (3 + ENTRIES)*PGSIZE + KERN;
 
 
@@ -36,15 +38,20 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     init_pging((uint64_t)real_physfree);
     //init_thread();
     
-    /*
-    kprintf("call to tarfs methods\n");
-    //tfs_open("hello.txt", 0);
-    struct file *filep;
+    
+    struct file *filep = tfs_open("hello", 0);
+    
     char buf[5];
-    filep = tfs_open("hello", 0);
     ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
-    kprintf("bytes read: %s\n", bytes);
-    */
+    kprintf("bytes read: %d\n", bytes);
+
+    //ELF
+    identify_elf(filep); 
+
+    ssize_t ret = filep->f_op->close(filep);
+
+    kprintf("close return value: %d\n", ret);
+
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

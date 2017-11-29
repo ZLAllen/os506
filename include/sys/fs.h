@@ -10,6 +10,7 @@ struct file
     int f_flags;           /* flags specified on open */
     off_t f_pos;           /* file offset (file pointer) */
     void *private_data;    /* tty driver hook, for TARFS it points to file's ustar header */
+    unsigned long f_size;
 };
 
 struct file_ops 

@@ -10,25 +10,20 @@
 struct file_ops tfs_file_ops =
 {
     open: tfs_open,
-    //read: tfs_read,
+    read: tfs_read,
     close: tfs_close
 };
 
 
 // ptr to the first tarfs header 
-static inline struct posix_header_ustar *get_tfs_first(void)
+struct posix_header_ustar *get_tfs_first(void)
 {
-        if(&_binary_tarfs_end - &_binary_tarfs_start < 512)
-        {
-                kprintf("tarfs end-start is < 512\n");
-                return NULL;
-        }
         return (struct posix_header_ustar *)&_binary_tarfs_start;
 }
 
 
 //ptr to the next tarf header
-static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
+struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 {
         if (!hdr)
         {
@@ -38,7 +33,7 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
         else if (hdr->name[0] == '\0')
         {
                 kprintf("header name is NULL\n");
-                return NULL;
+                //return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
         hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
@@ -51,12 +46,12 @@ static inline struct posix_header_ustar *get_tfs_next(struct posix_header_ustar 
 }
 
 
-//open a tarfs file
-struct file *tfs_open(const char *path, int flags) 
+//creates a fileobject after reading the tarfs file and retrurns it
+struct file *tfs_open(const char *fpath, int flags) 
 {
 	kprintf("tarfs open\n");
 	struct file *filep;
-	if (! path)
+	if (!fpath)
 	{
 		kprintf("path name is NULL\n");
 		return NULL;
@@ -69,54 +64,72 @@ struct file *tfs_open(const char *path, int flags)
 	}
 	struct posix_header_ustar *hdr;
 	//iterate tarfs section till file is found
-	for(hdr = get_tfs_first(); hdr != NULL; hdr = get_tfs_next(hdr))
+        hdr = get_tfs_first();
+	while(hdr != NULL) //?? good check
 	{
-		if(memcmp(path+1, hdr->name, sizeof(hdr->name)) == 0)
+                //kprintf("comparing %s and %s\n", path, hdr->name);
+		if(memcmp(fpath, hdr->name, 5) == 0) //count??
 		{
-			kprintf("found the file");
-			filep = kmalloc();
+			kprintf("found the matching file\n");
+                        //create a fle object and set fields
+			filep = kmalloc(); //?? size
 			filep->private_data = hdr;
 			filep->f_op = &tfs_file_ops;
+                        filep->f_pos = (uint64_t)get_tfs_next(hdr);
+                        filep->f_flags = flags;
+                        filep->f_count = 1;
+                        filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
+                        print_tfs(hdr);
 			return filep;
 		}
-		print_tfs_metadata(hdr);
+                hdr = get_tfs_next(hdr);
 	}
 	return NULL;
 }
 
 
+
 //reads a tarfs file 
-ssize_t tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
+ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset)
 {
-	kprintf("tarfs read");
-	ssize_t bytes_left, bytes_to_read;
-	char *data_begin;
-	unsigned long f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
-	if(*offset == f_size || count == 0)
+	kprintf("\ntarfs read\n");
+        
+        if (filep->f_flags == 5)
+        {
+            kprintf("filep represents a directory\n");
+            return -1;
+        }
+	if(*offset == filep->f_size || count == 0)
 	{
-		kprintf("reading 0 bytes");
+		kprintf("reading 0 bytes\n");
 		return 0;
 	}
-	bytes_left = f_size - *offset;
-	bytes_to_read = (bytes_left < count) ? bytes_left:count;
-	data_begin = (char *)(hdr + 1);
-	memcpy(buf, *offset + data_begin, bytes_to_read);
-	*offset += bytes_to_read;
-	return bytes_to_read;
+        struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->private_data;
+        ssize_t size, to_read;
+	size = filep->f_size - *offset;
+        //count should be minimum of available size and count
+	to_read = (size < count) ? size:count;
+        kprintf("\nbytes_left=%d, offset=%d, name= %s, num_read=%d, count=%d\n", size, *offset, hdr->name, to_read, count);
+	memcpy( (char *)(hdr+1), buf, to_read);//??
+	*offset += to_read;
+	return to_read;
 }
 
 //closes a tarfs file
 int tfs_close(struct file *filep)
 {
-	kprintf("tarfs close");
+	kprintf("tarfs close\n");
 	if (!filep)
 	{
-		kprintf("file is NULL");
+		kprintf("file is NULL\n");
 		return -1;
 	}
-
-	memset(filep, 0, sizeof(struct file));		
-	kfree(filep);
+        filep->f_count--;
+        if(filep->f_count == 0)
+        {
+	    memset(filep, 0, sizeof(struct file));		
+	    kfree(filep);
+        }
 	return 0;
 }
 
@@ -141,15 +154,16 @@ uint64_t oct_to_bin(char *ostr, int length)
 
 
 //print hdr metadata
-int print_tfs_metadata(struct posix_header_ustar *hdr)
+int print_tfs(struct posix_header_ustar *hdr)
 {
     if(hdr)
     {
 	kprintf("Type: %s\n", hdr->typeflag);
-    	kprintf("File Name: %s\n", hdr->name);
-	kprintf("Prefix: %s\n", hdr->prefix);
-    	kprintf("Magic number: %s\n", hdr->magic);
+    	kprintf("File Name: %s\n", hdr->name);	
+    	kprintf("Filesystem type: %s\n", hdr->magic);
+        kprintf("Size: %d", oct_to_bin(hdr->size, sizeof(hdr->size)));
 	/*
+        kprintf("Prefix: %s\n", hdr->prefix);
 	kprintf("uid: %s\n", hdr->uid);
 	kprintf("gid: %s\n", hdr->gid);
 	kprintf("mode: %s\n", hdr->mode);
