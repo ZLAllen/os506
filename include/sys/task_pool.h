@@ -24,6 +24,7 @@ typedef struct task_struct {
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
+    struct mm_struct *mm; // memory descriptor
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
