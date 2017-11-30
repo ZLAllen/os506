@@ -2,6 +2,7 @@
 #include <sys/kprintf.h>
 #include <sys/pmap.h>
 #include <sys/kmalloc.h>
+#include <sys/task_pool.h>
 
 #define PMLE_REF 0xFFFFFF7FBFDFE000UL  //think of it as recursively visiting pml4, then use page offset to locate pmle 
 #define PDPE_REF 0xFFFFFF7FBFC00000UL
@@ -12,11 +13,18 @@
 
 uint64_t* init_pml4;  //Virtual address reference
 
+uint64_t* pml4;
+
+
+void* get_kern_pml4()
+{
+    return pml4;
+}
 
 void init_pging(uint64_t physfree)
 {
     // 4 level page tables
-    uint64_t *pml4, *pdpt, *pdt, *pt;
+    uint64_t  *pdpt, *pdt, *pt;
 
 
     //might need to check paging mode
@@ -176,6 +184,23 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     }
 
 }
+/*
+void* alloc_pml4(){
+    // when we create a new pml4, the default contains kernel mapping and self reference
+    // which is pml4[511] and pml4[510]
+    
+    uint64_t* pml4;
 
-// copy on write 
+    pml4 = get_free_page(); // a phys addr
 
+    uint64_t* vir_pml4 = get_kern_free_addr();
+
+
+
+}
+
+void* walk_pt(void* vaddr)
+{
+
+}
+*/

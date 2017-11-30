@@ -12,6 +12,7 @@ void* get_kern_free_addr()
     return kern_free_addr;
 }
 
+
 void set_kern_free_addr(void* ptr)
 {
     kern_free_addr = ptr;

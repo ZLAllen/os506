@@ -22,6 +22,8 @@ struct posix_header_ustar *get_tfs_first(void)
 }
 
 
+
+
 //ptr to the next tarf header
 struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 {
@@ -29,7 +31,7 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
         {
                 kprintf("header is NULL\n");
                 return NULL;
-        }
+        } 
         else if (hdr->name[0] == '\0')
         {
                 kprintf("header name is NULL\n");
@@ -37,7 +39,7 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
         hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
-        if (hdr->name[0]== '\0')
+        if (hdr->name[0] == '\0')
         {
                 kprintf("header name is NULL\n");
                 return NULL;
@@ -46,8 +48,8 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 }
 
 
-//creates a fileobject after reading the tarfs file and retrurns it
-struct file *tfs_open(const char *fpath, int flags) 
+//open a tarfs file
+struct file *tfs_open(const char *path, int flags) 
 {
 	kprintf("tarfs open\n");
 	struct file *filep;
@@ -59,16 +61,16 @@ struct file *tfs_open(const char *fpath, int flags)
 	// check for read only operations
 	if(flags & (O_RDWR | O_WRONLY | O_CREAT | O_TRUNC))
 	{
-		kprintf("ERROR: write operations not allowed");
+		kprintf("ERROR: write operations not allowed\n");
 		return NULL;
 	}
 	struct posix_header_ustar *hdr;
 	//iterate tarfs section till file is found
         hdr = get_tfs_first();
-	while(hdr != NULL) //?? good check
-	{
-                //kprintf("comparing %s and %s\n", path, hdr->name);
-		if(memcmp(fpath, hdr->name, 5) == 0) //count??
+	while(hdr != NULL)
+	{      
+                //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+		if(memcmp(path, hdr->name, 5) == 0) //bytes to compare??
 		{
 			kprintf("found the matching file\n");
                         //create a fle object and set fields
@@ -82,6 +84,7 @@ struct file *tfs_open(const char *fpath, int flags)
                         print_tfs(hdr);
 			return filep;
 		}
+		//print_tfs_metadata(hdr);
                 hdr = get_tfs_next(hdr);
 	}
 	return NULL;

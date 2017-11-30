@@ -36,7 +36,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-    //init_thread();
+    init_thread();
     
     
     struct file *filep = tfs_open("hello", 0);

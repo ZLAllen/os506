@@ -24,6 +24,7 @@ typedef struct task_struct {
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
+    struct mm_struct *mm; // memory descriptor
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
@@ -42,8 +43,12 @@ typedef struct vma_struct{
 
 typedef struct mm_struct{
     vma_struct* vm;
-    int vma_no;
+    int vma_count;
+    int mm_no;
+    struct mm_struct* next;
     struct mm_struct* free;
+    uint64_t pml4;
+    uint64_t total_vm;
 }mm_struct;
 
 void reload_task_struct();
@@ -63,5 +68,8 @@ void release_task_struct(task_struct* ptr);
 void release_mm_struct(mm_struct* ptr);
 
 void release_vma_struct(vma_struct* ptr);
+
+
+extern task_struct *current;
 
 #endif

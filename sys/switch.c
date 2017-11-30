@@ -100,11 +100,11 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
 
-	schedule(task1);
+    schedule(task1);
     schedule(task2);
     schedule(task3);
     schedule(task4);
-    schedule(task5);
+    //schedule(task5);
 
     run_next_task();
 

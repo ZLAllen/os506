@@ -12,6 +12,64 @@ task_struct *available_tasks;
 /** pid counter */
 static pid_t pid = 0;
 
+/*
+<<<<<<< HEAD
+void switch_to(struct task_struct *me, struct task_struct *next) {
+	//push_regs(); -- crashes
+	__asm__ __volatile__(
+			"pushq %rax; "\
+			"pushq %rcx; "\
+			"pushq %rdx; "\
+			"pushq %rbx; "\
+			"pushq %rbp; "\
+			"pushq %rsi; "\
+			"pushq %rdi; "\
+			"pushq %r8;"  \
+			"pushq %r9;"  \
+			"pushq %r10;" \
+			"pushq %r11;" \
+			"pushq %r12;" \
+			"pushq %r13;" \
+			"pushq %r14;" \
+			"pushq %r15;" \
+			);
+
+	if (me->prev != NULL) {
+		// save current processes's stack pointer
+		__asm__ __volatile__
+			("movq %%rsp, %0"
+			 :"=r" (me->rsp) // output to me's rsp
+			 : // save stack pointer into current task
+			 : // clobbered registers
+			);
+	}else{
+            kprintf("Null Curr\n");
+        }
+
+        while(1);
+
+	// set current to next
+	current = next;
+
+	// switch to next task
+	__asm__ volatile
+		("movq %0, %%rsp"
+		 : // no output registers
+		 :"m" (next->rsp) // replace stack pointer with next task
+		 : // clobbered registers
+		);
+
+
+	// check if kernel process or user process
+	// switch to ring 3 if needed
+
+	// pop registers back
+	if (me->prev != NULL) {
+		pop_regs();
+	}
+        
+=======
+*/
 /**
  * Switch from me process to next process
  * Me is currently NULL on the first process
