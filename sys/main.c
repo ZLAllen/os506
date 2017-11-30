@@ -46,7 +46,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     kprintf("bytes read: %d\n", bytes);
 
     //ELF
-    identify_elf(filep); 
+    //load_elf(filep, NULL);
 
     ssize_t ret = filep->f_op->close(filep);
 

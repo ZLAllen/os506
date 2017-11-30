@@ -1,6 +1,7 @@
 #include <sys/schedule.h>
 #include <sys/kmalloc.h>
 #include <sys/kprintf.h>
+#include <sys/pging.h>
 
 /** current task */
 task_struct *current; 
@@ -46,6 +47,11 @@ void switch_to(
 
     // check if kernel process or user process
     // switch to ring 3 if needed
+    if (next->userp) {
+        switch_to_user_mode(next);
+    }
+
+    __asm__ volatile("retq");
 }
 
 /**
@@ -68,8 +74,7 @@ void schedule(task_struct *new_task) {
     }
 }
 
-/**
- * Get next available runnable task
+/** * Get next available runnable task
  * Removes it from the list of available tasks
  */
 task_struct *get_next_task() {
@@ -103,7 +108,7 @@ pid_t get_next_pid() {
  * Create a new task
  * This does not schedule the task.
  */
-task_struct *create_new_task(function thread_fn) {
+task_struct *create_new_task(function thread_fn, bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
 
@@ -111,8 +116,28 @@ task_struct *create_new_task(function thread_fn) {
     new_task->kstack[KSTACK_SIZE-2] = (uint64_t)thread_fn;
     new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
     new_task->pid = get_next_pid();
+    new_task->userp = userp;
 
     kprintf("Process PID %d created\n", new_task->pid);
 
     return new_task;
 }
+
+/**
+ * Switch to user mode (ring 3)
+ */
+void switch_to_user_mode(task_struct *next) {
+
+    // SS
+    // RSP
+    // RFLAGS
+    // CS
+    // RIP
+    next->kstack[KSTACK_SIZE-1] = 0x23; // set SS
+    next->kstack[KSTACK_SIZE-4] = 0x1b; // set CS
+    next->kstack[KSTACK_SIZE-3] = 0x200202UL; // set RFLAGS
+    __asm__ __volatile__("iretq");
+    // set ring 3 bit
+    // call iretq
+}
+

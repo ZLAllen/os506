@@ -64,18 +64,7 @@ typedef struct elf64_shdr
 
 
 
-int identify_elf(struct file *filep);
-int identify_ehdr(Elf64_Ehdr *ehdr);
-int identify_phdr(Elf64_Ehdr *ehdr);
-
-Elf64_Ehdr* get_ehdr(struct file *filep);
-Elf64_Phdr* get_phdr(int ph_num, Elf64_Ehdr *ehdr);
-Elf64_Shdr* get_shdr(int sh_num, Elf64_Ehdr *ehdr);
-
+int parse_elf(struct file *filep);
 int load_elf(struct file *filep, struct mm_struct *mm);
-
-void print_elf(Elf64_Ehdr *ehdr);
-void print_phdr(Elf64_Phdr *phdr);
-void print_shdr(Elf64_Ehdr *ehdr, Elf64_Shdr *shdr);
 
 #endif
