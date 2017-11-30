@@ -44,11 +44,13 @@ typedef struct vma_struct{
 typedef struct mm_struct{
     vma_struct* vm;
     int vma_count;
-    int mm_no;
+    int mm_count;
     struct mm_struct* next;
     struct mm_struct* free;
     uint64_t pml4;
     uint64_t total_vm;
+    uint64_t start_brk, brk, start_stack;   
+    uint64_t arg_start, arg_end, env_start, env_end;
 }mm_struct;
 
 void reload_task_struct();
