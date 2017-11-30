@@ -49,6 +49,7 @@ typedef struct mm_struct{
     struct mm_struct* free;
     uint64_t pml4;
     uint64_t total_vm;
+    
 }mm_struct;
 
 void reload_task_struct();

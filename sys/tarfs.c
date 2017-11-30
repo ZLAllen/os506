@@ -21,9 +21,6 @@ struct posix_header_ustar *get_tfs_first(void)
         return (struct posix_header_ustar *)&_binary_tarfs_start;
 }
 
-
-
-
 //ptr to the next tarf header
 struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 {
@@ -49,7 +46,7 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 
 
 //open a tarfs file
-struct file *tfs_open(const char *path, int flags) 
+struct file *tfs_open(const char *fpath, int flags) 
 {
 	kprintf("tarfs open\n");
 	struct file *filep;
@@ -70,7 +67,7 @@ struct file *tfs_open(const char *path, int flags)
 	while(hdr != NULL)
 	{      
                 //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
-		if(memcmp(path, hdr->name, 5) == 0) //bytes to compare??
+		if(memcmp(fpath, hdr->name, 5) == 0) //bytes to compare??
 		{
 			kprintf("found the matching file\n");
                         //create a fle object and set fields
