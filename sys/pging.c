@@ -184,7 +184,6 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     }
 
 }
-
 /*
 void* alloc_pml4(){
     // when we create a new pml4, the default contains kernel mapping and self reference
@@ -196,7 +195,7 @@ void* alloc_pml4(){
 
     uint64_t* vir_pml4 = get_kern_free_addr();
 
-    
+
 
 }
 

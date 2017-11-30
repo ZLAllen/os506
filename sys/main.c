@@ -35,13 +35,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     init_pging((uint64_t)real_physfree);
     //init_thread();
-
+    /*
     kprintf("call to tarfs methods\n");
     struct file *filep;
     char buf[5];
     filep = tfs_open("hello", 0);
     int bytes = filep->f_op->read(filep, buf, sizeof(buf) - 1, &filep->f_pos);
-
+    */
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
 }
