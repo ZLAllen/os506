@@ -38,13 +38,15 @@ typedef struct vma_struct{
     uint64_t flag;
     struct vma_struct* next;
     struct vma_struct* free;
+    uint64_t start_brk, brk, start_stack;   
+    uint64_t arg_start, arg_end, env_start, env_end;
 }vma_struct;
 
 
 typedef struct mm_struct{
     vma_struct* vm;
     int vma_count;
-    int mm_no;
+    int mm_count;
     struct mm_struct* next;
     struct mm_struct* free;
     uint64_t pml4;
