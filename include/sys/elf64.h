@@ -1,6 +1,10 @@
 #ifndef _ELF64_H
 #define _ELF64_H
 
+#include <sys/defs.h>
+#include <sys/tarfs.h>
+#include <sys/task_pool.h>
+
 #define EI_NIDENT 16
 
 // elf data types
@@ -15,20 +19,20 @@ typedef uint64_t Elf64_Xword;
 
 // elf header
 typedef struct {
-  unsigned char e_ident[EI_NIDENT];
-  Elf64_Half    e_type;
-  Elf64_Half    e_machine;
-  Elf64_Word    e_version;
-  Elf64_Addr    e_entry;
-  Elf64_Off     e_phoff;
-  Elf64_Off     e_shoff;
+  unsigned char e_ident[EI_NIDENT]; //decode and interpre file content
+  Elf64_Half    e_type; //identify object file type
+  Elf64_Half    e_machine; //required architecture for the file
+  Elf64_Word    e_version; //object file version
+  Elf64_Addr    e_entry; //vistrual address starting the process
+  Elf64_Off     e_phoff; //program header table file offset in bytes
+  Elf64_Off     e_shoff; //section header table file offset in bytes
   Elf64_Word    e_flags;
-  Elf64_Half    e_ehsize;
-  Elf64_Half    e_phentsize;
-  Elf64_Half    e_phnum;
-  Elf64_Half    e_shentsize;
-  Elf64_Half    e_shnum;
-  Elf64_Half    e_shstrndx;
+  Elf64_Half    e_ehsize; //elf header size in bytes
+  Elf64_Half    e_phentsize;//size of one entry in program header table; all sizes same
+  Elf64_Half    e_phnum;//num entries in the program header table
+  Elf64_Half    e_shentsize;//section header size in bytes; all same
+  Elf64_Half    e_shnum;//num entries in section header table
+  Elf64_Half    e_shstrndx;// section name table
 } Elf64_Ehdr;
 
 // elf program header
@@ -43,5 +47,32 @@ typedef struct {
   Elf64_Xword   p_align;
 } Elf64_Phdr;
 
+//elf section header
+typedef struct elf64_shdr 
+{
+    Elf64_Word sh_name;       
+    Elf64_Word sh_type;       
+    Elf64_Xword sh_flags;     
+    Elf64_Addr sh_addr;       
+    Elf64_Off sh_offset;      
+    Elf64_Xword sh_size;      
+    Elf64_Word sh_link;       
+    Elf64_Word sh_info;       
+    Elf64_Xword sh_addralign; 
+    Elf64_Xword sh_entsize;   
+} Elf64_Shdr;
+
+
+
+
+int identify_hdr(Elf64_Ehdr *hdr);
+int identify_phdr(Elf64_Ehdr *hdr);
+Elf64_Ehdr* get_hdr(struct file *filep);
+Elf64_Phdr* get_phdr(int ph_num, Elf64_Ehdr *hdr);
+Elf64_Shdr* get_shdr(int sh_num, Elf64_Ehdr *hdr);
+int load_elf(struct file *filep, struct mm_struct *mm);
+
+void print_phdr(Elf64_Phdr *phdr);
+void print_shdr(Elf64_Ehdr *hdr, Elf64_Shdr *shdr);
 
 #endif

@@ -50,3 +50,8 @@ extern void _isr33();
 
 
 #endif
+
+void printkey();
+void handle_pg_fault();
+void update_kkbd(char key, int flag);
+

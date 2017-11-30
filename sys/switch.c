@@ -1,7 +1,8 @@
 #include <sys/switch.h>
 #include <sys/schedule.h>
+#include <sys/pging.h>
 
-task_struct *task1, *task2, *task3, *task4;
+task_struct *task1, *task2, *task3, *task4, *task5;
 
 void thread1()
 {
@@ -14,7 +15,7 @@ void thread1()
     x++;
     kprintf("Back again in thread 1. Variable is %d.\n", x);
     run_next_task();
-    while(1) {}
+    //while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
@@ -33,7 +34,7 @@ void thread2()
     kprintf("Back again in thread 2. Variable is %d.\n", x);
     kprintf("Thread 2 will now run a while(1) and not call run_next_task().");
 
-    while(1) {}
+    //while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -48,7 +49,7 @@ void thread3()
     run_next_task();
     kprintf("Back again in thread 3\n");
 
-    while(1) {}
+    //while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -62,6 +63,19 @@ void thread4()
     run_next_task();
     kprintf("Back again in thread 4\n");
 
+    //while(1) {}
+
+   // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
+    __asm__ volatile("retq");
+
+}
+
+void thread5() {
+
+	kprintf("Thread 5. I am a user thread \n");
+
+    run_next_task();
+
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
@@ -71,33 +85,26 @@ void thread4()
 
 
 
-void init_thread()
-{
-    task1 = create_new_task(&thread1);
-    task2 = create_new_task(&thread2);
-    task3 = create_new_task(&thread3);
-    task4 = create_new_task(&thread4);
+void init_thread() {
+    task1 = create_new_task(&thread1, false);
+    task2 = create_new_task(&thread2, false);
+    task3 = create_new_task(&thread3, false);
+    task4 = create_new_task(&thread4, false);
+    task5 = create_new_task(&thread5, true);
 
-    /*
-    task1 = get_task_struct();
-    task2 = get_task_struct();
+    uint64_t *new_page = kmalloc();
+    uint64_t *page_table = getPhys((uint64_t)new_page);
+    
+    // set user bit
+    *page_table |= PAGE_U;
 
-    task1->kstack = kmalloc();
-    task2->kstack = kmalloc();
+    kprintf("%p\n", *page_table);
 
-    //rsp
-    task1->kstack[KSTACK_SIZE-2] = (uint64_t)&thread1;
-    task1->rsp = (uint64_t)&(task1->kstack[KSTACK_SIZE-2]);
-    task1->pid = 0;
-
-
-    task2->kstack[KSTACK_SIZE-2] = (uint64_t)&thread2;
-    task2->rsp = (uint64_t)&(task2->kstack[KSTACK_SIZE-2]);
-    task2->pid = 1;*/
-	schedule(task1);
+    schedule(task1);
     schedule(task2);
     schedule(task3);
     schedule(task4);
+    //schedule(task5);
 
     run_next_task();
 

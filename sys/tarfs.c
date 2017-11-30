@@ -3,6 +3,17 @@
 #include <sys/defs.h>
 #include <sys/system.h>
 #include <sys/kmalloc.h>
+#include <sys/fs.h>
+
+
+//file operations table
+struct file_ops tfs_file_ops =
+{
+    open: tfs_open,
+    //read: tfs_read,
+    close: tfs_close
+};
+
 
 // ptr to the first tarfs header 
 static inline struct posix_header_ustar *get_tfs_first(void)
@@ -67,10 +78,10 @@ struct file *tfs_open(const char *path, int flags)
                 //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
 		if(memcmp(path, hdr->name, 5) == 0) //bytes to compare??
 		{
-			kprintf("found the file\n");
+			kprintf("found the file");
 			filep = kmalloc();
-			filep->fdata = hdr;
-			filep->fd = 1;
+			filep->private_data = hdr;
+			filep->f_op = &tfs_file_ops;
 			return filep;
 		}
 		//print_tfs_metadata(hdr);
@@ -81,10 +92,10 @@ struct file *tfs_open(const char *path, int flags)
 
 
 //reads a tarfs file 
-int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
+ssize_t tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *offset)
 {
 	kprintf("tarfs read");
-	size_t bytes_left, bytes_to_read;
+	ssize_t bytes_left, bytes_to_read;
 	char *data_begin;
 	unsigned long f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
 	if(*offset == f_size || count == 0)
@@ -101,81 +112,20 @@ int tfs_read(struct posix_header_ustar *hdr, char *buf, size_t count, off_t *off
 }
 
 //closes a tarfs file
-int tfs_close(struct file *fp)
+int tfs_close(struct file *filep)
 {
 	kprintf("tarfs close");
-	if (!fp)
+	if (!filep)
 	{
 		kprintf("file is NULL");
 		return -1;
 	}
-	fp->fd--;
-	memset(fp, 0, sizeof(struct file));		
-	kfree(fp);
+
+	memset(filep, 0, sizeof(struct file));		
+	kfree(filep);
 	return 0;
 }
 
-
-
-void *opendir(const char *dirname)
-{
-        //perform checks
-        if(!dirname)
-                return NULL;
-
-        struct dstream *dirp;
-
-	// fix this
-        int fd = 0;
-        if(fd < 0)
-	{
-                kprintf("fd is < 0");
-                return NULL;
-	}
-        dirp = kmalloc();
-        if(!dirp)
-	{
-                kprintf("could not allocate memory for dirp");
-                return NULL;
-
-	}
-        //check this
-        dirp->fd = fd;
-        return dirp;
-
-}
-
-
-struct dirent *readdir(struct dstream *dirp)
-{
-
-	if(!dirp)
-	{
-		kprintf("dirp is NULL");
-		return NULL;
-	}
-
-	struct dirent *dirent = NULL;	
-	return dirent;
-
-}
-
-
-int closedir(struct dstream *dirp)
-{
-	int fd;
-	
-	if(!dirp)	
-	{
-		kprintf("dirp is NULL");
-		return -1;
-	}
-	fd = dirp->fd;
-	kfree(dirp);
-
-	return fd;
-
-}
 
 /*
 helper functions
