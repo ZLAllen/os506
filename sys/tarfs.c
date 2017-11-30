@@ -53,6 +53,7 @@ struct file *tfs_open(const char *path, int flags)
 {
 	kprintf("tarfs open\n");
 	struct file *filep;
+    int fpath = 0; // TODO
 	if (!fpath)
 	{
 		kprintf("path name is NULL\n");
