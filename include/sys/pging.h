@@ -29,4 +29,6 @@ void map_page(uint64_t paddr, uint64_t vaddr);
 
 void* getPhys(uint64_t vaddr);
 
+uint64_t alloc_pml4();
+
 #endif

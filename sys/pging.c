@@ -184,23 +184,26 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     }
 
 }
-/*
-void* alloc_pml4(){
+uint64_t alloc_pml4(){
     // when we create a new pml4, the default contains kernel mapping and self reference
     // which is pml4[511] and pml4[510]
     
-    uint64_t* pml4;
+    uint64_t pml4;
 
-    pml4 = get_free_page(); // a phys addr
+    pml4 = (uint64_t)get_free_page(); // a phys addr
 
     uint64_t* vir_pml4 = get_kern_free_addr();
 
+    map_page(pml4, (uint64_t)vir_pml4);
 
+    vir_pml4[511] = init_pml4[510]; //kernel mapping is shared
 
+    vir_pml4[510] = pml4|PAGE_P|PAGE_RW; //self ref
+
+    return pml4;  //return the physical address of pml4
 }
 
-void* walk_pt(void* vaddr)
-{
+// probably gonna need a page table walk method
+//uint64_t walk_pt(uint64_t physAddr)
 
-}
-*/
+
