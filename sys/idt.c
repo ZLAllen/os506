@@ -2,6 +2,7 @@
 #include <sys/isr.h>
 #include <sys/system.h>
 #include <sys/ktime.h>
+#include <syscalls.h>
 
 #define MAX_IDT 256
 
@@ -95,7 +96,9 @@ void init_idt() {
     idt_set_gate(30, (uint64_t)_isr30, 0x08, 0x8E); 
     idt_set_gate(31, (uint64_t)_isr31, 0x08, 0x8E); 
     idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
-    idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E); 
+    idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E);
+
+    idt_set_gate(128, (uint64_t)syscall, 0x08, 0x8E);   // change from 0x8E to 0xEE after
 
     _x86_64_asm_lidt(&idtr);
 

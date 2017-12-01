@@ -36,7 +36,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-    init_thread();
+   // init_thread();
     
     
     struct file *filep = tfs_open("hello", 0);
@@ -52,6 +52,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("close return value: %d\n", ret);
 
+
+    __asm__ volatile ("movq $50, %rax");
+    __asm__ volatile ("int $0x80");
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
