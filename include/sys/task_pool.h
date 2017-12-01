@@ -3,19 +3,11 @@
 
 enum state{READY, RUNNING, ZOMBIE};
 
+#define STACK_TOP_USR  0xF000000000UL
+#define STACK_SIZE_USR 0x10000 
 
 #include <sys/defs.h>
-/*
-typedef struct task_struct{
-    uint32_t state;
-    pid_t pid;
-    pid_t ppid;
-    uint8_t* kstack;
-    struct mm_struct* mm;
-    struct task_struct* parent;
-    struct task_struct* free;
-}task_struct;
-*/
+
 
 // process struct
 typedef struct task_struct {
