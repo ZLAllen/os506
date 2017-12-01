@@ -10,6 +10,7 @@
 #include <sys/switch.h>
 #include <sys/fs.h>
 #include <sys/elf64.h>
+#include <sys/syscalls.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -66,8 +67,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     __asm__ volatile ("movq $50, %%rax");
 */
-    __asm__ volatile ("movq $50, %rax");
-    __asm__ volatile ("movq $77, %rbx");
+    //__asm__ volatile ("movq $50, %rax");
+    //__asm__ volatile ("movq $77, %rbx");
+    syscallArg1(SYS_test, 77);
     __asm__ volatile ("int $0x80");
 
     //ahciTest()
