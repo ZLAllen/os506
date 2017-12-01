@@ -64,7 +64,7 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
         uint64_t pt = cr3_r();
 
 	Elf64_Ehdr *ehdr = get_ehdr(filep);
-        uint64_t s_vaddr, e_vaddr, type = 0, top_addr = 0; 
+        uint64_t s_vaddr, e_vaddr, type = 0, top_vaddr = 0; 
 
         Elf64_Phdr* phdr = (Elf64_Phdr*) ((void*)ehdr + ehdr->e_phoff);
         int size, flag;
@@ -140,7 +140,7 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
         
         //4.allocate heap 4k?? increase it to 1GB
         end_vma = traverse_vmas(mm->vm);
-        s_vaddr = e_vaddr = ((((top_addr - 1) >> 12) + 1) << 12);//??
+        s_vaddr = e_vaddr = ((((top_vaddr - 1) >> 12) + 1) << 12);//??
         kprintf("heap start address %d and end address %d\n", s_vaddr, e_vaddr);
         end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type=1, flag);
         mm->vma_count++;
