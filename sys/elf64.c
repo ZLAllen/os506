@@ -53,19 +53,12 @@ int parse_elf(struct file *filep)
 //METHOD 2: load txt, data, and bss section into memory and sets the entry point in task 
 int create_proc_load_elf(struct file *filep, char *argv[])
 {      
-        /*
         int valid = parse_elf(filep);
         if(valid != 0)
         {
             return -1;
         }
 
-        task_struct *new_task = create_new_task(&thread1, true);
-        struct mm_struct *mm = new_task->mm;
-       	if (!mm)
-	{
-		kprintf("task struct is NULL\n");
-	}
         //read the curent pml4 for resoting it
         uint64_t pt = cr3_r();
 
@@ -75,6 +68,12 @@ int create_proc_load_elf(struct file *filep, char *argv[])
         int size, flag;
         struct vma_struct *end_vma;
 
+        task_struct *new_task = create_new_task((void*)(ehdr->e_entry), true);
+        struct mm_struct *mm = new_task->mm;
+       	if (!mm)
+	{
+		kprintf("task struct is NULL\n");
+	}
         //for each program header [text -> data -> bss -> heap -> stack]
         for (int n = 0; n < ehdr->e_phnum; ++n)
         {
@@ -142,11 +141,16 @@ int create_proc_load_elf(struct file *filep, char *argv[])
         end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
         mm->vma_count++;
         mm->start_brk = s_vaddr;
-        mm->end_brk = e_vaddr; 
+        mm->brk = e_vaddr; //by increasing brk we allow heap to grow 
 
         //5. allocate stack
         //s_vaddr = 
-        //e_vaddr = 
+        //e_vaddr =
+        /*
+         *
+         * Note: stack top should be set to a particular location 
+         *
+         * */
         kprintf("stack start address %d and end address %d", s_vaddr, e_vaddr);
         end_vma =traverse_vmas(mm->vm);
         end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
@@ -168,7 +172,6 @@ int create_proc_load_elf(struct file *filep, char *argv[])
 
         //schedule process
 	schedule(new_task);
-        */
 	return 0;
 }
 
