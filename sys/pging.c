@@ -76,7 +76,7 @@ void init_pging(uint64_t physfree)
     cr3_w((uint64_t)pml4);
 
 
-    map_page(0xb8000, VIDEO);
+    map_page(0xb8000, VIDEO, (uint64_t)0|PAGE_P|PAGE_RW);
 
     // set a top virtual address
     set_kern_free_addr((void*)(KERN + physfree));
@@ -144,7 +144,7 @@ void* getPhys(uint64_t vaddr)
 
 
 
-void map_page(uint64_t paddr, uint64_t vaddr)
+void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
 {
     uint64_t *pmle, *pdpe, *pde, *pte;
     uint64_t addr;
@@ -158,14 +158,14 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     if(!IS_PRESENT(*pmle))
     {
         addr = (uint64_t)get_free_page();
-        *pmle = addr|PAGE_RW|PAGE_P;
+        *pmle = addr|flags;
     }
 
 
     if(!IS_PRESENT(*pdpe))
     {
         addr = (uint64_t)get_free_page();
-        *pdpe = addr|PAGE_RW|PAGE_P;
+        *pdpe = addr|flags;
     }
         
 
@@ -173,11 +173,11 @@ void map_page(uint64_t paddr, uint64_t vaddr)
     {
         addr = (uint64_t)get_free_page();
 
-        *pde = addr|PAGE_RW|PAGE_P;
+        *pde = addr|flags;
     }
 
     if(!IS_PRESENT(*pte))
-        *pte = paddr|PAGE_RW|PAGE_P;
+        *pte = paddr|flags;
     else{
         kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
@@ -194,7 +194,7 @@ uint64_t alloc_pml4(){
 
     uint64_t* vir_pml4 = get_kern_free_addr();
 
-    map_page(pml4, (uint64_t)vir_pml4);
+    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW);
 
     vir_pml4[511] = init_pml4[510]; //kernel mapping is shared
 

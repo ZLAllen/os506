@@ -25,7 +25,7 @@
 
 void init_pging(uint64_t physfree);
 
-void map_page(uint64_t paddr, uint64_t vaddr);
+void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags);
 
 void* getPhys(uint64_t vaddr);
 

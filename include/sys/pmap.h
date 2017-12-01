@@ -16,6 +16,5 @@ void* get_free_page();
 void release_page(void* ptr);
 void inc_map_count(void* ptr);
 
-void kmmap(uint64_t start_addr, int bytes, uint64_t flags);
 
 #endif

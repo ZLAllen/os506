@@ -29,7 +29,7 @@ void* kmalloc()
     }
 
     // register mem to page table
-   map_page((uint64_t)paddr, (uint64_t)kern_free_addr);
+   map_page((uint64_t)paddr, (uint64_t)kern_free_addr, (uint64_t)0|PAGE_P|PAGE_RW);
  
    void* vaddr = kern_free_addr; 
 
