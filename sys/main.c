@@ -52,9 +52,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("close return value: %d\n", ret);
 
-
-    __asm__ volatile ("movq $50, %rax");
+/*
+    __asm__ volatile ("movq $50, %%rax");
     __asm__ volatile ("int $0x80");
+*/
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
