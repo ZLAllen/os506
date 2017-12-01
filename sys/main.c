@@ -51,8 +51,21 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     //TARFS close
     //ssize_t ret = filep->f_op->close(filep);
-    
+   
+    /*
+    char buf[5];
+    ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
+    kprintf("bytes read: %d\n", bytes);
 
+    //ELF
+    //load_elf(filep, NULL);
+
+    ssize_t ret = filep->f_op->close(filep);
+
+    kprintf("close return value: %d\n", ret);
+
+    __asm__ volatile ("movq $50, %%rax");
+*/
     __asm__ volatile ("movq $50, %rax");
     __asm__ volatile ("movq $77, %rbx");
     __asm__ volatile ("int $0x80");
