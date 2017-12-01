@@ -10,6 +10,10 @@
 // for stack, just allocate a page
 
 
+void reload_task_struct();
+void reload_mm_struct();
+void reload_vma_struct();
+
 task_struct* free_task_struct;
 mm_struct* free_mm_struct;
 vma_struct* free_vma_struct;
@@ -96,6 +100,8 @@ void* get_task_struct()
     task_struct* ret = free_task_struct;
     free_task_struct = free_task_struct->free;
 
+    memset(ret, 0, sizeof(task_struct));
+
     return (void*)ret;
 }
 
@@ -111,6 +117,8 @@ void* get_mm_struct()
     mm_struct* ret = free_mm_struct;
     free_mm_struct = free_mm_struct->free;
 
+    memset(ret, 0, sizeof(mm_struct));
+    
     return (void*)ret;
 }
 
@@ -126,7 +134,7 @@ void* get_vma_struct()
     vma_struct* ret = free_vma_struct;
     free_vma_struct = free_vma_struct->free;
 
-    ret->free = 0;
+    memset(ret, 0, sizeof(vma_struct));
 
     return (void*)ret;
 }

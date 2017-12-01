@@ -287,3 +287,23 @@ static struct freelist_entry* walk_list(void* ptr)
 
     return 0;
 }
+
+/*
+void kmmap(uint64_t s_addr, int size, uint64_t flags)
+{
+    int num_pages = ((s_addr + size -1) >> 12) - ((s_addr) >> 12) + 1;
+    kprintf("num pages %d\n", num_pages);
+
+    //get current top v_address
+    uint64_t curr_addr = 0;
+
+    //set top v-address
+    uint64_t aligned_s_addr = ALIGN_UP(s_addr);
+    
+    //allocate pages
+    
+    //restore top v_address
+
+}*/ 
+
+

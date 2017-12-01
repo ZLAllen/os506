@@ -112,6 +112,14 @@ task_struct *create_new_task(function thread_fn, bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
 
+
+    // initialize mm_struct
+    mm_struct* my_mm = get_mm_struct();
+    my_mm->pml4 = alloc_pml4();
+
+    new_task->mm = my_mm;
+
+
     // task rsp
     new_task->kstack[KSTACK_SIZE-2] = (uint64_t)thread_fn;
     new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);

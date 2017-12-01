@@ -53,11 +53,6 @@ typedef struct mm_struct{
     uint64_t arg_start, arg_end, env_start, env_end;
 }mm_struct;
 
-void reload_task_struct();
-
-void reload_mm_struct();
-
-void reload_vma_struct();
 
 void* get_task_struct();
 

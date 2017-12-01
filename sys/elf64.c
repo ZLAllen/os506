@@ -51,21 +51,15 @@ int parse_elf(struct file *filep)
 
 
 //METHOD 2: load txt, data, and bss section into memory and sets the entry point in task 
-void create_proc_load_elf(struct file *filep, char *argv[])
+struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
 {      
-        
+
         int valid = parse_elf(filep);
         if(valid != 0)
         {
-            return;
+            return NULL;
         }
 
-        task_struct *new_task = create_new_task(&create_proc_load_elf, true);
-        struct mm_struct *mm = new_task->mm;
-       	if (!mm)
-	{
-		kprintf("task struct is NULL\n");
-	}
         //read the curent pml4 for resoting it
         uint64_t pt = cr3_r();
 
@@ -75,6 +69,12 @@ void create_proc_load_elf(struct file *filep, char *argv[])
         int size, flag;
         struct vma_struct *end_vma;
 
+        task_struct *new_task = create_new_task((void*)(ehdr->e_entry), true);
+        struct mm_struct *mm = new_task->mm;
+       	if (!mm)
+	{
+		kprintf("mm task struct is NULL\n");
+	}
         //for each program header [text -> data -> bss -> heap -> stack]
         for (int n = 0; n < ehdr->e_phnum; ++n)
         {
@@ -121,54 +121,53 @@ void create_proc_load_elf(struct file *filep, char *argv[])
                 //load plm4 from the process
                 cr3_w(mm->pml4);
 
-                //kmmap
-                kmmap(s_vaddr, size, flag);
+                //kmmap(s_vaddr, size, flag);
                 //1. and 2. text and data
                 memcpy((void*) s_vaddr, (void*) ehdr + phdr->p_offset, phdr->p_filesz);
                 //3. bss
                 memset((void *)s_vaddr + phdr->p_filesz, 0, size - phdr->p_filesz);
                 
                 //restore the saved plm4
-                cr3_w(pt); 
+                cr3_w(pt);
+
                 max_vaddr = (max_vaddr < e_vaddr) ? e_vaddr:max_vaddr; 
             }
             phdr++;
         }
         
-        //4.allocate heap
+        //4.allocate heap 4k?? increase it to 1GB
         end_vma = traverse_vmas(mm->vm);
         s_vaddr = e_vaddr = ((((max_vaddr - 1) >> 12) + 1) << 12);//??
         kprintf("heap start address %d and end address %d\n", s_vaddr, e_vaddr);
-        //end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
+        end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type=1, flag);
         mm->vma_count++;
         mm->start_brk = s_vaddr;
-        mm->brk = e_vaddr; 
+        mm->brk = e_vaddr; //by increasing brk we allow heap to grow 
 
-        //5. allocate stack
-        //s_vaddr = 
-        //e_vaddr = 
+        
+        //5. allocate stack 
+        /*
+        e_vaddr = STACK_TOP_USR;
+        s_vaddr = STACK_TOP_USR - STACK_SIZE_USR;
+       
         kprintf("stack start address %d and end address %d", s_vaddr, e_vaddr);
         end_vma =traverse_vmas(mm->vm);
-        //end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
+        end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
         mm->vma_count++;
-        mm->start_stack = s_vaddr;
+        mm->start_stack = e_vaddr - 0x8;
         cr3_w(mm->pml4);
         //kmmap();
         cr3_w(pt);
 
-        //mm->total_vm  = ; 
+        mm->total_vm += STACK_SIZE_USR; 
 
         //handle args
-        cr3_w(mm->pml4);
-
-        kprintf("stack ptr at\n");
-        //mm->start_stack = ;
-
-        cr3_w(pt);
-
+        */
+               
         //schedule process
 	schedule(new_task);
-        
+
+        return new_task;
 }
 
 
