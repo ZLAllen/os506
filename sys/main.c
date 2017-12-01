@@ -54,6 +54,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     
 
     __asm__ volatile ("movq $50, %rax");
+    __asm__ volatile ("movq $77, %rbx");
     __asm__ volatile ("int $0x80");
 
     //ahciTest()

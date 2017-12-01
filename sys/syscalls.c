@@ -2,8 +2,8 @@
 #include <syscalls.h>
 #include <sys/kprintf.h>
 
-void sys_test() {
-   kprintf("print me\n");
+void sys_test(uint64_t testArg) {
+   kprintf("print me. Argument is %d\n", testArg);
    while(1);
 }
 
@@ -11,9 +11,10 @@ void sys_test() {
  * Supported syscalls
  * Functions defined above
  * Syscall numbers defined in syscalls.h
+ * Number indicates how many arguments function requires
  */
-function syscalls[] = {
-    [SYS_test] sys_test
+functionWithArg syscalls[] = {
+    [SYS_test] {1, sys_test}
 };
 
 /**
@@ -25,28 +26,56 @@ function syscalls[] = {
  * rbx, rcx, rdx, rsi, rdi, rbp 
  *
  * Return:
- * eax
+ * rax
  */
 void syscall(void) {
 
     uint64_t num;
-    function callFunc;
-
-    // TODO - check valid syscall number
+    functionWithArg callFunc;
+    uint64_t arg0, arg1, arg2, arg3, arg4;
 
     // read syscall number from rax register
-    __asm__ __volatile__
-        ("movq %%rax, %0"
+    __asm__ __volatile__(
+        "movq %%rax, %0;"
          :"=r" (num)
-         ::);
+         ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
+    );
 
-
-    // get function associated with syscall
     __asm__ __volatile__(PUSHREGS);
-    callFunc = syscalls[num];
+    kprintf("Performing syscall %d\n", num);
     __asm__ __volatile__(POPREGS);
 
-    //test only, TODO - use call instruction
-    callFunc();
-    
+    // read arguments from registers
+    __asm__ __volatile__(
+            "movq %%rbx, %0;"
+            "movq %%rcx, %1;"
+            "movq %%rdx, %2;"
+            "movq %%rsi, %3;"
+            "movq %%rdi, %4;"
+            :"=r" (arg0), "=r" (arg1), "=r" (arg2), "=r" (arg3), "=r" (arg4)
+        );
+
+    // get function associated with syscall
+    callFunc = syscalls[num];
+
+    switch (callFunc.count) {
+        case 0:
+            callFunc.func();
+            break;
+        case 1:
+            callFunc.func(arg0);
+            break;
+        case 2:
+            callFunc.func(arg0, arg1);
+            break;
+        case 3:
+            callFunc.func(arg0, arg1, arg2);
+            break;
+        case 4:
+            callFunc.func(arg0, arg1, arg2, arg3);
+            break;
+        case 5:
+            callFunc.func(arg0, arg1, arg2, arg3, arg4);
+            break;
+    }
 }
