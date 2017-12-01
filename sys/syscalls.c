@@ -1,8 +1,10 @@
 #include <sys/defs.h>
 #include <syscalls.h>
+#include <sys/kprintf.h>
 
 void sys_test() {
-    
+   kprintf("print me\n");
+   while(1);
 }
 
 /**
@@ -37,6 +39,7 @@ void syscall(void) {
         ("movq %%rax, %0"
          :"=r" (num)
          ::);
+
 
     // get function associated with syscall
     __asm__ __volatile__(PUSHREGS);

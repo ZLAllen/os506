@@ -64,7 +64,8 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
         uint64_t pt = cr3_r();
 
 	Elf64_Ehdr *ehdr = get_ehdr(filep);
-        uint64_t s_vaddr, e_vaddr, type, max_vaddr=0; 
+        uint64_t s_vaddr, e_vaddr, type = 0, top_addr = 0; 
+
         Elf64_Phdr* phdr = (Elf64_Phdr*) ((void*)ehdr + ehdr->e_phoff);
         int size, flag;
         struct vma_struct *end_vma;
@@ -107,7 +108,10 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
                 struct vma_struct *tdb_vma = set_vma_struct(s_vaddr, e_vaddr, phdr->p_type, flag);
                 mm->vma_count++;
                 mm->total_vm += size;
-     
+
+                // we need to record the top address available for heap and stack allocation
+                top_vaddr = (top_vaddr < e_vaddr) ? e_vaddr : top_vaddr;
+
                 if(mm->vm)
                 {
                     end_vma = traverse_vmas(mm->vm);//append
@@ -129,15 +133,14 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
                 
                 //restore the saved plm4
                 cr3_w(pt);
-
-                max_vaddr = (max_vaddr < e_vaddr) ? e_vaddr:max_vaddr; 
+ 
             }
             phdr++;
         }
         
         //4.allocate heap 4k?? increase it to 1GB
         end_vma = traverse_vmas(mm->vm);
-        s_vaddr = e_vaddr = ((((max_vaddr - 1) >> 12) + 1) << 12);//??
+        s_vaddr = e_vaddr = ((((top_addr - 1) >> 12) + 1) << 12);//??
         kprintf("heap start address %d and end address %d\n", s_vaddr, e_vaddr);
         end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type=1, flag);
         mm->vma_count++;

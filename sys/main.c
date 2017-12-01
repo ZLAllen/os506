@@ -36,8 +36,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-    //init_thread();
-    
+
+    // init_thread();
     
     //TARFS open and read
     //struct file *filep = tfs_open("hello", 0);
@@ -52,6 +52,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     //TARFS close
     //ssize_t ret = filep->f_op->close(filep);
     
+
+    __asm__ volatile ("movq $50, %rax");
+    __asm__ volatile ("int $0x80");
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
