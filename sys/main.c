@@ -36,11 +36,23 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-   // init_thread();
+
+    // init_thread();
     
-    
-    struct file *filep = tfs_open("hello", 0);
-    
+    //TARFS open and read
+    //struct file *filep = tfs_open("hello", 0);
+    //char buf[5];
+    //ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
+    //kprintf("bytes read: %d\n", bytes);
+
+    //parse_elf(filep);
+    //char *argv[] = {"f", "s"};
+    //create_proc_load_elf(filep, argv);
+
+    //TARFS close
+    //ssize_t ret = filep->f_op->close(filep);
+   
+    /*
     char buf[5];
     ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
     kprintf("bytes read: %d\n", bytes);
@@ -52,10 +64,11 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("close return value: %d\n", ret);
 
-/*
     __asm__ volatile ("movq $50, %%rax");
-    __asm__ volatile ("int $0x80");
 */
+    __asm__ volatile ("movq $50, %rax");
+    __asm__ volatile ("movq $77, %rbx");
+    __asm__ volatile ("int $0x80");
 
     //ahciTest()
     while(1) __asm__ volatile ("hlt");

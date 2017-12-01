@@ -51,19 +51,21 @@ int parse_elf(struct file *filep)
 
 
 //METHOD 2: load txt, data, and bss section into memory and sets the entry point in task 
-int create_proc_load_elf(struct file *filep, char *argv[])
+struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
 {      
+
         int valid = parse_elf(filep);
         if(valid != 0)
         {
-            return -1;
+            return NULL;
         }
 
         //read the curent pml4 for resoting it
         uint64_t pt = cr3_r();
 
 	Elf64_Ehdr *ehdr = get_ehdr(filep);
-        uint64_t s_vaddr, e_vaddr, type = 0, top_addr = 0; 
+        uint64_t s_vaddr, e_vaddr, type = 0, top_vaddr = 0; 
+
         Elf64_Phdr* phdr = (Elf64_Phdr*) ((void*)ehdr + ehdr->e_phoff);
         int size, flag;
         struct vma_struct *end_vma;
@@ -72,7 +74,7 @@ int create_proc_load_elf(struct file *filep, char *argv[])
         struct mm_struct *mm = new_task->mm;
        	if (!mm)
 	{
-		kprintf("task struct is NULL\n");
+		kprintf("mm task struct is NULL\n");
 	}
         //for each program header [text -> data -> bss -> heap -> stack]
         for (int n = 0; n < ehdr->e_phnum; ++n)
@@ -108,9 +110,8 @@ int create_proc_load_elf(struct file *filep, char *argv[])
                 mm->total_vm += size;
 
                 // we need to record the top address available for heap and stack allocation
-                if(top_addr < e_vaddr)
-                    top_addr = e_vaddr;
-     
+                top_vaddr = (top_vaddr < e_vaddr) ? e_vaddr : top_vaddr;
+
                 if(mm->vm)
                 {
                     end_vma = traverse_vmas(mm->vm);//append
@@ -124,59 +125,52 @@ int create_proc_load_elf(struct file *filep, char *argv[])
                 //load plm4 from the process
                 cr3_w(mm->pml4);
 
-                //kmmap
-                kmmap(s_vaddr, size, flag);
+                //kmmap(s_vaddr, size, flag);
                 //1. and 2. text and data
                 memcpy((void*) s_vaddr, (void*) ehdr + phdr->p_offset, phdr->p_filesz);
                 //3. bss
                 memset((void *)s_vaddr + phdr->p_filesz, 0, size - phdr->p_filesz);
                 
                 //restore the saved plm4
-                cr3_w(pt); 
-                
+                cr3_w(pt);
+ 
             }
             phdr++;
         }
         
-        //4.allocate heap
+        //4.allocate heap 4k?? increase it to 1GB
         end_vma = traverse_vmas(mm->vm);
-        s_vaddr = e_vaddr = ((((top_addr - 1) >> 12) + 1) << 12);//??
+        s_vaddr = e_vaddr = ((((top_vaddr - 1) >> 12) + 1) << 12);//??
         kprintf("heap start address %d and end address %d\n", s_vaddr, e_vaddr);
-        end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
+        end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type=1, flag);
         mm->vma_count++;
         mm->start_brk = s_vaddr;
         mm->brk = e_vaddr; //by increasing brk we allow heap to grow 
 
-        //5. allocate stack
-        //s_vaddr = 
-        //e_vaddr =
+        
+        //5. allocate stack 
         /*
-         *
-         * Note: stack top should be set to a particular location 
-         *
-         * */
+        e_vaddr = STACK_TOP_USR;
+        s_vaddr = STACK_TOP_USR - STACK_SIZE_USR;
+       
         kprintf("stack start address %d and end address %d", s_vaddr, e_vaddr);
         end_vma =traverse_vmas(mm->vm);
         end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type, flag);
         mm->vma_count++;
-        mm->start_stack = s_vaddr;
+        mm->start_stack = e_vaddr - 0x8;
         cr3_w(mm->pml4);
         //kmmap();
         cr3_w(pt);
 
-        //mm->total_vm  = ; 
+        mm->total_vm += STACK_SIZE_USR; 
 
         //handle args
-        cr3_w(mm->pml4);
-
-        kprintf("stack ptr at\n");
-        //mm->start_stack = ;
-
-        cr3_w(pt);
-
+        */
+               
         //schedule process
 	schedule(new_task);
-	return 0;
+
+        return new_task;
 }
 
 
@@ -218,11 +212,11 @@ int get_phdr_info(Elf64_Ehdr *ehdr)
         }
         for (int i = 0; i < ehdr->e_phnum; ++i) 
         {
-            kprintf("\nSegment type: %x\n", phdr->p_type);
             if ((int)phdr->p_type == 1)
             {
-                kprintf("1 found!!\n");
+                //kprintf("type %d offset %s vaddr %s filesz %s memsz %s flags %s\n", phdr->p_type, phdr->p_offset, phdr->p_vaddr, phdr->p_filesz, phdr->p_memsz);
             }
+            phdr++;
         }
         return valid;
 }
@@ -240,10 +234,10 @@ int get_shdr_info(Elf64_Ehdr *ehdr)
         char* stable = (char*)((void *) ehdr + stable_hdr->sh_offset);
         for(int n = 0; n < ehdr->e_shnum; ++n)
         {
-            //kprintf("\n...%x....%x", shdr->sh_type, shd->sh_offset); 
-            char *p = (char*)((void *) stable + shdr->sh_name);  
-            kprintf("\nsection name: %s\n", p); 
-            shdr = shdr + 1;
+            char *p = (char*)((void *) stable + shdr->sh_name); 
+            kprintf("section name %s\n", p);
+            //kprintf("section type %x offset %x name %s", shdr->sh_type, shdr->sh_offset, p); 
+            shdr++;
         }
         return valid;
 }
@@ -267,6 +261,7 @@ int check_ehdr(Elf64_Ehdr *ehdr)
 		//kprintf("\nnot an exec file\n");
 		return -1;
 	}	
+        //kprintf("file type %d phdr offset %s shdr offset %s flags %d\n", ehdr->e_type, ehdr->e_phoff, ehdr->e_shoff, ehdr->e_flags);//we want executable files = 2
 	return 0;
 }
 
@@ -296,23 +291,24 @@ void print_elf(Elf64_Ehdr* ehdr)
 {
 
 	kprintf("ELF Header\n");
-	kprintf("e_ident[0]: %s\n", ehdr->e_ident);
-	kprintf("e_type: %d\n", ehdr->e_type);
-	kprintf("e_entry: %p\n", ehdr->e_entry);
+    
+	kprintf("file type %d phdr offset %s shdr offset %s \n", ehdr->e_type, ehdr->e_phoff, ehdr->e_shoff, ehdr->e_flags);//we want executable files = 2
 
 	kprintf("Program Header\n");
-	for(int n = 0; n < ehdr->e_phnum; n++)
+	for(int n = 0; n < ehdr->e_phnum; ++n)
 	{
 		Elf64_Phdr *phdr = get_phdr(ehdr);
-                if(phdr->p_type == 1) //loadable section
+                if((int)phdr->p_type == 1) //PT_LOAD loadable section
 		    print_phdr(phdr);
+                phdr++;
 	} 
-
+        
 	kprintf("Section Header\n");
-	for(int n = 0; n < ehdr->e_shnum; n++) 
+	for(int n = 0; n < ehdr->e_shnum; ++n) 
 	{
 		Elf64_Shdr *shdr = get_shdr(ehdr);
 		print_shdr(shdr);
+                shdr++;
 	}
 }
 
@@ -320,13 +316,13 @@ void print_elf(Elf64_Ehdr* ehdr)
 //print program header fields
 void print_phdr(Elf64_Phdr *phdr)
 {
-	kprintf("p_type: %d\n", phdr->p_type);
-	kprintf("p_offset: %d\n", phdr->p_offset);
+	kprintf("type %d offset %s vaddr %s filesz %s memsz %s flags %s\n", phdr->p_type, phdr->p_offset, phdr->p_vaddr, phdr->p_filesz, phdr->p_memsz);
 	
 }
 
 //print section header fields
 void print_shdr(Elf64_Shdr *shdr)
 {
-	kprintf("section name\n");
+	kprintf("section type %x and offset %x", shdr->sh_type, shdr->sh_offset); 
+
 }

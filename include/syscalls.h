@@ -12,7 +12,7 @@
 void* brk(void* addr);
 int wait4(pid_t upid, int* stat_addr, int options);
 int dup(int fd);
-void sys_test(void);
+void sys_test(uint64_t testArg);
 
 void syscall(void);
 

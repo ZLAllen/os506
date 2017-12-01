@@ -64,6 +64,6 @@ typedef struct elf64_shdr
 
 
 int parse_elf(struct file *filep);//parse the elf file
-int create_prod_load_elf(struct file *filep, char *argv[]);//entire elf process creation
+struct task_struct  *create_proc_load_elf(struct file *filep, char *argv[]);//entire elf process creation
 
 #endif
