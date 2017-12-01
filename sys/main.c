@@ -36,21 +36,20 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-    init_thread();
+    //init_thread();
     
-    
-    struct file *filep = tfs_open("hello", 0);
-    
-    char buf[5];
+    //TARFS open and read
+    //struct file *filep = tfs_open("hello", 0);
+    /*char buf[5];
     ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
-    kprintf("bytes read: %d\n", bytes);
+    kprintf("bytes read: %d\n", bytes);*/
 
-    //ELF
-    //load_elf(filep, NULL);
+    //ELF parse
+    //parse_elf(filep);
 
-    ssize_t ret = filep->f_op->close(filep);
-
-    kprintf("close return value: %d\n", ret);
+    //TARFS close
+    //ssize_t ret = filep->f_op->close(filep);
+    //kprintf("close return value: %d\n", ret);
 
 
     //ahciTest()
