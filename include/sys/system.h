@@ -54,6 +54,11 @@ static inline void invlpg(uint64_t addr)
 #define KERNBASE 0xFFFFFFFF80200000
 
 
+// define a user stack starting point for virtual address
+#define USER_STACK_TOP 0xF000000000  //note test this address first, adjustable
+#define USER_STACK_SIZE 0x8000  //8 pages
+
+
 // page
 #define PGSIZE 4096
 #define VADDR(x) (KERN + (uint64_t)(x))

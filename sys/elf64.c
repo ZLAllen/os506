@@ -147,7 +147,25 @@ struct task_struct *create_proc_load_elf(struct file *filep, char *argv[])
         mm->start_brk = s_vaddr;
         mm->brk = e_vaddr; //by increasing brk we allow heap to grow 
 
+
+        /*
+         * Read the code below and fix/add anything if you need
+         *
+         */
+
+        // need to make sure user_stack_top didn't collide with s_vaddr
+        e_vaddr = USER_STACK_TOP;
+        s_vaddr = e_vaddr - USER_STACK_SIZE; // this will be the end of stack
+        end_vma = traverse_vmas(mm->vm);
+        // define the stack vma type here please
+        // take care of flag too
+        end_vma->next = set_vma_struct(s_vaddr, e_vaddr, type=2, flag);
+        mm->vma_count++;
+        mm->total_vm += USER_STACK_SIZE; 
         
+        //reserve space for return address, stack arguments 
+        mm->start_stack = e_vaddr - 8; //8 bytes adddr
+
         //5. allocate stack 
         /*
         e_vaddr = STACK_TOP_USR;
