@@ -12,6 +12,7 @@
 #include <sys/elf64.h>
 #include <sys/syscalls.h>
 
+
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
@@ -40,33 +41,12 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     // init_thread();
     
-    //TARFS open and read
-    //struct file *filep = tfs_open("hello", 0);
-    //char buf[5];
-    //ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
-    //kprintf("bytes read: %d\n", bytes);
+    kprintf("\nelf process\n");
+    char *fname = "hello";
+    char *argv[] = {"hello", "arg1", "arg2"};
+    create_elf_process(fname, argv);
 
-    //parse_elf(filep);
-    //char *argv[] = {"f", "s"};
-    //create_proc_load_elf(filep, argv);
-
-    //TARFS close
-    //ssize_t ret = filep->f_op->close(filep);
-   
-    /*
-    char buf[5];
-    ssize_t bytes = filep->f_op->read(filep, buf, sizeof(buf)-1, &filep->f_pos);
-    kprintf("bytes read: %d\n", bytes);
-
-    //ELF
-    //load_elf(filep, NULL);
-
-    ssize_t ret = filep->f_op->close(filep);
-
-    kprintf("close return value: %d\n", ret);
-
-    __asm__ volatile ("movq $50, %%rax");
-*/
+    //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");
     syscallArg1(SYS_test, 77);

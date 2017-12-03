@@ -1,6 +1,11 @@
 #include <sys/defs.h>
-#include <syscalls.h>
+#include <sys/syscalls.h>
+#include <sys/schedule.h>
 #include <sys/kprintf.h>
+#include <sys/dirent.h>
+
+/** current process (sys/schedule.c) */
+extern task_struct *current;
 
 void sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
@@ -9,8 +14,28 @@ void sys_test(uint64_t testArg) {
 /*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
+    return 0;
+}
 
+/**
+ * Fork current process
+ * Creates new process as a child of the current
+ */
+uint64_t sys_fork() {
+    // get current process
+    task_struct *current = current;
 
+    // create child process
+    task_struct *child = fork_process(current);
+
+    // schedule new process like any other
+    schedule(child);
+
+    // fork returns child PID to the parent and 0 to the child
+    // set return (%rax) of child to 0
+
+    // return child PID to the parent
+    return child->pid;
 }
 */
 
@@ -21,6 +46,7 @@ int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
+    //[SYS_fork] {0, sys_fork},
     [SYS_test] {1, sys_test}
 };
 
