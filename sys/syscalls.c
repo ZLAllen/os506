@@ -6,13 +6,13 @@ void sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
    while(1);
 }
-
+/*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
 
 
 }
-
+*/
 
 /**
  * Supported syscalls

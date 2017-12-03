@@ -196,7 +196,7 @@ uint64_t alloc_pml4(){
 
     map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW);
 
-    vir_pml4[511] = init_pml4[510]; //kernel mapping is shared
+    vir_pml4[511] = init_pml4[511]; //kernel mapping is shared
 
     vir_pml4[510] = pml4|PAGE_P|PAGE_RW; //self ref
 

@@ -89,6 +89,7 @@ struct file *tfs_open(const char *fpath, int flags)
 
 
 
+
 //reads a tarfs file 
 ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset)
 {
@@ -174,6 +175,25 @@ int print_tfs(struct posix_header_ustar *hdr)
     }
     return 0;
 }
+/*
+ * To extract directory from tarfs, not to be confused with tarfs read
+ * return number of bytes read 
+ * may return files or directory, as requested b * ls most of the time
+ * */
+// TODO define a root node with a name "/"
 
 
+/*
+int tarfs_readdir(struct file *filep, void *buf, int count)
+{
 
+    // the readdir approach is different, we are trying to record the 
+    // neccerary information for linux dirent, therefore it should be
+    // selective
+
+    // first of all we fetch the header
+    struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->private_data;
+
+
+}
+*/
