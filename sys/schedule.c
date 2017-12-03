@@ -112,17 +112,16 @@ task_struct *create_new_task(function thread_fn, bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
 
-
     // initialize mm_struct
     mm_struct* my_mm = get_mm_struct();
     my_mm->pml4 = alloc_pml4();
 
     new_task->mm = my_mm;
 
-
     // task rsp
-    new_task->kstack[KSTACK_SIZE-2] = (uint64_t)thread_fn;
-    new_task->rsp = (uint64_t)&(new_task->kstack[KSTACK_SIZE-2]);
+    new_task->kstack[RSP_REG] = (uint64_t)thread_fn;
+    new_task->rsp = (uint64_t)&(new_task->kstack[RSP_REG]);
+
     new_task->pid = get_next_pid();
     new_task->userp = userp;
 
@@ -141,11 +140,32 @@ void switch_to_user_mode(task_struct *next) {
     // RFLAGS
     // CS
     // RIP
-    next->kstack[KSTACK_SIZE-1] = 0x23; // set SS
-    next->kstack[KSTACK_SIZE-4] = 0x1b; // set CS
-    next->kstack[KSTACK_SIZE-3] = 0x200202UL; // set RFLAGS
+    next->kstack[SS_REG] = 0x23; // set SS
+    next->kstack[CS_REG] = 0x1b; // set CS
+    next->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
     __asm__ __volatile__("iretq");
     // set ring 3 bit
     // call iretq
+}
+
+/**
+ * Fork given process
+ */
+task_struct *fork_process(task_struct *parent) {
+    // create child task
+    task_struct *child_task = get_task_struct();
+
+    // copy parent's task info into child
+    memcpy(parent, child_task, sizeof(*parent));
+
+    // copy parent's mm struct
+
+    // copy parent's kernel stack from top to stack pointer to child
+
+    child_task->pid = get_next_pid();
+
+    kprintf("Child process PID %d created\n", child_task->pid);
+
+    return child_task;
 }
 
