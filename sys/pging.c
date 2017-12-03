@@ -154,6 +154,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     pde = (uint64_t *)((vaddr << 16 >> 37 << 3) | PDE_REF);
     pte = (uint64_t *)((vaddr << 16 >> 28 << 3) | PTE_REF);
 
+    
 
     if(!IS_PRESENT(*pmle))
     {
@@ -194,12 +195,30 @@ uint64_t alloc_pml4(){
 
     uint64_t* vir_pml4 = get_kern_free_addr();
 
-    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW);
+    set_kern_free_addr(vir_pml4+PGSIZE);
+
+    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW|PAGE_U);
 
     vir_pml4[511] = init_pml4[511]; //kernel mapping is shared
 
     vir_pml4[510] = pml4|PAGE_P|PAGE_RW; //self ref
 
+    kprintf("debug:nv %p, ov %p, np %p\n", vir_pml4, init_pml4, pml4);
+
+    /*
+    //debug 
+    cr3_w(pml4);
+
+    kprintf("will I work\n");
+
+    char* vir = kmalloc();
+
+    *vir = 'a';
+
+    kprintf("%c\n", *vir);
+
+    while(1);
+*/
     return pml4;  //return the physical address of pml4
 }
 

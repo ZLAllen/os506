@@ -12,16 +12,22 @@ void kmmap(uint64_t s_addr, int size, uint64_t flags)
 
 
     // make sure s_addr is aligned to a page granurality 
-    uint64_t aligned_s_addr = ALIGN_UP(s_addr);
-    
+    uint64_t aligned_s_addr = s_addr;
+
+    if(s_addr % PGSIZE)
+    {
+        aligned_s_addr = ALIGN_UP(s_addr);
+    }
+   
+    kprintf("%p, %p\n", s_addr, aligned_s_addr);
+
 
     //allocate pages
     for(int i = 0; i < num_pages; ++i)
     {
         uint64_t physaddr = (uint64_t)get_free_page();
         map_page(physaddr, aligned_s_addr, flags);
+        kprintf("%p, %p\n", physaddr, *((uint64_t*)(getPhys(aligned_s_addr))));
         aligned_s_addr += PGSIZE;
     }
-    
-
 }

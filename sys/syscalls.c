@@ -16,11 +16,12 @@ int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
     return 0;
 }
-
+*/
 /**
  * Fork current process
  * Creates new process as a child of the current
  */
+/*
 uint64_t sys_fork() {
     // get current process
     task_struct *current = current;

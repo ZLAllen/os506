@@ -62,6 +62,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
 
         task_struct *new_task = create_new_task((void*)(ehdr->e_entry), true);
         struct mm_struct *mm = new_task->mm;
+
     
         //for each program header [text -> data -> bss -> heap -> stack]
         for (int n = 0; n < ehdr->e_phnum; ++n)
@@ -70,8 +71,8 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
             {
                 s_vaddr = phdr->p_vaddr;
                 size = phdr->p_memsz;
-                e_vaddr = s_vaddr + size; 
-                kprintf("vma start address %d and end vaddress %d", s_vaddr, e_vaddr);
+                e_vaddr = s_vaddr + size;
+                kprintf("vma start address %p and end vaddress %p\n", s_vaddr, e_vaddr);
                 
                 if (phdr->p_flags == 5)
                 {
@@ -108,15 +109,29 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 // we need to record the top address available for heap and stack allocation
                 top_vaddr = (top_vaddr < e_vaddr) ? e_vaddr : top_vaddr;
 
+                kprintf("new pml4 data: %p\n", mm->pml4);
+
                 //load plm4 from the process
                 cr3_w(mm->pml4);
 
+
+                kprintf("what is that s_vaddr: %p???\n", s_vaddr);
+
+
                 kmmap(s_vaddr, size, vma_flag);//throws error
+
+                kprintf("%p, %p\n", size, phdr->p_filesz);
+
+
+
                 //1. and 2. text and data
-                memcpy((void*) s_vaddr, (void*) ehdr + phdr->p_offset, phdr->p_filesz);
+                memmove((void*) s_vaddr, (void*) ehdr + phdr->p_offset, phdr->p_filesz);
+
+
                 //3. bss
                 memset((void *)s_vaddr + phdr->p_filesz, 0, size - phdr->p_filesz);
-                
+               
+
                 //restore the saved plm4
                 cr3_w(pt);
  
@@ -126,8 +141,10 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         
         //4.allocate heap 
         end_vma = traverse_vmas(mm->vm);
+      
+        kprintf("max_addr: %p\n", top_vaddr);
         s_vaddr = e_vaddr = ((((top_vaddr - 1) >> 12) + 1) << 12);//4kb will make it 1GB
-        kprintf("heap start address %d and end address %d\n", s_vaddr, e_vaddr);
+        kprintf("heap start address %p and end address %p\n", s_vaddr, e_vaddr);
         end_vma->next = set_vma(s_vaddr, e_vaddr, HEAP, RW);
         mm->vma_count++;
         mm->start_brk = s_vaddr;
@@ -142,7 +159,9 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         // need to make sure user_stack_top didn't collide with s_vaddr
         e_vaddr = USER_STACK_TOP;
         s_vaddr = e_vaddr - USER_STACK_SIZE; // this will be the end of stack
-        kprintf("stack start address %d and end address %d\n", s_vaddr, e_vaddr);
+        kprintf("stack start address %x and end address %x\n", s_vaddr, e_vaddr);
+
+        while(1);
         end_vma = traverse_vmas(mm->vm);
         end_vma->next = set_vma(s_vaddr, e_vaddr, STACK, RW);
         mm->vma_count++;
