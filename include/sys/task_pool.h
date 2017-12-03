@@ -9,6 +9,8 @@ enum vma_perm{X, RW};
 #define STACK_SIZE_USR 0x10000 
 
 #include <sys/defs.h>
+#include <sys/fs.h>
+#include <sys/dirent.h>
 
 
 // process struct
@@ -54,12 +56,19 @@ void* get_mm_struct();
 
 void* get_vma_struct();
 
+void* get_file_struct();
+
+void* get_dirent_struct();
+
 void release_task_struct(task_struct* ptr);
 
 void release_mm_struct(mm_struct* ptr);
 
 void release_vma_struct(vma_struct* ptr);
 
+void release_file_struct(struct file* ptr);
+
+void release_dirent_struct(struct linux_dirent* ptr);
 
 extern task_struct *current;
 

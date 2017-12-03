@@ -36,6 +36,7 @@ struct linux_dirent {
     unsigned long d_off;
     unsigned short d_reclen; 
     unsigned char d_type;
+    struct linux_dirent* free;
     char          d_name[];
 };
 

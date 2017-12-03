@@ -38,6 +38,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
+
+    struct file* fs= tfs_open("lib/", 0);
+
+    kprintf("file name %s\n", ((struct posix_header_ustar*)fs->private_data)->name);
+
+    kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
+
 /*
     //small test
     uint64_t new_pml4 = alloc_pml4();
@@ -45,11 +52,14 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     kprintf("will I work %p\n", new_pml4);
   */
     // init_thread();
+    //
+    /*
     kprintf("\nelf process\n");
     char *fname = "hello";
     char *argv[] = {"hello", "arg1", "arg2"};
     create_elf_process(fname, argv);
 
+    */
     //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");

@@ -5,7 +5,7 @@
 #include <sys/kprintf.h>
 
 void* kern_free_addr;
-
+void* k_freelist_pointer;
 
 void* get_kern_free_addr()
 {
@@ -57,3 +57,4 @@ void kfree(void* vaddr){
         invlpg((uint64_t)vaddr);
     }
 }
+
