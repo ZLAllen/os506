@@ -5,9 +5,12 @@
 
 #define ENTRIES 512
 
-#define PAGE_U (1UL << 2)
-#define PAGE_RW (1UL << 1)
-#define PAGE_P (1UL << 0)
+#define PAGE_U (1UL << 2) //paging user
+#define PAGE_RW (1UL << 1) //paging writable
+#define PAGE_P (1UL << 0) //paging present
+
+#define RX_USER (PAGE_P | PAGE_U)
+#define RW_USER (PAGE_P | PAGE_U | PAGE_RW)
 
 
 #define PDE_SIZE (1 << 21)   //2MB

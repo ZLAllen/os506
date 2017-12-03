@@ -63,7 +63,6 @@ typedef struct elf64_shdr
 } Elf64_Shdr;
 
 
-int parse_elf(struct file *filep);//parse the elf file
-struct task_struct  *create_proc_load_elf(struct file *filep, char *argv[]);//entire elf process creation
+struct task_struct *create_elf_process(char *fname, char *argv[]);//elf process
 
 #endif

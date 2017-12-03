@@ -1,6 +1,7 @@
 #include <sys/defs.h>
 #include <syscalls.h>
 #include <sys/kprintf.h>
+#include <sys/dirent.h>
 
 void sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
@@ -9,8 +10,7 @@ void sys_test(uint64_t testArg) {
 
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
-
-
+    return 0;   
 }
 
 
