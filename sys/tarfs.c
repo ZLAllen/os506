@@ -4,7 +4,7 @@
 #include <sys/system.h>
 #include <sys/kmalloc.h>
 #include <sys/fs.h>
-
+#include <sys/kstring.h>
 
 //file operations table
 struct file_ops tfs_file_ops =
@@ -26,19 +26,19 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 {
         if (!hdr)
         {
-                kprintf("header is NULL\n");
+                //kprintf("header is NULL\n");
                 return NULL;
         } 
         else if (hdr->name[0] == '\0')
         {
-                kprintf("header name is NULL\n");
-                //return NULL;
+                //kprintf("header name is NULL\n");
+                return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
         hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
         if (hdr->name[0] == '\0')
         {
-                kprintf("header name is NULL\n");
+                //kprintf("header name is NULL\n");
                 return NULL;
         }
         return hdr;
@@ -48,17 +48,17 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
 //open a tarfs file
 struct file *tfs_open(const char *fpath, int flags) 
 {
-	kprintf("tarfs open\n");
+    	//kprintf("tarfs open\n");
 	struct file *filep;
 	if (!fpath)
 	{
-		kprintf("path name is NULL\n");
+		//kprintf("path name is NULL\n");
 		return NULL;
 	}
 	// check for read only operations
 	if(flags & (O_RDWR | O_WRONLY | O_CREAT | O_TRUNC))
 	{
-		kprintf("ERROR: write operations not allowed\n");
+		//kprintf("ERROR: write operations not allowed\n");
 		return NULL;
 	}
 	struct posix_header_ustar *hdr;
@@ -67,21 +67,20 @@ struct file *tfs_open(const char *fpath, int flags)
 	while(hdr != NULL)
 	{      
                 //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
-		if(memcmp(fpath, hdr->name, 5) == 0) //bytes to compare??
+		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0) 
 		{
-			kprintf("found the matching file\n");
-                        //create a fle object and set fields
-			filep = kmalloc(); //?? size
+			//kprintf("found the matching file\n");
+                      
+			filep = kmalloc(); 
 			filep->private_data = hdr;
 			filep->f_op = &tfs_file_ops;
                         filep->f_pos = (uint64_t)get_tfs_next(hdr);
-                        filep->f_flags = flags;
+                        filep->f_flags = flags;//??dont know values
                         filep->f_count = 1;
                         filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
-                        print_tfs(hdr);
+                        //print_tfs(hdr);
 			return filep;
-		}
-		//print_tfs_metadata(hdr);
+		}	
                 hdr = get_tfs_next(hdr);
 	}
 	return NULL;
@@ -92,16 +91,16 @@ struct file *tfs_open(const char *fpath, int flags)
 //reads a tarfs file 
 ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset)
 {
-	kprintf("\ntarfs read\n");
+	//kprintf("\ntarfs read\n");
         
         if (filep->f_flags == 5)
         {
-            kprintf("filep represents a directory\n");
+            //kprintf("filep represents a directory\n");
             return -1;
         }
 	if(*offset == filep->f_size || count == 0)
 	{
-		kprintf("reading 0 bytes\n");
+		//kprintf("reading 0 bytes\n");
 		return 0;
 	}
         struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->private_data;
@@ -118,10 +117,10 @@ ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset)
 //closes a tarfs file
 int tfs_close(struct file *filep)
 {
-	kprintf("tarfs close\n");
+	//kprintf("tarfs close\n");
 	if (!filep)
 	{
-		kprintf("file is NULL\n");
+		//kprintf("file is NULL\n");
 		return -1;
 	}
         filep->f_count--;

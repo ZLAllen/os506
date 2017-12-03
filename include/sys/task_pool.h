@@ -2,6 +2,8 @@
 #define _TASK_POOL_H_
 
 enum state{READY, RUNNING, ZOMBIE};
+enum vma_type{TEXT, DATA, STACK, HEAP, NO_TYPE};
+enum vma_perm{X, RW};
 
 #define STACK_TOP_USR  0xF000000000UL
 #define STACK_SIZE_USR 0x10000 

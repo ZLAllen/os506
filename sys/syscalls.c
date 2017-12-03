@@ -2,6 +2,7 @@
 #include <sys/syscalls.h>
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
+#include <sys/dirent.h>
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
@@ -35,7 +36,6 @@ uint64_t sys_fork() {
 
     // return child PID to the parent
     return child->pid;
-
 }
 
 
