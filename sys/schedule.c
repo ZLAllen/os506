@@ -194,14 +194,32 @@ task_struct *fork_process(task_struct *parent) {
     // child shares the same stack pointer
     child->rsp = (uint64_t)&(child->kstack[RSP_REG]);
 
-    // set copy on write flag and readonly for parent's page table
-    // child will share these pages for efficiency
-    
     // get current process's (parent's) pml4
     uint64_t pt = cr3_r();
 
     // set child's pml4 to the same
     child->mm->pml4 = pt;
+
+    // to avoid unncessarily copying the entire page table
+    // have child use the same one but set as read-only
+    // and a copy on write bit. If page is written to, 
+    // then copy first (implementation of this TODO)
+
+    // traverse virtual addresses and translate that 
+    // to corresponding page entry
+    uint64_t vaddr = child->mm->vm->vm_start;
+    while (vaddr < child->mm->vm->vm_end) {
+        uint64_t *pte = getPhys(vaddr);
+
+        // set writable bit to 0
+        *pte &= ~PAGE_RW;
+
+        // set copy on write bit to 1
+        *pte |= PAGE_COW;
+
+        // move to next entry
+        vaddr += PGSIZE;
+    }
 
     child->pid = get_next_pid();
     kprintf("Child process PID %d created\n", child->pid);

@@ -7,9 +7,11 @@
 /** current process (sys/schedule.c) */
 extern task_struct *current;
 
-void sys_test(uint64_t testArg) {
+uint64_t sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
    while(1);
+
+   return 0;
 }
 /*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
@@ -21,7 +23,6 @@ int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
  * Fork current process
  * Creates new process as a child of the current
  */
-/*
 uint64_t sys_fork() {
     // get current process
     task_struct *current = current;
@@ -35,7 +36,6 @@ uint64_t sys_fork() {
     // return child PID to the parent
     return child->pid;
 }
-*/
 
 /**
  * Supported syscalls
@@ -44,7 +44,7 @@ uint64_t sys_fork() {
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
-    //[SYS_fork] {0, sys_fork},
+    [SYS_fork] {0, sys_fork},
     [SYS_test] {1, sys_test}
 };
 

@@ -8,6 +8,7 @@
 #define PAGE_U (1UL << 2) //paging user
 #define PAGE_RW (1UL << 1) //paging writable
 #define PAGE_P (1UL << 0) //paging present
+#define PAGE_COW (1UL << 9) // copy-on-write bit
 
 #define RX_USER (PAGE_P | PAGE_U)
 #define RW_USER (PAGE_P | PAGE_U | PAGE_RW)

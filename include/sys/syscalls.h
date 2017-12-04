@@ -11,7 +11,7 @@
 
 // syscall functions
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);
-void sys_test(uint64_t testArg);
+uint64_t sys_test(uint64_t testArg);
 uint64_t sys_fork();
 
 // syscall handler

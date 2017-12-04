@@ -68,11 +68,12 @@ typedef enum { false = 0, true = !false } bool;
 
 // function pointer
 typedef void (*function)();
+typedef uint64_t (*int_function)();
 
 // for syscalls, function pointer + number of args
 typedef struct functionWithArg {
     uint32_t count;
-    function func;
+    int_function func;
 } functionWithArg;
 
 #endif
