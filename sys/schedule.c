@@ -3,7 +3,7 @@
 #include <sys/kprintf.h>
 #include <sys/pging.h>
 
-extern task_struct *current;
+task_struct *current;
 
 /** list of available tasks - schedule() orders this */
 task_struct *available_tasks;
