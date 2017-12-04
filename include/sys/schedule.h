@@ -11,6 +11,9 @@
 #define CS_REG KSTACK_SIZE-4 // code segment register
 #define RAX_REG KSTACK_SIZE-7 // return addr register
 
+/** current task */
+task_struct *current; 
+
 void switch_to(task_struct *me, task_struct *next);
 void schedule(task_struct *new_task);
 task_struct *get_next_task();
