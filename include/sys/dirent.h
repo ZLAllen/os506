@@ -2,28 +2,36 @@
 #define _DIRENT_H
 
 
-/*
-https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/dirstream.h;
-h=8303f07fab6f6efaa39e51411ef924e712d995e0;hb=fa39685d5c7df2502213418bead44e9543a9b9ec
-*/
+//directory stream
 struct dstream
 {
-        int fd;
+        /*int fd;
         size_t size;
         size_t offset;
-	char data[100]; //size?
+	char data[100]; //size?*/
+	struct file *fnode;
+    	uint64_t curr;
+    	struct dirent *drent;
 	
 };
 
 struct dirent 
 {
-    ino_t d_ino;       /* inode number */
-    off_t d_off;       /* offset to the next dirent */
-    unsigned short d_reclen;    /* length of this record */
-    unsigned char d_type;      /* type of file; not supported by all file system types */
-    char d_name[256]; /* filename */
+    uint64_t inum;       /* inode number */
+    //off_t d_off;       /* offset to the next dirent */
+    //unsigned short d_reclen;    /* length of this record */
+    //unsigned char d_type;      /* type of file; not supported by all file system types */
+    char fname[256]; /* filename */
 };
 
+
+struct f_desc 
+{
+    struct file *fnode;
+    uint64_t curr;
+    uint64_t perm;
+    uint64_t inum;
+};
 
 void *opendir(const char *dirname);
 struct dirent *readdir(struct dstream *dirp);
@@ -37,7 +45,7 @@ struct linux_dirent {
     unsigned short d_reclen; 
     unsigned char d_type;
     struct linux_dirent* free;
-    char          d_name[];
+    char d_name[];
 };
 
 
