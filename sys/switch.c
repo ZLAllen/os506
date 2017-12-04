@@ -59,8 +59,8 @@ void thread3()
 void thread4()
 {
 	kprintf("Thread 4 \n");
-    //syscallArg0(SYS_fork);
-    //__asm__ volatile ("int $0x80");
+    syscallArg0(SYS_fork);
+    __asm__ volatile ("int $0x80");
     run_next_task();
     kprintf("Back in thread 4\n");
     run_next_task();

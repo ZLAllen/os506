@@ -207,18 +207,20 @@ task_struct *fork_process(task_struct *parent) {
 
     // traverse virtual addresses and translate that 
     // to corresponding page entry
-    uint64_t vaddr = child->mm->vm->vm_start;
-    while (vaddr < child->mm->vm->vm_end) {
-        uint64_t *pte = getPhys(vaddr);
+    if (child->mm->vm) {
+        uint64_t vaddr = child->mm->vm->vm_start;
+        while (vaddr < child->mm->vm->vm_end) {
+            uint64_t *pte = getPhys(vaddr);
 
-        // set writable bit to 0
-        *pte &= ~PAGE_RW;
+            // set writable bit to 0
+            *pte &= ~PAGE_RW;
 
-        // set copy on write bit to 1
-        *pte |= PAGE_COW;
+            // set copy on write bit to 1
+            *pte |= PAGE_COW;
 
-        // move to next entry
-        vaddr += PGSIZE;
+            // move to next entry
+            vaddr += PGSIZE;
+        }
     }
 
     child->pid = get_next_pid();

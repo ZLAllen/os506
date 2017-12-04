@@ -24,8 +24,6 @@ int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
  * Creates new process as a child of the current
  */
 uint64_t sys_fork() {
-    // get current process
-    task_struct *current = current;
 
     // create child process
     task_struct *child = fork_process(current);
@@ -61,7 +59,7 @@ functionWithArg syscalls[] = {
  */
 void syscall(void) {
 
-    uint64_t num;
+    uint64_t num, ret;
     functionWithArg callFunc;
     uint64_t arg0, arg1, arg2, arg3, arg4;
 
@@ -89,26 +87,37 @@ void syscall(void) {
     // get function associated with syscall
     callFunc = syscalls[num];
 
+    // default return
+    ret = 0;
+
     switch (callFunc.count) {
         case 0:
-            callFunc.func();
+            ret = callFunc.func();
             break;
         case 1:
-            callFunc.func(arg0);
+            ret = callFunc.func(arg0);
             break;
         case 2:
-            callFunc.func(arg0, arg1);
+            ret = callFunc.func(arg0, arg1);
             break;
         case 3:
-            callFunc.func(arg0, arg1, arg2);
+            ret = callFunc.func(arg0, arg1, arg2);
             break;
         case 4:
-            callFunc.func(arg0, arg1, arg2, arg3);
+            ret = callFunc.func(arg0, arg1, arg2, arg3);
             break;
         case 5:
-            callFunc.func(arg0, arg1, arg2, arg3, arg4);
+            ret = callFunc.func(arg0, arg1, arg2, arg3, arg4);
             break;
     }
+
+    // store return value into rax register
+    __asm__ __volatile__(
+        "movq %0, %%rax;"
+         ::"r" (ret)
+    );
+
+    __asm__ __volatile__("iretq");
 }
 
 void syscallArg0(uint64_t num) {
