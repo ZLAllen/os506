@@ -56,7 +56,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     //
     kprintf("\nelf process\n");
     char *fname = "hello";
-    char *argv[] = {"hello", "arg1", "arg2"};
+    char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     create_elf_process(fname, argv);
 
     //__asm__ volatile ("movq $50, %%rax");

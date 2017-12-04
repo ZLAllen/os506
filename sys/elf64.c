@@ -27,7 +27,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[]);
 struct vma_struct *set_vma(uint64_t s_addr, uint64_t e_addr, uint64_t type, uint64_t flag);
 struct vma_struct *traverse_vmas(struct vma_struct *ptr);
 
-static char args[5][100];
 
 
 struct task_struct *create_elf_process(char *fname, char *argv[])
@@ -159,7 +158,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         // need to make sure user_stack_top didn't collide with s_vaddr
         e_vaddr = USER_STACK_TOP;
         s_vaddr = e_vaddr - USER_STACK_SIZE; // this will be the end of stack
-        kprintf("stack start address %x and end address %x\n", s_vaddr, e_vaddr);
+        kprintf("stack upper address %x and lower address %x\n", s_vaddr, e_vaddr);
 
         end_vma = traverse_vmas(mm->vm);
         end_vma->next = set_vma(s_vaddr, e_vaddr, STACK, RW);
@@ -170,42 +169,46 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
 
         cr3_w(mm->pml4);
         kmmap(e_vaddr-PGSIZE, PGSIZE, RW_USER);//pagesize for now
-       
         cr3_w(pt); 
-        int nargs = 0; //to track num arguments
-        if (argv)
+
+
+        int nargs = 0; //num args; filename at the beginning and null terminated
+	if (argv)
         {
             while(argv[nargs])
-            {
-                nargs++;
-            }
+            	nargs++;
+           
         }
-        uint64_t *args_ptr[5], *ss;
+        kprintf("\nnargs %d\n", nargs);
 
         cr3_w(mm->pml4);
-        
-        ss = (uint64_t*) mm->start_stack;
 
+        uint64_t *args_ptr[nargs], *ss; 
+        kprintf("start stack at %x\n", mm->start_stack);
+        ss = (uint64_t*) mm->start_stack; 
         for (int n = nargs-1; n >= 0; n--)
         {
-            uint64_t length = kstrlen(args[n]) + 1;
+            uint64_t length = kstrlen(argv[n]) + 1;
             ss =  (uint64_t*)((void*)ss - length);
-            memmove(args[n], (char*)ss, length);
+            memmove(argv[n], (char*)ss, length);
             args_ptr[n] = ss;
+            kprintf("args_ptr[%d] contains %x\n", n, ss);
         }
-      
+        
         // this line of code will fetch the last argument pointer
-        for (int n = nargs-1; n >= 0; --n)
+        for (int n = nargs-1; n >= 0; n--)
         {
             ss--;
             *ss = (uint64_t)args_ptr[n];
+            kprintf("value at %x is %x\n", ss, *ss);
         }
         *ss =  (uint64_t)nargs;
         mm->start_stack = (uint64_t)ss;
-
+        kprintf("start stack at %x\n", mm->start_stack);
         cr3_w(pt);
                
         //schedule process
+        kprintf("schedule the new task\n");
 	schedule(new_task);
 
         return new_task;

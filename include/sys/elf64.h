@@ -6,6 +6,8 @@
 #include <sys/task_pool.h>
 
 #define EI_NIDENT 16
+#define MAX_ARG 5
+
 
 // elf data types
 typedef uint64_t Elf64_Addr;
