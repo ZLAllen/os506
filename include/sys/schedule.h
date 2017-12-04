@@ -9,6 +9,7 @@
 #define RSP_REG KSTACK_SIZE-2 // stack pointer
 #define FLAGS_REG KSTACK_SIZE-3 // flags register
 #define CS_REG KSTACK_SIZE-4 // code segment register
+#define RAX_REG KSTACK_SIZE-7 // return addr register
 
 void switch_to(task_struct *me, task_struct *next);
 void schedule(task_struct *new_task);

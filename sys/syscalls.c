@@ -31,9 +31,6 @@ uint64_t sys_fork() {
     // schedule new process like any other
     schedule(child);
 
-    // fork returns child PID to the parent and 0 to the child
-    // set return (%rax) of child to 0
-
     // return child PID to the parent
     return child->pid;
 }

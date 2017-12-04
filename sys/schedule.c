@@ -153,19 +153,56 @@ void switch_to_user_mode(task_struct *next) {
  */
 task_struct *fork_process(task_struct *parent) {
     // create child task
-    task_struct *child_task = get_task_struct();
+    task_struct *child = get_task_struct();
 
     // copy parent's task info into child
-    memcpy(parent, child_task, sizeof(*parent));
+    memcpy(parent, child, sizeof(task_struct));
 
     // copy parent's mm struct
+    memcpy(parent->mm, child->mm, sizeof(mm_struct));
 
-    // copy parent's kernel stack from top to stack pointer to child
+    // copy vma_structs from parent (entire linked list)
+    vma_struct *parent_cursor = parent->mm->vm;
+    vma_struct *child_cursor = 0;
 
-    child_task->pid = get_next_pid();
+    while (parent_cursor) {
+        vma_struct *new_vma = get_vma_struct();
 
-    kprintf("Child process PID %d created\n", child_task->pid);
+        // copy parent's vma
+        memcpy(parent_cursor, new_vma, sizeof(vma_struct));
 
-    return child_task;
+        // first vma in list?
+        if (child_cursor) {
+            child_cursor->next = new_vma;
+            child_cursor = child_cursor->next;
+        } else {
+            child->mm->vm = new_vma;
+            child_cursor = child->mm->vm;
+        }
+    }
+
+    // copy parent's kernel stack
+    memcpy(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
+
+    // child's return should be 0
+    // TODO
+    child->kstack[RAX_REG] = 0;
+
+    // child shares the same stack pointer
+    child->rsp = (uint64_t)&(child->kstack[RSP_REG]);
+
+    // set copy on write flag and readonly for parent's page table
+    // child will share these pages for efficiency
+    
+    // get current process's (parent's) pml4
+    uint64_t pt = cr3_r();
+
+    // set child's pml4 to the same
+    child->mm->pml4 = pt;
+
+    child->pid = get_next_pid();
+    kprintf("Child process PID %d created\n", child->pid);
+
+    return child;
 }
 
