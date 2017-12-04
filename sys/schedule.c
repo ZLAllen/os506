@@ -38,6 +38,8 @@ void switch_to(
          : // clobbered registers
         );
 
+    cr3_w(next->mm->pml4);
+
     // schedule "me" prev task
     if (me != NULL) {
         __asm__ __volatile__(PUSHREGS);
@@ -47,11 +49,13 @@ void switch_to(
 
     // check if kernel process or user process
     // switch to ring 3 if needed
+    /* TODO - this is bad... still debugging
     if (next->userp) {
         switch_to_user_mode(next);
     }
 
     __asm__ volatile("retq");
+    */
 }
 
 /**

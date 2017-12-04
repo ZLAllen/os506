@@ -14,11 +14,66 @@ void reload_task_struct();
 void reload_mm_struct();
 void reload_vma_struct();
 
+void reload_file_struct();
+void reload_dirent_struct();
+
 task_struct* free_task_struct;
 mm_struct* free_mm_struct;
 vma_struct* free_vma_struct;
 
+struct file* free_file_struct;
+struct linux_dirent* free_dirent_struct; 
+
+
 // call only when freelist head empty
+
+void reload_file_struct()
+{
+
+    void* ptr = kmalloc();
+
+    free_file_struct = (struct file*)ptr;
+    
+
+    struct file* prev = free_file_struct;
+
+    uint64_t num = (uint64_t)ptr + sizeof(struct file);
+    prev = free_file_struct;
+
+
+    for(; num + sizeof(struct file) < (uint64_t)ptr + PGSIZE; num += sizeof(struct file))
+    {
+        prev->free = (struct file*)num;
+        prev = (struct file*)num;
+    }
+
+    prev->free = 0;
+
+}
+
+void reload_dirent_struct()
+{
+
+    void* ptr = kmalloc();
+
+    free_dirent_struct = (struct linux_dirent*)ptr;
+    
+
+    struct linux_dirent* prev = free_dirent_struct;
+
+    uint64_t num = (uint64_t)ptr + sizeof(struct linux_dirent);
+    prev = free_dirent_struct;
+
+
+    for(; num + sizeof(struct linux_dirent) < (uint64_t)ptr + PGSIZE; num += sizeof(struct linux_dirent))
+    {
+        prev->free = (struct linux_dirent*)num;
+        prev = (struct linux_dirent*)num;
+    }
+
+    prev->free = 0;
+
+}
 
 void reload_task_struct()
 {
@@ -89,6 +144,38 @@ void reload_vma_struct()
 
 }
 
+void* get_file_struct()
+{
+    if(!free_file_struct)
+        reload_file_struct();
+
+    if(!free_file_struct)
+        panic("file_struct alloc failed");
+
+    struct file* ret = free_file_struct;
+    free_file_struct = free_file_struct->free;
+
+    memset(ret, 0, sizeof(struct file));
+
+    return (void*)ret;
+}
+
+void* get_dirent_struct()
+{
+    if(!free_dirent_struct)
+        reload_dirent_struct();
+
+    if(!free_dirent_struct)
+        panic("dirent_struct alloc failed");
+
+    struct linux_dirent* ret = free_dirent_struct;
+    free_dirent_struct = free_dirent_struct->free;
+
+    memset(ret, 0, sizeof(struct linux_dirent));
+
+    return (void*)ret;
+}
+
 void* get_task_struct()
 {
     if(!free_task_struct)
@@ -137,6 +224,22 @@ void* get_vma_struct()
     memset(ret, 0, sizeof(vma_struct));
 
     return (void*)ret;
+}
+
+
+void release_file_struct(struct file* ptr)
+{
+    memset(ptr, 0, sizeof(struct file));
+    ptr->free = free_file_struct;
+    free_file_struct = ptr;
+}
+
+
+void release_dirent_struct(struct linux_dirent* ptr)
+{
+    memset(ptr, 0, sizeof(struct linux_dirent));
+    ptr->free = free_dirent_struct;
+    free_dirent_struct = ptr;
 }
 
 void release_task_struct(task_struct* ptr)

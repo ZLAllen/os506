@@ -14,6 +14,9 @@ struct file_ops tfs_file_ops =
     close: tfs_close
 };
 
+// initialize a root node here
+struct posix_header_ustar root = {{0}};
+
 
 // ptr to the first tarfs header 
 struct posix_header_ustar *get_tfs_first(void)
@@ -85,6 +88,7 @@ struct file *tfs_open(const char *fpath, int flags)
 	}
 	return NULL;
 }
+
 
 
 
@@ -176,3 +180,31 @@ int print_tfs(struct posix_header_ustar *hdr)
 
 
 
+
+
+/*
+ * To extract directory from tarfs, not to be confused with tarfs read
+ * return number of bytes read 
+ * may return files or directory, as requested b * ls most of the time
+ * */
+// TODO define a root node with a name "/"
+
+/*
+int tarfs_readdir(struct file *filep, void *buf, int count)
+{
+
+    // the readdir approach is different, we are trying to record the 
+    // neccerary information for linux dirent, therefore it should be
+    // selective
+
+    // first of all we fetch the header
+    struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->private_data;
+
+    // my inituition: files under one directory share the fhdr
+    // check fhdr for possible end of directory
+    //
+
+
+
+}
+*/

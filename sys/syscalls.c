@@ -11,16 +11,17 @@ void sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
    while(1);
 }
-
+/*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
     return 0;
 }
-
+*/
 /**
  * Fork current process
  * Creates new process as a child of the current
  */
+/*
 uint64_t sys_fork() {
     // get current process
     task_struct *current = current;
@@ -34,7 +35,7 @@ uint64_t sys_fork() {
     // return child PID to the parent
     return child->pid;
 }
-
+*/
 
 /**
  * Supported syscalls

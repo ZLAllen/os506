@@ -52,6 +52,7 @@ int print_tfs(struct posix_header_ustar *hdr);
 
 //functions
 
+struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr);
 struct posix_header_ustar *get_tfs_first(void);
 struct file *tfs_open(const char *fpath, int flags); //int open(struct inode *inode,struct file *file)
 ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset);

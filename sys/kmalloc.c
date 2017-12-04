@@ -5,7 +5,18 @@
 #include <sys/kprintf.h>
 
 void* kern_free_addr;
+void* k_freelist_pointer;
+void* kern_temp_addr;
 
+void* get_kern_temp_addr()
+{
+    return kern_temp_addr;
+}
+
+void set_kern_temp_addr(void* ptr)
+{
+    kern_temp_addr = ptr;
+}
 
 void* get_kern_free_addr()
 {
@@ -56,4 +67,12 @@ void kfree(void* vaddr){
 
         invlpg((uint64_t)vaddr);
     }
+}
+
+void free_temp()
+{
+    uint64_t* pte = getPhys((uint64_t)kern_temp_addr);
+    *pte = 0;
+
+    invlpg((uint64_t)kern_temp_addr);
 }

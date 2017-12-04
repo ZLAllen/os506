@@ -15,7 +15,7 @@ void thread1()
     x++;
     kprintf("Back again in thread 1. Variable is %d.\n", x);
     run_next_task();
-    //while(1) {}
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     __asm__ volatile("retq");
@@ -34,7 +34,7 @@ void thread2()
     kprintf("Back again in thread 2. Variable is %d.\n", x);
     kprintf("Thread 2 will now run a while(1) and not call run_next_task().");
 
-    //while(1) {}
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -49,7 +49,7 @@ void thread3()
     run_next_task();
     kprintf("Back again in thread 3\n");
 
-    //while(1) {}
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -63,7 +63,7 @@ void thread4()
     run_next_task();
     kprintf("Back again in thread 4\n");
 
-    //while(1) {}
+    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -90,7 +90,7 @@ void init_thread() {
     task2 = create_new_task(&thread2, false);
     task3 = create_new_task(&thread3, false);
     task4 = create_new_task(&thread4, false);
-    task5 = create_new_task(&thread5, true);
+    //task5 = create_new_task(&thread5, true);
 
     uint64_t *new_page = kmalloc();
     uint64_t *page_table = getPhys((uint64_t)new_page);
