@@ -75,11 +75,12 @@ void init_pging(uint64_t physfree)
 
     cr3_w((uint64_t)pml4);
 
+    set_kern_temp_addr((void*)(KERN + physfree));
+    set_kern_free_addr((void*)(KERN + physfree + PGSIZE));
 
     map_page(0xb8000, VIDEO, (uint64_t)0|PAGE_P|PAGE_RW);
 
     // set a top virtual address
-    set_kern_free_addr((void*)(KERN + physfree));
 
 
     // test for kmalloc
@@ -142,7 +143,15 @@ void* getPhys(uint64_t vaddr)
     return (void*)pte;
 }
 
+void zero_page(uint64_t paddr)
+{
+    uint64_t* vaddr = get_kern_temp_addr();
 
+    uint64_t* pte = getPhys((uint64_t)vaddr);
+    *pte = paddr|PAGE_P|PAGE_RW;
+    memsetw(vaddr, 0, PGSIZE/2);
+    free_temp();
+}
 
 void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
 {
@@ -154,27 +163,31 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     pde = (uint64_t *)((vaddr << 16 >> 37 << 3) | PDE_REF);
     pte = (uint64_t *)((vaddr << 16 >> 28 << 3) | PTE_REF);
 
-    
 
     if(!IS_PRESENT(*pmle))
     {
         addr = (uint64_t)get_free_page();
+        zero_page(addr);
         *pmle = addr|flags;
     }
 
 
+
     if(!IS_PRESENT(*pdpe))
     {
-        addr = (uint64_t)get_free_page();
+        addr = (uint64_t)get_free_page(); 
+        zero_page(addr);
         *pdpe = addr|flags;
     }
-        
+       
 
     if(!IS_PRESENT(*pde))
     {
-        addr = (uint64_t)get_free_page();
 
+        addr = (uint64_t)get_free_page();
+        zero_page(addr);
         *pde = addr|flags;
+
     }
 
     if(!IS_PRESENT(*pte))
@@ -183,6 +196,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
         kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
     }
+
 
 }
 uint64_t alloc_pml4(){

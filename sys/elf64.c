@@ -161,7 +161,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         s_vaddr = e_vaddr - USER_STACK_SIZE; // this will be the end of stack
         kprintf("stack start address %x and end address %x\n", s_vaddr, e_vaddr);
 
-        while(1);
         end_vma = traverse_vmas(mm->vm);
         end_vma->next = set_vma(s_vaddr, e_vaddr, STACK, RW);
         mm->vma_count++;
@@ -170,15 +169,14 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         mm->start_stack = e_vaddr - 8; //8 bytes adddr
 
         cr3_w(mm->pml4);
-        kmmap(e_vaddr-PTE_SIZE, PTE_SIZE, RW);//pagesize for now
+        kmmap(e_vaddr-PGSIZE, PGSIZE, RW_USER);//pagesize for now
+       
         cr3_w(pt); 
-
         int nargs = 0; //to track num arguments
         if (argv)
         {
             while(argv[nargs])
             {
-                memcpy(argv[nargs], args[nargs], kstrlen(argv[nargs]));
                 nargs++;
             }
         }
@@ -192,14 +190,15 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         {
             uint64_t length = kstrlen(args[n]) + 1;
             ss =  (uint64_t*)((void*)ss - length);
-            memcpy(args[n], (char*)ss, length);
+            memmove(args[n], (char*)ss, length);
             args_ptr[n] = ss;
         }
-        
+      
+        // this line of code will fetch the last argument pointer
         for (int n = nargs-1; n >= 0; --n)
         {
-            *ss = (uint64_t)args_ptr[n];
             ss--;
+            *ss = (uint64_t)args_ptr[n];
         }
         *ss =  (uint64_t)nargs;
         mm->start_stack = (uint64_t)ss;

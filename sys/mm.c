@@ -21,12 +21,15 @@ void kmmap(uint64_t s_addr, int size, uint64_t flags)
    
     kprintf("%p, %p\n", s_addr, aligned_s_addr);
 
-
     //allocate pages
     for(int i = 0; i < num_pages; ++i)
     {
         uint64_t physaddr = (uint64_t)get_free_page();
+        kprintf("physaddr: %p\n", physaddr);
+        //if(physaddr == 0xB000)    while(1);
         map_page(physaddr, aligned_s_addr, flags);
+
+
         kprintf("%p, %p\n", physaddr, *((uint64_t*)(getPhys(aligned_s_addr))));
         aligned_s_addr += PGSIZE;
     }
