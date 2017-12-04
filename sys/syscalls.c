@@ -3,6 +3,7 @@
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
 #include <sys/dirent.h>
+#include <sys/kstring.h>
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
@@ -37,6 +38,48 @@ uint64_t sys_fork() {
 }
 */
 
+
+struct dstream *sys_opendir(uint64_t* entry, uint64_t* directory)
+{
+     kprintf("sys call to opendir");
+     char* path = (char *)entry;
+     struct dstream *dirp = (struct dstream *)directory; 
+     return dirp;
+}
+
+struct dirent* sys_readdir(uint64_t entry)
+{
+    kprintf("sys call to readdir");
+    struct dstream *dirp = (struct dstream*) entry;
+    if (dirp->fnode->end < 3 || dirp->curr == dirp->fnode->end || dir->curr == 0)
+    {
+        return NULL;
+    }
+    else
+    {
+        kstrcpy(dirp->fnode->fchild[dirp->curr]->fname, dir->curr_dirent.name);
+        dirp->curr++;
+        return &dirp->curr_dirent;
+    }
+}
+
+
+int sys_closedir(uint64_t *entry)
+{
+    kprintf("sys call to closedir");
+    struct dstream *dirp = (struct dstream *) entry;
+    if(dirp->fnode->f_type == DIRECTORY && dirp->curr > 1) 
+    {
+
+        dirp->fnode = NULL; 
+        dirp->curr = 0;
+        return 0;
+    } 
+    else
+        return -1; 
+}
+
+
 /**
  * Supported syscalls
  * Functions defined above
@@ -45,7 +88,11 @@ uint64_t sys_fork() {
  */
 functionWithArg syscalls[] = {
     //[SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test}
+    [SYS_test] {1, sys_test},
+    [SYS_opendir] {2, sys_opendir},
+    [SYS_readdir] {1, sys_readdir},
+    [SYS_closedir] {1, sys_closedir}
+
 };
 
 /**
