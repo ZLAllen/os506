@@ -16,6 +16,7 @@ uint64_t sys_fork();
 
 // syscall handler
 void syscall(void);
+uint64_t get_sys_return();
 
 // utility functions to set arguments for syscall
 void syscallArg0(uint64_t arg0);
