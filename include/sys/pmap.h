@@ -11,6 +11,8 @@ struct smap_t {
 
 #define ALIGN_UP(x) ((x & ~(PGSIZE-1)) + PGSIZE)
 
+#define ALIGN_DOWN(x) ((x & ~(PGSIZE-1)))
+
 uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree);
 void* get_free_page();
 void release_page(void* ptr);

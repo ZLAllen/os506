@@ -172,7 +172,6 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     }
 
 
-
     if(!IS_PRESENT(*pdpe))
     {
         addr = (uint64_t)get_free_page(); 
@@ -196,8 +195,13 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
         kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
     }
-
-
+      /* if(paddr == 0xF000)
+       {
+         kprintf("didn't crash here\n");
+         kprintf("%p, %p\n", pte, *pte);
+       while(1);
+       }
+       */
 }
 uint64_t alloc_pml4(){
     // when we create a new pml4, the default contains kernel mapping and self reference

@@ -91,7 +91,6 @@ void thread5() {
 
 void init_thread() {
     task1 = create_new_task(false);
-    
     /*
     task2 = create_new_task(false);
     task3 = create_new_task(false);
@@ -115,7 +114,6 @@ void init_thread() {
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
     create_elf_process(fname, argv);
-    while(1);
     run_next_task();
 
     __asm__ volatile("retq");

@@ -62,6 +62,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         task_struct *new_task = create_new_task(true);
         struct mm_struct *mm = new_task->mm;
 
+        uint64_t count = 0;
     
         //for each program header [text -> data -> bss -> heap -> stack]
         for (int n = 0; n < ehdr->e_phnum; ++n)
@@ -75,18 +76,19 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 
                 if (phdr->p_flags == 5)
                 {
-                    //kprintf("TEXT section\n");
+                    kprintf("TEXT section\n");
                     vma_type = TEXT;
                     vma_flag = RX_USER; //(uint64_t)0|PAGE_P|PAGE_U|PAGE_RW;
                 }
                 else if (phdr->p_flags == 6)
                 {
-                    //kprintf("DATA section\n");
+                    kprintf("DATA section\n");
                     vma_type = DATA;
                     vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U;
                 }
                 else
                 {
+                  kprintf("no type\n");
                     vma_type = NO_TYPE;
                     vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U;
                 }
@@ -119,24 +121,36 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
 
                 kmmap(s_vaddr, size, vma_flag);//throws error
 
-                kprintf("%p, %p\n", size, phdr->p_filesz);
 
 
+                kprintf("%p, %p, %p\n", size, phdr->p_filesz, phdr->p_offset);
 
+/*
+                if(count > 2)
+                {
+                  char* a = (char*)s_vaddr;
+                  *a = 'a';
+                  kprintf("%c\n", *a);
+                  kprintf("didn't crash\n");
+                  while(1);
+                }
+                */
                 //1. and 2. text and data
-                memmove((void*) s_vaddr, (void*) ehdr + phdr->p_offset, phdr->p_filesz);
+                memmove((void*) ehdr + phdr->p_offset, (void*) s_vaddr, phdr->p_filesz);
+
 
 
                 //3. bss
                 memset((void *)s_vaddr + phdr->p_filesz, 0, size - phdr->p_filesz);
                
-
                 //restore the saved plm4
                 cr3_w(pt);
- 
+
+
             }
 
-            phdr++;
+            count++;
+              phdr++;
         }
         
         //4.allocate heap 
