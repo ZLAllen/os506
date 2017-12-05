@@ -9,9 +9,7 @@ extern task_struct *current;
 
 uint64_t sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
-   while(1);
-
-   return 0;
+   return 9001;
 }
 /*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
@@ -118,6 +116,16 @@ void syscall(void) {
     );
 
     __asm__ __volatile__("iretq");
+}
+
+uint64_t get_sys_return() {
+    uint64_t ret;
+    __asm__ __volatile__(
+        "movq %%rax, %0;"
+         :"=r" (ret)
+    );
+
+    return ret;
 }
 
 void syscallArg0(uint64_t num) {

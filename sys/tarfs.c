@@ -38,6 +38,7 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
                 return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
+        kprintf("size of header: %x, size of file %x\n", sizeof(struct posix_header_ustar), size);
         if(size > 0)
           hdr += (511+size)/(512) + 1; //512 byte sectors
         else
@@ -82,15 +83,16 @@ struct file *tfs_open(const char *fpath, int flags)
 			filep = kmalloc(); 
 			filep->private_data = hdr;
 			filep->f_op = &tfs_file_ops;
-                        filep->f_pos = (uint64_t)get_tfs_next(hdr);
-                        filep->f_flags = flags;//??dont know values
-                        filep->f_count = 1;
-                        filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
-                        //print_tfs(hdr);
+                  filep->f_pos = (uint64_t)get_tfs_next(hdr);
+                  filep->f_flags = flags;//??dont know values
+                  filep->f_count = 1;
+                  filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
+                        print_tfs(hdr);
 			return filep;
 		}	
                 hdr = get_tfs_next(hdr);
 	}
+  while(1);
 	return NULL;
 }
 
@@ -151,9 +153,9 @@ uint64_t oct_to_bin(char *ostr, int length)
 {
     int num = 0;
     char *c = ostr;
-    while (length-- > 0) 
+    while (--length > 0) 
     {
-        num *= 8;
+        num <<= 3;
         num += *c - '0';
         c++;
     }

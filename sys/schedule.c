@@ -49,12 +49,12 @@ void switch_to(
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
-    if (next->userp) {
+   */
+      if (next->userp) {
         switch_to_user_mode(next);
     }
 
     __asm__ volatile("retq");
-    */
 }
 
 /**
@@ -62,6 +62,17 @@ void switch_to(
  * Basic round-robin for now, just adds to the end of the list
  */
 void schedule(task_struct *new_task) {
+
+  if(new_task->userp)
+  {
+    new_task->kstack[SS_REG] = 0x23; // set SS
+    new_task->kstack[CS_REG] = 0x2b; // set CS
+    next->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
+  }
+
+
+  new_task->
+
     if (available_tasks == NULL) {
         available_tasks = new_task;
     } else {

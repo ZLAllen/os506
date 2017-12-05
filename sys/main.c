@@ -52,20 +52,24 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
-   // init_thread();
-    //
-    kprintf("\nelf process\n");
-    char *fname = "usr/";
-    char *argv[] = {"hello", "arg1", "arg2", '\0'};    
-    create_elf_process(fname, argv);
-
-    //__asm__ volatile ("movq $50, %%rax");
-    //__asm__ volatile ("movq $50, %rax");
-    //__asm__ volatile ("movq $77, %rbx");
+    init_thread();
     /*
     syscallArg1(SYS_test, 77);
     __asm__ volatile ("int $0x80");
+    uint64_t sysReturn = get_sys_return();
+    kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
     */
+    //
+   /* 
+    kprintf("\nelf process\n");
+    char *fname = "test";
+    //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
+    char *argv[] = {0};
+    create_elf_process(fname, argv);
+*/
+    //__asm__ volatile ("movq $50, %%rax");
+    //__asm__ volatile ("movq $50, %rax");
+    //__asm__ volatile ("movq $77, %rbx");
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
 }
