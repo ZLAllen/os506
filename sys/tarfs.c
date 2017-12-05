@@ -79,8 +79,7 @@ struct file *tfs_open(const char *fpath, int flags)
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0) 
 		{
 			kprintf("found the matching file\n");
-                      
-			filep = kmalloc(); 
+			filep = kmalloc();
 			filep->private_data = hdr;
 			filep->f_op = &tfs_file_ops;
                   filep->f_pos = (uint64_t)get_tfs_next(hdr);

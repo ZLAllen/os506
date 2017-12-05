@@ -60,13 +60,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
     */
     //
-   /* 
+    /*
     kprintf("\nelf process\n");
     char *fname = "test";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
     create_elf_process(fname, argv);
-*/
+    */
     //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");

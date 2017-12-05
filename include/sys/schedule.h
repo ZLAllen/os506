@@ -15,11 +15,11 @@
 extern task_struct *current; 
 
 void switch_to(task_struct *me, task_struct *next);
-void schedule(task_struct *new_task);
+void schedule(task_struct *new_task, uint64_t e_entry);
 task_struct *get_next_task();
 void run_next_task();
 pid_t get_next_pid();
-task_struct *create_new_task(function thread_fn, bool userp);
+task_struct *create_new_task(bool userp);
 void switch_to_user_mode(task_struct *next);
 task_struct *fork_process(task_struct *parent);
 
