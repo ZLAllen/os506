@@ -38,14 +38,14 @@ void switch_to(
         );
 
     cr3_w(next->mm->pml4);
-/*
+
     // schedule "me" prev task
     if (me != NULL) {
         __asm__ __volatile__(PUSHREGS);
-        schedule(me);
+        reschedule(me);
         __asm__ __volatile__(POPREGS);
     }
-*/
+
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
