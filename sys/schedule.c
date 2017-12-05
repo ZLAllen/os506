@@ -58,23 +58,13 @@ void switch_to(
 }
 
 /**
- * Schedule new task
+ * Schedule task
  * Basic round-robin for now, just adds to the end of the list
  */
-void schedule(task_struct *new_task) {
-
-  if(new_task->userp)
-  {
-    new_task->kstack[SS_REG] = 0x23; // set SS
-    new_task->kstack[CS_REG] = 0x2b; // set CS
-    next->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
-  }
-
-
-  new_task->
+void schedule(task_struct *task) {
 
     if (available_tasks == NULL) {
-        available_tasks = new_task;
+        available_tasks = task;
     } else {
         // traverse to the end of the list
         task_struct *cursor = available_tasks;
@@ -82,11 +72,31 @@ void schedule(task_struct *new_task) {
             cursor = cursor->next;
         }
 
-        cursor->next = new_task;
-        new_task->prev = cursor;
-        new_task->next = NULL;
+        cursor->next = task;
+        task->prev = cursor;
+        task->next = NULL;
     }
 }
+
+void schedule_new(task_struct *new_task, function task_entry, uint64_t stack_top) {
+
+    if (new_task->userp) {
+        new_task->kstack[SS_REG] = 0x23; // set SS
+        new_task->kstack[CS_REG] = 0x2b; // set CS
+    } else {
+        new_task->kstack[SS_REG] = 0x10; // set SS
+        new_task->kstack[CS_REG] = 0x08; // set CS
+    }
+    //new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
+
+    new_task->kstack[IP_REG] = (uint64_t)task_entry;
+    new_task->rsp = (uint64_t)&(new_task->kstack[IP_REG]);
+
+    new_task->kstack[SP_REG] = stack_top;
+
+    schedule(new_task);
+}
+
 
 /** * Get next available runnable task
  * Removes it from the list of available tasks
@@ -122,7 +132,7 @@ pid_t get_next_pid() {
  * Create a new task
  * This does not schedule the task.
  */
-task_struct *create_new_task(function thread_fn, bool userp) {
+task_struct *create_new_task(function thread_fn, uint64_t stack_top, bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
 
@@ -131,10 +141,6 @@ task_struct *create_new_task(function thread_fn, bool userp) {
     my_mm->pml4 = alloc_pml4();
 
     new_task->mm = my_mm;
-
-    // task rsp
-    new_task->kstack[RSP_REG] = (uint64_t)thread_fn;
-    new_task->rsp = (uint64_t)&(new_task->kstack[RSP_REG]);
 
     new_task->pid = get_next_pid();
     new_task->userp = userp;
