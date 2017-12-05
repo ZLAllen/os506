@@ -5,15 +5,17 @@
 #include <sys/dirent.h>
 #include <sys/kstring.h>
 #include <sys/system.h>
+#include <sys/kmalloc.h>
+
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
+extern struct file *rt_node;
+
 
 uint64_t sys_test(uint64_t testArg) {
    kprintf("print me. Argument is %d\n", testArg);
-   while(1);
-
-   return 0;
+   return 9001;
 }
 /*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
@@ -31,7 +33,7 @@ uint64_t sys_fork() {
     task_struct *child = fork_process(current);
 
     // schedule new process like any other
-    schedule(child);
+    //schedule(child);
 
     // return child PID to the parent
     return child->pid;
@@ -41,10 +43,61 @@ uint64_t sys_fork() {
 struct dstream *sys_opendir(uint64_t* apath, uint64_t* adirp)
 {
      kprintf("\nsys call to opendir\n");
-     //char* path = (char *) apath;	
+     char* path = (char *) apath;	
      struct dstream *dirp = (struct dstream *) adirp; 
+	 struct file *curr_node = rt_node; 
+	 char *cpath = kmalloc();
+	 memcpy(path, cpath, kstrlen(path));
+	 uint64_t end;
+
+	 char *token = kstrtok(path, "/");
+     while (token != NULL) 
+	 {
+        end = curr_node->end;	
+
+        if (memcmp(token, ".", 2) == 0) //current 
+            curr_node = (struct file *)curr_node->child[0];
+
+         else if (memcmp(token, "..", 2) == 0) 
+            curr_node = (struct file *)curr_node->child[1]; //root
+		else 
+		{
+			int length = kstrlen(token), i=2;
+	
+            while (i < curr_node->end)
+			{
+                if (memcmp(token, curr_node->child[i]->name, length) == 0) 
+				{
+                    curr_node = (struct file *)curr_node->child[i];
+                    break;       
+                }        
+				++i;
+            }
+            
+			if (i == end) 
+			{
+                dirp->curr = 0;
+                dirp->node = NULL;
+                return dirp;
+            }
+        }
+ 		token = kstrtok(NULL, "/");//next token		
+      }
+
+    if (curr_node->type == DIR) 
+	{
+        dirp->curr = 2; 
+        dirp->node = curr_node; 
+    } 
+	else 
+	{
+        dirp->curr = 0;
+        dirp->node = NULL;
+    }
+
      return dirp;
 }
+
 
 struct dirent *sys_readdir(uint64_t *adirp)
 {
@@ -88,6 +141,7 @@ int sys_closedir(uint64_t *adirp)
 functionWithArg syscalls[] = {
    	//[SYS_fork] {0, sys_fork},
     [SYS_test] {1, sys_test}
+	//[SYS_opendir] {2, sys_opendir}
 };
 
 /**
@@ -162,6 +216,16 @@ void syscall(void) {
     );
 
     __asm__ __volatile__("iretq");
+}
+
+uint64_t get_sys_return() {
+    uint64_t ret;
+    __asm__ __volatile__(
+        "movq %%rax, %0;"
+         :"=r" (ret)
+    );
+
+    return ret;
 }
 
 void syscallArg0(uint64_t num) {

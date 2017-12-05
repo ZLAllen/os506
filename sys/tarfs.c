@@ -5,6 +5,11 @@
 #include <sys/kmalloc.h>
 #include <sys/fs.h>
 #include <sys/kstring.h>
+#include <sys/dirent.h>
+
+void make_node(struct file *node, struct file *parent, char *name, uint64_t start, uint64_t end, int type, uint64_t inode_no);
+void parse(char *dir_path, int type, uint64_t start, uint64_t end);
+
 
 //file operations table
 struct file_ops tfs_file_ops =
@@ -38,7 +43,11 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
                 return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
-        hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
+        kprintf("size of header: %x, size of file %x\n", sizeof(struct posix_header_ustar), size);
+        if(size > 0)
+          hdr += (511+size)/(512) + 1; //512 byte sectors
+        else
+          hdr += 1;
         if (hdr->name[0] == '\0')
         {
                 //kprintf("header name is NULL\n");
@@ -67,25 +76,27 @@ struct file *tfs_open(const char *fpath, int flags)
 	struct posix_header_ustar *hdr;
 	//iterate tarfs section till file is found
         hdr = get_tfs_first();
+        kprintf("first: %s\n", hdr->name);
 	while(hdr != NULL)
 	{      
-                //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+              //  kprintf("path %s vs hdr name %s\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+                kprintf("path %s vs hdr name %s\n", fpath, hdr->name);
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0) 
 		{
-			//kprintf("found the matching file\n");
-                      
-			filep = kmalloc(); 
+			kprintf("found the matching file\n");
+			filep = kmalloc();
 			filep->private_data = hdr;
 			filep->f_op = &tfs_file_ops;
-                        filep->f_pos = (uint64_t)get_tfs_next(hdr);
-                        filep->f_flags = flags;//??dont know values
-                        filep->f_count = 1;
-                        filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
-                        //print_tfs(hdr);
+                  filep->f_pos = (uint64_t)get_tfs_next(hdr);
+                  filep->f_flags = flags;//??dont know values
+                  filep->f_count = 1;
+                  filep->f_size = oct_to_bin(hdr->size, sizeof(hdr->size));
+                        print_tfs(hdr);
 			return filep;
 		}	
                 hdr = get_tfs_next(hdr);
 	}
+  while(1);
 	return NULL;
 }
 
@@ -146,9 +157,9 @@ uint64_t oct_to_bin(char *ostr, int length)
 {
     int num = 0;
     char *c = ostr;
-    while (length-- > 0) 
+    while (--length > 0) 
     {
-        num *= 8;
+        num <<= 3;
         num += *c - '0';
         c++;
     }
@@ -178,6 +189,106 @@ int print_tfs(struct posix_header_ustar *hdr)
     return 0;
 }
 
+
+void* init_tarfs()
+{
+    struct posix_header_ustar *hdr = (struct posix_header_ustar *) &_binary_tarfs_start;
+    int size = 0;
+
+    struct file *temp_node;
+
+    rt_node = (struct file *)kmalloc();
+    make_node(rt_node, rt_node, "/", 0, 2, DIR, 0);  
+
+    temp_node = (struct file *)kmalloc(); 
+    make_node(temp_node, rt_node, "rootfs", 0, 2, DIR, 0);
+    rt_node->child[2] = temp_node; 
+    rt_node->end += 1;
+  
+    do {
+        size = oct_to_bin(hdr->size, sizeof(hdr->size));
+
+        if (memcmp(hdr->typeflag, "5", 1) == 0) 
+		{
+            parse(hdr->name, DIR, 0, 2);
+        } 
+		else 
+		{
+            parse(hdr->name, FILE, (uint64_t)(hdr + 1), (uint64_t)((void *)hdr + 512 + size));
+        }
+
+        if (size > 0) 
+		{
+            hdr += size / (sizeof(hdr) + 1) + 2;
+        } else 
+		{
+            hdr += 1;
+        }
+    } while(hdr < (struct posix_header_ustar *)&_binary_tarfs_end);
+
+    return (void *)&rt_node; 
+}
+
+
+void make_node(struct file *node, struct file *parent, char *name, uint64_t start, uint64_t end, int type, uint64_t inode_no)
+{
+    memcpy(name, node->name, kstrlen(name));
+    node->start = start;
+    node->end   = end;
+    node->curr  = start;
+    node->type  = type;
+    node->inum = inode_no;
+ 
+    node->child[0] = node;
+    node->child[1] = parent;    
+    
+    //return (void *)node;
+}
+
+void parse(char *dir_path, int type, uint64_t start, uint64_t end)
+{
+    struct file *temp_node, *aux_node, *curr_node = rt_node->child[2];
+    char *temp; 
+    int i = 0;
+
+    char *path = (char *)kmalloc();
+    memcpy(path, dir_path, kstrlen(path)); 
+
+    temp = kstrtok(path, "/");  
+
+    while (temp != NULL) 
+	{
+        aux_node = curr_node; 
+        //kprintf("%s \n", temp);
+        //iterate through all childrens of currnode        
+        for(i = 2; i < curr_node->end; ++i)
+		{
+            if(memcmp(temp, curr_node->child[i]->name, kstrlen(temp)) == 0) 
+			{
+                curr_node = (struct file *)curr_node->child[i];
+                break;       
+            }        
+        }
+
+        //kprintf("\n....%s...%s...", currnode->f_name, temp);
+        //if no child has been found
+        //add this as child of current
+        if (i == aux_node->end) {
+
+            temp_node = (struct file *)kmalloc();
+            make_node(temp_node, curr_node, temp, start, end, type, 0);  
+
+            curr_node->child[curr_node->end] = temp_node;
+            curr_node->end += 1; 
+        } 
+
+        //kprintf("....%d...%s...", currnode->end, temp);
+        //while(1); 
+
+        temp = kstrtok(NULL, "/");          
+
+    }
+}
 
 
 

@@ -38,30 +38,47 @@ void switch_to(
         );
 
     cr3_w(next->mm->pml4);
-
+/*
     // schedule "me" prev task
     if (me != NULL) {
         __asm__ __volatile__(PUSHREGS);
         schedule(me);
         __asm__ __volatile__(POPREGS);
     }
-
+*/
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
-    if (next->userp) {
+   */
+      if (next->userp) {
         switch_to_user_mode(next);
     }
 
     __asm__ volatile("retq");
-    */
 }
 
 /**
  * Schedule new task
  * Basic round-robin for now, just adds to the end of the list
  */
-void schedule(task_struct *new_task) {
+void schedule(task_struct *new_task, uint64_t e_entry) {
+
+  if(new_task->userp)
+  {
+    new_task->kstack[SS_REG] = 0x23; // set SS
+    new_task->kstack[CS_REG] = 0x2b; // set CS
+
+    //for kernel process, this is top of k_stack, it is set when process is
+    //created
+    new_task->kstack[RSP_REG] = new_task->mm->start_stack;
+  }
+
+    new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
+
+// let this be the place where they return to
+  new_task->kstack[KSTACK_SIZE-5] = e_entry;
+
+  new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
     if (available_tasks == NULL) {
         available_tasks = new_task;
     } else {
@@ -111,7 +128,7 @@ pid_t get_next_pid() {
  * Create a new task
  * This does not schedule the task.
  */
-task_struct *create_new_task(function thread_fn, bool userp) {
+task_struct *create_new_task(bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
 
@@ -122,8 +139,11 @@ task_struct *create_new_task(function thread_fn, bool userp) {
     new_task->mm = my_mm;
 
     // task rsp
-    new_task->kstack[RSP_REG] = (uint64_t)thread_fn;
-    new_task->rsp = (uint64_t)&(new_task->kstack[RSP_REG]);
+    // here we initialize a few things assuming a kthread
+    new_task->kstack[SS_REG] = 0x10; // set SS
+    new_task->kstack[CS_REG] = 0x08; // set CS
+    new_task->kstack[RSP_REG] = (uint64_t)&new_task->kstack[KSTACK_SIZE-1];
+  //  new_task->rsp = (uint64_t)&(new_task->kstack[RSP_REG]);
 
     new_task->pid = get_next_pid();
     new_task->userp = userp;

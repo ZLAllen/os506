@@ -33,6 +33,7 @@ struct task_struct *create_elf_process(char *fname, char *argv[])
 {
     struct file *filep = tfs_open(fname, 0);//set flags
     kprintf("file object created");
+    while(1);
     Elf64_Ehdr *ehdr = get_ehdr(filep);
     int valid = validate_ehdr(ehdr);
     if (valid != 0)
@@ -135,7 +136,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 cr3_w(pt);
  
             }
-
             phdr++;
         }
         

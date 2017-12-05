@@ -11,7 +11,7 @@
 #include <sys/fs.h>
 #include <sys/elf64.h>
 #include <sys/syscalls.h>
-
+#include <sys/dirent.h>
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -45,28 +45,43 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     kprintf("file name %s\n", ((struct posix_header_ustar*)fs->private_data)->name);
 
     kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
-*/
- /*
+
+ 
     //small test
     uint64_t new_pml4 = alloc_pml4();
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
+
+
     //init_thread();
-    
-	//ELF
+    /*
+    syscallArg1(SYS_test, 77);
+    __asm__ volatile ("int $0x80");
+    uint64_t sysReturn = get_sys_return();
+    kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
+    */
+
+		
+	char *path = "/";
+	struct dstream *dirp = (struct dstream *) kmalloc();
+	syscallArg2(SYS_opendir, (int64_t) path, (uint64_t) dirp);
+	__asm__ volatile ("int $0x80");
+	uint64_t ret = get_sys_return();	
+	kprintf("\nret %d\n", ret);
+
+ 	/*   
     kprintf("\nelf process\n");
-    char *fname = "test2";
-    char *argv[] = {"est2", "arg1", "arg2", '\0'};    
+    char *fname = "test";
+    //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
+    char *argv[] = {0};
     create_elf_process(fname, argv);
+    */
+
 
     //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");
-    /*
-    syscallArg1(SYS_test, 77);
-    __asm__ volatile ("int $0x80");
-    */
     //ahciTest()
     while(1) __asm__ volatile ("hlt");
 }
