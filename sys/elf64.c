@@ -224,7 +224,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                
         //schedule process
         kprintf("schedule the new task\n");
-	schedule(new_task,(uint64_t)(ehdr->e_entry));
+        schedule(new_task,(uint64_t)(ehdr->e_entry));
 
         return new_task;
 }

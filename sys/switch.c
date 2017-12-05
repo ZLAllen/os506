@@ -103,17 +103,22 @@ void init_thread() {
     *page_table |= PAGE_U;
 
     kprintf("%p\n", *page_table);
-    schedule(task1,(uint64_t)thread1);
+    */
+    schedule(task1, (uint64_t) thread1);
+    run_next_task();
+    /*
     schedule(task2,(uint64_t)thread2);
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
     */
     //schedule(task5);
+    while(1);
     kprintf("\nelf process\n");
     char *fname = "test";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
-    create_elf_process(fname, argv);
+    task_struct *new_task = create_elf_process(fname, argv);
+    schedule(new_task, (uint64_t) thread1);
     run_next_task();
 
     __asm__ volatile("retq");
