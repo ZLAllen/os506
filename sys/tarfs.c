@@ -38,7 +38,10 @@ struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr)
                 return NULL;
         }
         uint64_t size = oct_to_bin(hdr->size, sizeof(hdr->size));
-        hdr += (512 + size)/512 + (size % 512 != 0); //512 byte sectors
+        if(size > 0)
+          hdr += (511+size)/(512) + 1; //512 byte sectors
+        else
+          hdr += 1;
         if (hdr->name[0] == '\0')
         {
                 //kprintf("header name is NULL\n");
@@ -67,12 +70,14 @@ struct file *tfs_open(const char *fpath, int flags)
 	struct posix_header_ustar *hdr;
 	//iterate tarfs section till file is found
         hdr = get_tfs_first();
+        kprintf("first: %s\n", hdr->name);
 	while(hdr != NULL)
 	{      
-                //kprintf("path %s vs hdr name %s bytes %d result %d\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+              //  kprintf("path %s vs hdr name %s\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name)));
+                kprintf("path %s vs hdr name %s\n", fpath, hdr->name);
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0) 
 		{
-			//kprintf("found the matching file\n");
+			kprintf("found the matching file\n");
                       
 			filep = kmalloc(); 
 			filep->private_data = hdr;
