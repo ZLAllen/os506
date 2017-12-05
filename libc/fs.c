@@ -1,15 +1,42 @@
 #include <sys/dirent.h>
 #include <stdio.h>
 
+
+//dstream struct when correct else NULL
+struct dstream *opendir(const char *path)
+{
+    struct dstream *dirp = (struct dstream *) malloc(sizeof(struct dstream));
+    dirp = (struct dstream*) syscallArg2(SYS_opendir, (uint64_t)path, (uint64_t)dirp); 
+    if(!dirp->node) 
+		free(dirp)
+    return dirp;
+} 
+
+//dirent struct when correct else NULL
+struct dirent* readdir(struct dstream *dirp)
+{   
+    struct dirent* drent = (struct dirent*) syscallArg1(SYS_readdir, (uint64_t)dirp);
+    return drent;
+}
+
+//0 when correct else -1 on error
+int closedir(struct dstream *dirp)
+{
+    int val = (int) sysallArg1(SYS_closedir, (uint64_t)dirp);
+    if (val == -1)
+        free(node);
+
+    return val;
+}
+
+
 /*
 opendir, readdir, closedir
 */
 
-
-
 /*
 opens and returns a directory stream corresponding to the directory name. NULL on error
-*/
+
 void *opendir(const char *dirname)
 {
         //perform checks
@@ -41,10 +68,10 @@ void *opendir(const char *dirname)
 }
 
 
-/*
+
 returns a pointer to a dirent structure representing the next directory entry
 in the directory stream pointed to by dirp. NULL on EOD/ERROR
-*/
+
 struct dirent *readdir(struct dstream *dirp)
 {
 
@@ -63,10 +90,10 @@ struct dirent *readdir(struct dstream *dirp)
 }
 
 
-/*
+
 1. closes the directory stream associated with dirp
 2. closes the underlying file descriptor associated with dirp. -1 on ERROR
-*/
+
 int closedir(struct dstream *dirp)
 {
         if(!dirp)
@@ -80,4 +107,4 @@ int closedir(struct dstream *dirp)
         return ret;
 
 }
-
+*/

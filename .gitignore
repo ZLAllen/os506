@@ -5,4 +5,7 @@
 #rootfs/bin/
 
 tags
-
+*.img
+*.iso
+/kernel
+/rootfs/boot/kernel/kernel

@@ -4,6 +4,7 @@
 #include <sys/kprintf.h>
 #include <sys/dirent.h>
 #include <sys/kstring.h>
+#include <sys/system.h>
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
@@ -37,39 +38,39 @@ uint64_t sys_fork() {
 }
 
 
-struct dstream *sys_opendir(uint64_t* entry, uint64_t* directory)
+struct dstream *sys_opendir(uint64_t* apath, uint64_t* adirp)
 {
-     kprintf("sys call to opendir");
-     char* path = (char *)entry;
-     struct dstream *dirp = (struct dstream *)directory; 
+     kprintf("\nsys call to opendir\n");
+     //char* path = (char *) apath;	
+     struct dstream *dirp = (struct dstream *) adirp; 
      return dirp;
 }
 
-struct dirent* sys_readdir(uint64_t entry)
+struct dirent *sys_readdir(uint64_t *adirp)
 {
-    kprintf("sys call to readdir");
-    struct dstream *dirp = (struct dstream*) entry;
-    if (dirp->fnode->end < 3 || dirp->curr == dirp->fnode->end || dir->curr == 0)
+    kprintf("\nsys call to readdir\n");
+    struct dstream *dirp = (struct dstream*) adirp;
+    if (dirp->node->end < 3 || dirp->curr == dirp->node->end || dirp->curr == 0)
     {
         return NULL;
     }
     else
     {
-        kstrcpy(dirp->fnode->fchild[dirp->curr]->fname, dir->curr_dirent.name);
+        memcpy(dirp->drent.name, dirp->node->child[dirp->curr]->name, kstrlen(dirp->drent.name));
         dirp->curr++;
-        return &dirp->curr_dirent;
+        return &dirp->drent;
     }
 }
 
 
-int sys_closedir(uint64_t *entry)
+int sys_closedir(uint64_t *adirp)
 {
-    kprintf("sys call to closedir");
-    struct dstream *dirp = (struct dstream *) entry;
-    if(dirp->fnode->f_type == DIRECTORY && dirp->curr > 1) 
+    kprintf("\nsys call to closedir\n");
+    struct dstream *dirp = (struct dstream *) adirp;
+    if(dirp->node->type == DIR && dirp->curr > 1) 
     {
 
-        dirp->fnode = NULL; 
+        dirp->node = NULL; 
         dirp->curr = 0;
         return 0;
     } 
@@ -85,12 +86,8 @@ int sys_closedir(uint64_t *entry)
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
-   	[SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test},
-    [SYS_opendir] {2, sys_opendir},
-    [SYS_readdir] {1, sys_readdir},
-    [SYS_closedir] {1, sys_closedir}
-
+   	//[SYS_fork] {0, sys_fork},
+    [SYS_test] {1, sys_test}
 };
 
 /**

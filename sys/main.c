@@ -52,11 +52,12 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
-    init_thread();
-    //
+    //init_thread();
+    
+	//ELF
     kprintf("\nelf process\n");
-    char *fname = "hello";
-    char *argv[] = {"hello", "arg1", "arg2", '\0'};    
+    char *fname = "test2";
+    char *argv[] = {"est2", "arg1", "arg2", '\0'};    
     create_elf_process(fname, argv);
 
     //__asm__ volatile ("movq $50, %%rax");

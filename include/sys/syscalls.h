@@ -8,9 +8,9 @@
 // syscall numbers
 #define SYS_fork 57
 #define SYS_test 50
-#define SYS_opendir 60
-#define SYS_readdir 61
-#define SYS_losedir 62
+#define SYS_opendir 60//?? real one
+#define SYS_readdir 78
+#define SYS_losedir 62//?? real one
 
 // syscall functions
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);

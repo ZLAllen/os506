@@ -193,7 +193,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     if(!IS_PRESENT(*pte))
         *pte = paddr|flags;
     else{
-        kprintf("address %p has been mapped\n", vaddr);
+        //kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
     }
 
@@ -217,7 +217,7 @@ uint64_t alloc_pml4(){
 
     vir_pml4[510] = pml4|PAGE_P|PAGE_RW; //self ref
 
-    kprintf("debug:nv %p, ov %p, np %p\n", vir_pml4, init_pml4, pml4);
+    //kprintf("debug:nv %p, ov %p, np %p\n", vir_pml4, init_pml4, pml4);
 
     /*
     //debug 
