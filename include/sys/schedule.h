@@ -6,11 +6,10 @@
 
 // register locations on stack
 #define SS_REG KSTACK_SIZE-1 // stack segment register
-#define RSP_REG KSTACK_SIZE-2 // stack pointer
+#define SP_REG KSTACK_SIZE-2 // stack pointer
 #define FLAGS_REG KSTACK_SIZE-3 // flags register
 #define CS_REG KSTACK_SIZE-4 // code segment register
-#define IP_REG KSTACK_SIZE - 5; // instruction pointer
-#define RAX_REG KSTACK_SIZE-7 // return addr register
+#define IP_REG KSTACK_SIZE-5; // instruction pointer
 
 /** current task */
 extern task_struct *current; 

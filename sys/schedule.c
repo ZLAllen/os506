@@ -88,7 +88,7 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 
         //for kernel process, this is top of k_stack, it is set when process is
         //created
-        new_task->kstack[RSP_REG] = new_task->mm->start_stack;
+        new_task->kstack[SP_REG] = new_task->mm->start_stack;
     }
 
     new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
@@ -121,7 +121,7 @@ task_struct *create_new_task(bool userp) {
     // for user tasks, see schedule_new()
     new_task->kstack[SS_REG] = 0x10; // set SS
     new_task->kstack[CS_REG] = 0x08; // set CS
-    new_task->kstack[RSP_REG] = (uint64_t)&new_task->kstack[KSTACK_SIZE-1];
+    new_task->kstack[SP_REG] = (uint64_t)&new_task->kstack[KSTACK_SIZE-1];
 
     new_task->pid = get_next_pid();
     new_task->userp = userp;
@@ -217,10 +217,10 @@ task_struct *fork_process(task_struct *parent) {
 
     // child's return should be 0
     // TODO
-    child->kstack[RAX_REG] = 0;
+    //child->kstack[RAX_REG] = 0;
 
     // child shares the same stack pointer
-    child->rsp = (uint64_t)&(child->kstack[RSP_REG]);
+    child->rsp = (uint64_t)&(child->kstack[SP_REG]);
 
     // get current process's (parent's) pml4
     uint64_t pt = cr3_r();

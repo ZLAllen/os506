@@ -5,6 +5,9 @@
 #include <sys/defs.h>
 #include <sys/dirent.h>
 
+#define GET_SYS_RET(sysReturn) \
+    __asm__ volatile("movq %%rax, %0;":"=r" (sysReturn));
+
 // syscall numbers
 #define SYS_fork 57
 #define SYS_test 50

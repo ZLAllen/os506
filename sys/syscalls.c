@@ -8,7 +8,9 @@
 extern task_struct *current;
 
 uint64_t sys_test(uint64_t testArg) {
+    __asm__ __volatile__(PUSHREGS);
    kprintf("print me. Argument is %d\n", testArg);
+    __asm__ __volatile__(POPREGS);
    return 9001;
 }
 /*
@@ -27,7 +29,7 @@ uint64_t sys_fork() {
     task_struct *child = fork_process(current);
 
     // schedule new process like any other
-    //schedule(child);
+    // schedule(child);
 
     // return child PID to the parent
     return child->pid;
@@ -115,14 +117,18 @@ void syscall(void) {
          ::"r" (ret)
     );
 
-    __asm__ __volatile__("iretq");
+   // __asm__ __volatile__("iretq");
 }
 
+/**
+ * Unused, calling this messes up rax defeating the purpose
+ */
 uint64_t get_sys_return() {
     uint64_t ret;
     __asm__ __volatile__(
         "movq %%rax, %0;"
          :"=r" (ret)
+         :: "%rax"
     );
 
     return ret;
