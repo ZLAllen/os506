@@ -91,7 +91,7 @@ struct file *tfs_open(const char *fpath, int flags)
 		}	
                 hdr = get_tfs_next(hdr);
 	}
-  while(1);
+    //while(1);
 	return NULL;
 }
 

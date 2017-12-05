@@ -58,29 +58,15 @@ void switch_to(
 }
 
 /**
- * Schedule new task
+ * Schedule existing task
  * Basic round-robin for now, just adds to the end of the list
+ *
+ * Call schedule() first for new tasks!
  */
-void schedule(task_struct *new_task, uint64_t e_entry) {
+void reschedule(task_struct *task) {
 
-  if(new_task->userp)
-  {
-    new_task->kstack[SS_REG] = 0x23; // set SS
-    new_task->kstack[CS_REG] = 0x2b; // set CS
-
-    //for kernel process, this is top of k_stack, it is set when process is
-    //created
-    new_task->kstack[RSP_REG] = new_task->mm->start_stack;
-  }
-
-    new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
-
-// let this be the place where they return to
-  new_task->kstack[KSTACK_SIZE-5] = e_entry;
-
-  new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
     if (available_tasks == NULL) {
-        available_tasks = new_task;
+        available_tasks = task;
     } else {
         // traverse to the end of the list
         task_struct *cursor = available_tasks;
@@ -88,10 +74,61 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
             cursor = cursor->next;
         }
 
-        cursor->next = new_task;
-        new_task->prev = cursor;
-        new_task->next = NULL;
+        cursor->next = task;
+        task->prev = cursor;
+        task->next = NULL;
     }
+}
+
+void schedule(task_struct *new_task, uint64_t e_entry) {
+
+    if(new_task->userp) {
+        new_task->kstack[SS_REG] = 0x23; // set SS
+        new_task->kstack[CS_REG] = 0x2b; // set CS
+
+        //for kernel process, this is top of k_stack, it is set when process is
+        //created
+        new_task->kstack[RSP_REG] = new_task->mm->start_stack;
+    }
+
+    new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
+
+    // let this be the place where they return to
+    new_task->kstack[KSTACK_SIZE-5] = (uint64_t)e_entry;
+
+    new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
+
+    reschedule(new_task);
+
+}
+
+/**
+ * Create a new task
+ * This does not schedule the task.
+ */
+task_struct *create_new_task(bool userp) {
+    task_struct *new_task = get_task_struct();
+    new_task->kstack = kmalloc();
+
+    // initialize mm_struct
+    mm_struct* my_mm = get_mm_struct();
+    my_mm->pml4 = alloc_pml4();
+
+    new_task->mm = my_mm;
+
+    // task rsp
+    // here we initialize a few things assuming a kthread
+    // for user tasks, see schedule_new()
+    new_task->kstack[SS_REG] = 0x10; // set SS
+    new_task->kstack[CS_REG] = 0x08; // set CS
+    new_task->kstack[RSP_REG] = (uint64_t)&new_task->kstack[KSTACK_SIZE-1];
+
+    new_task->pid = get_next_pid();
+    new_task->userp = userp;
+
+    kprintf("Process PID %d created\n", new_task->pid);
+
+    return new_task;
 }
 
 /** * Get next available runnable task
@@ -122,35 +159,6 @@ void run_next_task() {
  */
 pid_t get_next_pid() {
     return pid++;
-}
-
-/**
- * Create a new task
- * This does not schedule the task.
- */
-task_struct *create_new_task(bool userp) {
-    task_struct *new_task = get_task_struct();
-    new_task->kstack = kmalloc();
-
-    // initialize mm_struct
-    mm_struct* my_mm = get_mm_struct();
-    my_mm->pml4 = alloc_pml4();
-
-    new_task->mm = my_mm;
-
-    // task rsp
-    // here we initialize a few things assuming a kthread
-    new_task->kstack[SS_REG] = 0x10; // set SS
-    new_task->kstack[CS_REG] = 0x08; // set CS
-    new_task->kstack[RSP_REG] = (uint64_t)&new_task->kstack[KSTACK_SIZE-1];
-  //  new_task->rsp = (uint64_t)&(new_task->kstack[RSP_REG]);
-
-    new_task->pid = get_next_pid();
-    new_task->userp = userp;
-
-    kprintf("Process PID %d created\n", new_task->pid);
-
-    return new_task;
 }
 
 /**
