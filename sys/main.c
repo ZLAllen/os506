@@ -52,13 +52,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
-    //init_thread();
-    syscallArg1(SYS_test, 77);
-    __asm__ volatile ("int $0x80");
-    //__asm__ volatile("syscall");
-    uint64_t sysReturn;
-    GET_SYS_RET(sysReturn);
-    kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
+    init_thread();
+    //syscallArg1(SYS_test, 77);
     //
     /*
     kprintf("\nelf process\n");
