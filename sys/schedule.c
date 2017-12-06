@@ -2,6 +2,7 @@
 #include <sys/kmalloc.h>
 #include <sys/kprintf.h>
 #include <sys/pging.h>
+#include <sys/gdt.h>
 
 task_struct *current;
 
@@ -27,7 +28,10 @@ void switch_to(
              :
              : // clobbered registers
             );
+
+        me->rsp += 40;
     }
+
 
     // switch to next task
     __asm__ __volatile__
@@ -51,7 +55,15 @@ void switch_to(
     /* TODO - this is bad... still debugging
    */
       if (next->userp) {
-        switch_to_user_mode(next);
+        //switch_to_user_mode(next);
+        
+        set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
+        __asm__ __volatile__("movq $0x23, %rax;"
+                         "movq %rax,  %ds;"
+                         "movq %rax,  %es;"
+                         "movq %rax,  %fs;"
+                         "movq %rax,  %gs;");
+        __asm__ __volatile__("iretq");
     }
 
     __asm__ volatile("retq");
@@ -84,7 +96,7 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 
     if(new_task->userp) {
         new_task->kstack[SS_REG] = 0x23; // set SS
-        new_task->kstack[CS_REG] = 0x2b; // set CS
+        new_task->kstack[CS_REG] = 0x1b; // set CS
 
         //for kernel process, this is top of k_stack, it is set when process is
         //created
@@ -97,6 +109,8 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
     new_task->kstack[KSTACK_SIZE-5] = (uint64_t)e_entry;
 
     new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
+
+    kprintf("e_entry: %x\n", e_entry);
 
     reschedule(new_task);
 

@@ -32,7 +32,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     uint64_t real_physfree = pmap_init(modulep,physbase, physfree);
 
-    kprintf("new physfree is %p\n", real_physfree);
+    //kprintf("new physfree is %p\n", real_physfree);
 
     kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
@@ -52,14 +52,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
-    init_thread();
+    //__asm__ volatile("pushq $10");
+    __asm__ volatile("int $1");
+   // init_thread();
     /*
     syscallArg1(SYS_test, 77);
     __asm__ volatile ("int $0x80");
+    kprintf("hi im working\n");
     uint64_t sysReturn = get_sys_return();
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    */
     //
+    */
     /*
     kprintf("\nelf process\n");
     char *fname = "test";

@@ -87,7 +87,6 @@ void syscall(void) {
 
     // default return
     ret = 0;
-
     switch (callFunc.count) {
         case 0:
             ret = callFunc.func();
@@ -108,14 +107,12 @@ void syscall(void) {
             ret = callFunc.func(arg0, arg1, arg2, arg3, arg4);
             break;
     }
-
     // store return value into rax register
     __asm__ __volatile__(
         "movq %0, %%rax;"
          ::"r" (ret)
     );
-
-    __asm__ __volatile__("iretq");
+   // __asm__ __volatile__("iretq");
 }
 
 uint64_t get_sys_return() {

@@ -90,8 +90,8 @@ void thread5() {
 
 
 void init_thread() {
-    task1 = create_new_task(false);
-    task2 = create_new_task(false);
+    //task1 = create_new_task(false);
+    //task2 = create_new_task(false);
     /*
     task3 = create_new_task(false);
     task4 = create_new_task(false);
@@ -104,24 +104,41 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
     */
-    schedule(task1, (uint64_t) thread1);
-    schedule(task2,(uint64_t)thread2);
-    run_next_task();
+    //schedule(task1, (uint64_t) thread1);
+    //schedule(task2,(uint64_t)thread2);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
     */
     //schedule(task5);
-    while(1);
     kprintf("\nelf process\n");
     char *fname = "test";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
     task_struct *new_task = create_elf_process(fname, argv);
-    schedule(new_task, (uint64_t) thread1);
-    run_next_task();
+   uint64_t* ret = 0;
+    //schedule(new_task, (uint64_t) thread1);
+    
+        set_tss_rsp((void*)&new_task->kstack[KSTACK_SIZE-1]);
+        __asm__ __volatile__
+                        ("movq $0x23, %%rax;"
+                         "movq %%rax,  %%ds;"
+                         "movq %%rax,  %%es;"
+                         "movq %%rax,  %%fs;"
+                         "movq %%rax,  %%gs;"
+                         "movq %1, %%rsp;"
+                         "movq %%rsp, %0;"
+                         :"=r"(ret)
+                         : "r"(new_task->rsp - 8)
+                         :"memory", "rax");
 
-    __asm__ volatile("retq");
+        kprintf("%p, %p, %p, %p, %p\n", new_task->kstack[511], new_task->kstack[510], new_task->kstack[509],new_task->kstack[508],new_task->kstack[507]);
+
+        kprintf("%x\n", *ret);
+        while(1);
+        __asm__ __volatile__("iretq");
+    //run_next_task();
+
 
 }
 /* SEE switch_to in schedule instead

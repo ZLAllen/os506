@@ -64,7 +64,7 @@ void *irq_func[16] = {
     0,
     0,
     0,
-    handle_pg_fault,
+    0,
     0,
     0
 };
@@ -173,7 +173,8 @@ void isr_handler(struct regs reg){
     uint64_t num = reg.num;
     uint64_t err = reg.err;
    
-
+    kprintf("num: %d, err: %d\n", num, err);
+  
 
     if(num < 32){
         if(num > 18){
@@ -185,8 +186,14 @@ void isr_handler(struct regs reg){
         if(err != num)
             kprintf("Error Code: %d\n", err);
 
+        if(num == 1)
+        {
+          handle_pg_fault();
+        }
+
     }else if(num < 48){
-        
+       
+     kprintf("%d, %d\n", num, err); 
         funptr = irq_func[num-32];
 
         if(funptr){
@@ -210,7 +217,7 @@ void isr_handler(struct regs reg){
 
 
 void update_kkbd(char key, int ctrl){
-        short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
+    short* loc = (short*)BASE + 80*25 - KEY_OFFSET;
 	short* ptr;  
 
         ptr = loc;
