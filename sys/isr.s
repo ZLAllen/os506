@@ -4,6 +4,7 @@
 #
 
 .extern isr_handler
+.extern syscall_handler
 
 .macro ISR num
 .global _isr\num
@@ -13,7 +14,6 @@ _isr\num:
     pushq $\num   
     jmp irq_common
 .endm
-
 
 .macro ISR_E num
 .global _isr\num
@@ -64,6 +64,7 @@ ISR_E 13
 ISR_E 14
 
 
+
 irq_common:
     pushq %rax
     pushq %rbx
@@ -84,4 +85,26 @@ irq_common:
     popq %rbx
     popq %rax
     add $16, %rsp #pop the num byte and err code
+    iretq
+
+# basically irq_common, but without rax
+# rax used
+.global _isr128
+  _isr128:
+    pushq %rbx
+    pushq %rcx
+    pushq %rdx
+    pushq %rsi
+    pushq %rdi
+    pushq %rbp
+    pushq %rsp
+    movq %rsp, %rdi
+    call syscall_handler
+    popq %rsp
+    popq %rbp
+    popq %rdi
+    popq %rsi
+    popq %rdx
+    popq %rcx
+    popq %rbx
     iretq

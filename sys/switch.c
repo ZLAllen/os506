@@ -10,6 +10,23 @@ void thread1()
 {
     int x = 100;
 	kprintf("Thread 1. Variable is %d.\n", x);
+
+    //__asm__ volatile("int $14");
+
+
+    uint64_t sysReturn;
+    uint64_t num = SYS_test;
+    uint64_t arg0 = 77;
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+    __asm__ __volatile__
+        ("movq %0, %%rbx" ::"r" (arg0): "%rax");
+    __asm__ volatile ("int $0x80"
+        : "=r" (sysReturn)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    );
+    kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
+    while(1);
     run_next_task();
     x++;
     kprintf("Back in thread 1. Variable is %d.\n", x);

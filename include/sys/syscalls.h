@@ -8,6 +8,8 @@
 #define GET_SYS_RET(sysReturn) \
     __asm__ volatile("movq %%rax, %0;":"=r" (sysReturn));
 
+#define INC_RSP "add $16, %rsp;"
+
 // syscall numbers
 #define SYS_fork 57
 #define SYS_test 50
@@ -18,7 +20,7 @@ uint64_t sys_test(uint64_t testArg);
 uint64_t sys_fork();
 
 // syscall handler
-void syscall(void);
+void syscall_handler(void);
 uint64_t get_sys_return();
 
 // utility functions to set arguments for syscall

@@ -58,7 +58,7 @@ void init_idt() {
     //
     pic_remap();
 
-    init_ktime();
+    //init_ktime();
 
     //set up IRQ resp
     //32-bit interrupt gate
@@ -98,7 +98,7 @@ void init_idt() {
     idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
     idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E);
 
-    idt_set_gate(128, (uint64_t)syscall, 0x08, 0x8E);   // change from 0x8E to 0xEE after
+    idt_set_gate(128, (uint64_t)_isr128, 0x08, 0xEE);   // change from 0x8E to 0xEE after
 
     _x86_64_asm_lidt(&idtr);
 

@@ -57,7 +57,7 @@ functionWithArg syscalls[] = {
  * Return:
  * rax
  */
-void syscall(void) {
+void syscall_handler(void) {
 
     uint64_t num, ret;
     functionWithArg callFunc;
@@ -116,8 +116,6 @@ void syscall(void) {
         "movq %0, %%rax;"
          ::"r" (ret)
     );
-
-   // __asm__ __volatile__("iretq");
 }
 
 /**
