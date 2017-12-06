@@ -95,7 +95,7 @@ void init_idt() {
     idt_set_gate(29, (uint64_t)_isr29, 0x08, 0x8E); 
     idt_set_gate(30, (uint64_t)_isr30, 0x08, 0x8E); 
     idt_set_gate(31, (uint64_t)_isr31, 0x08, 0x8E); 
-    idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
+   // idt_set_gate(32, (uint64_t)_isr32, 0x08, 0x8E); 
     idt_set_gate(33, (uint64_t)_isr33, 0x08, 0x8E);
 
     idt_set_gate(128, (uint64_t)_isr128, 0x08, 0xEE);   // change from 0x8E to 0xEE after
@@ -116,7 +116,6 @@ static void idt_set_gate(uint8_t num, uint64_t base, uint16_t sel, uint8_t flags
 
     idt[num].type_attr = flags;
 }
-
 //following osdev guide
 static void pic_remap(){
     

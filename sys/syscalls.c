@@ -101,7 +101,6 @@ void syscall_handler(void) {
 
     // default return
     ret = 0;
-
     switch (callFunc.count) {
         case 0:
             ret = callFunc.func();
@@ -122,7 +121,6 @@ void syscall_handler(void) {
             ret = callFunc.func(arg0, arg1, arg2, arg3, arg4);
             break;
     }
-
     // store return value into rax register
     __asm__ __volatile__(
         "movq %0, %%rax;"
