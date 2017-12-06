@@ -47,6 +47,7 @@ extern void _isr30();
 extern void _isr31();
 extern void _isr32();
 extern void _isr33();
+extern void _isr128();
 
 
 #endif

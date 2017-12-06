@@ -7,11 +7,12 @@ enum vma_perm{X, RW};
 
 #define STACK_TOP_USR  0xF000000000UL
 #define STACK_SIZE_USR 0x10000 
+#define MAX_FD 50
+
 
 #include <sys/defs.h>
 #include <sys/fs.h>
 #include <sys/dirent.h>
-
 
 // process struct
 typedef struct task_struct {
@@ -24,7 +25,8 @@ typedef struct task_struct {
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
-    struct task_struct *free; //next free task_struct 
+    struct task_struct *free; //next free task_struct
+    struct file *fdarr[MAX_FD];	
 } task_struct;
 
 typedef struct vma_struct{

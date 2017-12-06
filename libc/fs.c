@@ -1,42 +1,30 @@
 #include <sys/dirent.h>
 #include <stdio.h>
-
-/*
-opendir, readdir, closedir
-*/
-
-
+#include <sys/fs.h>
 
 /*
 opens and returns a directory stream corresponding to the directory name. NULL on error
 */
-void *opendir(const char *dirname)
+void *opendir(const char *name)
 {
-        //perform checks
-        if(!dirname)
-                return NULL;
+	//perform checks
+    if(!dirname)
+    	return NULL;
 
-        struct dstream *dirp;
+    struct dstream *dirp;
+    int fd = open(name, O_RDONLY | O_DIRECTORY);
 
-        // fix this
-        int fd = 0;
-        if(fd < 0)
-        {
-                printf("fd is < 0");
-                return NULL;
-        }
-        dirp = malloc();
-        if(!dirp)
-        {
-                printf("could not allocate memory for dirp");
-                return NULL;
+    if(fd < 0 && fd >= MAX_FD)
+    	return NULL;
+               
+    dirp = malloc(sizeof(*dirp));//replace with brk
+    if(!dirp)
+    	return NULL;
 
-        }
-        //check this
-        dirp->fd = fd;
-	dirp->size = 0;
+    dirp->fd = fd;
 	dirp->offset = 0;
-        return dirp;
+    
+	return dirp;
 
 }
 
@@ -45,20 +33,20 @@ void *opendir(const char *dirname)
 returns a pointer to a dirent structure representing the next directory entry
 in the directory stream pointed to by dirp. NULL on EOD/ERROR
 */
-struct dirent *readdir(struct dstream *dirp)
+struct linux_dirent *readdir(struct dstream *dirp)
 {
+	if(!dirp)
+    	return NULL;
 
-        if(!dirp)
-        {
-                printf("dirp is NULL");
-                return NULL;
-        }
+    int size = getdents((unsigned int) dirp->fd, (struct linux_dirent*) dirp->buff, (unsigned int) sizeof(dipr->buff));
+	if size <= 0
+		return NULL;
+	dirp->offset = 0;
+	dirp->size = (size_t)size
+	struct linux_dirent *drent =  (struct linux_dirent*)(dstream->buff + dstream->offset);
+	dstream->offset += dirp->d_reclen;
 
-        struct dirent *drent = NULL;//how to get dirent from dstream?
-	drent->fd = 0;
-	drent->size = 0;
-	drent->offset = 0;
-        return drent;
+    return drent;
 
 }
 
@@ -69,15 +57,13 @@ struct dirent *readdir(struct dstream *dirp)
 */
 int closedir(struct dstream *dirp)
 {
-        if(!dirp)
-        {
-                printf("dirp is NULL");
-                return -1;
-        }
-        int fd = dirp->fd;
-        free(dirp);	
-        int ret = 0 //close(fd);
-        return ret;
+	if(!dirp)
+    	return -1;
+    
+    int fd = dirp->fd;
+    free(dirp);	
+    int ret =close(fd);
+    return ret;
 
 }
 

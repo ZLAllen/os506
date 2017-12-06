@@ -8,7 +8,9 @@
 extern task_struct *current;
 
 uint64_t sys_test(uint64_t testArg) {
+    __asm__ __volatile__(PUSHREGS);
    kprintf("print me. Argument is %d\n", testArg);
+    __asm__ __volatile__(POPREGS);
    return 9001;
 }
 /*
@@ -27,11 +29,22 @@ uint64_t sys_fork() {
     task_struct *child = fork_process(current);
 
     // schedule new process like any other
-    //schedule(child);
+    // schedule(child);
 
     // return child PID to the parent
     return child->pid;
 }
+
+
+uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
+{
+    if(!dirp || count <= 0)
+        return -1;
+
+    return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
+}
+
+
 
 /**
  * Supported syscalls
@@ -41,7 +54,8 @@ uint64_t sys_fork() {
  */
 functionWithArg syscalls[] = {
     [SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test}
+    [SYS_test] {1, sys_test},
+	[SYS_getdents] {3, sys_getdents}
 };
 
 /**
@@ -55,7 +69,7 @@ functionWithArg syscalls[] = {
  * Return:
  * rax
  */
-void syscall(void) {
+void syscall_handler(void) {
 
     uint64_t num, ret;
     functionWithArg callFunc;
@@ -112,14 +126,17 @@ void syscall(void) {
         "movq %0, %%rax;"
          ::"r" (ret)
     );
-   // __asm__ __volatile__("iretq");
 }
 
+/**
+ * Unused, calling this messes up rax defeating the purpose
+ */
 uint64_t get_sys_return() {
     uint64_t ret;
     __asm__ __volatile__(
         "movq %%rax, %0;"
          :"=r" (ret)
+         :: "%rax"
     );
 
     return ret;

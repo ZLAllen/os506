@@ -2,34 +2,27 @@
 #define _DIRENT_H
 
 
-/*
-https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/dirstream.h;
-h=8303f07fab6f6efaa39e51411ef924e712d995e0;hb=fa39685d5c7df2502213418bead44e9543a9b9ec
-*/
+#define MAX_NAME 256
+#define BUFF_SIZE 204
+
+
 struct dstream
 {
-        int fd;
-        size_t size;
-        size_t offset;
-	char data[100]; //size?
+	int fd;
+    size_t size;
+    size_t offset;
+	char buff[BUFF_SIZE]; 
 	
 };
 
+/*
 struct dirent 
 {
-    ino_t d_ino;       /* inode number */
-    off_t d_off;       /* offset to the next dirent */
-    unsigned short d_reclen;    /* length of this record */
-    unsigned char d_type;      /* type of file; not supported by all file system types */
-    char d_name[256]; /* filename */
+    off_t offset;       
+    unsigned char d_type;  
+    char d_name[MAX_NAME];
 };
-
-
-void *opendir(const char *dirname);
-struct dirent *readdir(struct dstream *dirp);
-int closedir(struct dstream *dirp);
-
-
+*/
 
 struct linux_dirent {
     unsigned long d_ino;
@@ -37,9 +30,15 @@ struct linux_dirent {
     unsigned short d_reclen; 
     unsigned char d_type;
     struct linux_dirent* free;
-    char          d_name[];
+    char d_name[MAX_NAME];
 };
 
+
+struct dstream *opendir(const char *name);
+struct dirent *readdir(struct dstream *dirp);
+int closedir(struct dstream *dirp);
+
+int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
 
 
 
