@@ -326,7 +326,7 @@ Elf64_Phdr* get_phdr(Elf64_Ehdr *ehdr)
 
 Elf64_Ehdr* get_ehdr(struct file *filep)
 {
-	Elf64_Ehdr *ehdr = (Elf64_Ehdr *)(((char *)filep->private_data) + sizeof(struct posix_header_ustar));	
+	Elf64_Ehdr *ehdr = (Elf64_Ehdr *)(((char *)filep->data) + sizeof(struct posix_header_ustar));	
 	return ehdr;
 }
 

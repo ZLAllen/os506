@@ -35,6 +35,17 @@ uint64_t sys_fork() {
     return child->pid;
 }
 
+
+uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
+{
+    if(!dirp || count <= 0)
+        return -1;
+
+    return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
+}
+
+
+
 /**
  * Supported syscalls
  * Functions defined above
@@ -43,7 +54,8 @@ uint64_t sys_fork() {
  */
 functionWithArg syscalls[] = {
     [SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test}
+    [SYS_test] {1, sys_test},
+	[SYS_getdents] {3, sys_getdents}
 };
 
 /**
