@@ -94,9 +94,9 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
     new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
 
     // let this be the place where they return to
-    new_task->kstack[KSTACK_SIZE-5] = (uint64_t)e_entry;
+    new_task->kstack[IP_REG] = (uint64_t)e_entry;
 
-    new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
+    new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
 
     reschedule(new_task);
 

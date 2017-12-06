@@ -9,7 +9,7 @@
 #define SP_REG KSTACK_SIZE-2 // stack pointer
 #define FLAGS_REG KSTACK_SIZE-3 // flags register
 #define CS_REG KSTACK_SIZE-4 // code segment register
-#define IP_REG KSTACK_SIZE-5; // instruction pointer
+#define IP_REG KSTACK_SIZE-5 // instruction pointer
 
 /** current task */
 extern task_struct *current; 

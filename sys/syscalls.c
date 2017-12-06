@@ -29,7 +29,7 @@ uint64_t sys_fork() {
     task_struct *child = fork_process(current);
 
     // schedule new process like any other
-    // schedule(child);
+    //schedule(child);
 
     // return child PID to the parent
     return child->pid;

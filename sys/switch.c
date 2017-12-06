@@ -17,6 +17,7 @@ void thread1()
     uint64_t sysReturn;
     uint64_t num = SYS_test;
     uint64_t arg0 = 77;
+
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));
     __asm__ __volatile__
@@ -26,7 +27,6 @@ void thread1()
         :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
     );
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    while(1);
     run_next_task();
     x++;
     kprintf("Back in thread 1. Variable is %d.\n", x);
