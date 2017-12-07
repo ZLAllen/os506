@@ -14,6 +14,9 @@
 /** current task */
 extern task_struct *current; 
 
+/** idle task if nothing to run */
+extern task_struct *idle;
+
 void switch_to(task_struct *me, task_struct *next);
 void reschedule(task_struct *task);
 void schedule(task_struct *new_task, uint64_t e_entry);
@@ -24,3 +27,5 @@ pid_t get_next_pid();
 void switch_to_user_mode(task_struct *next);
 task_struct *fork_process(task_struct *parent);
 
+void schedule_idle();
+void idle_task();

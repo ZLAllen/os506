@@ -34,6 +34,7 @@ void thread1()
     x++;
     kprintf("Back again in thread 1. Variable is %d.\n", x);
     run_next_task();
+    kprintf("Boo\n");
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
@@ -53,7 +54,7 @@ void thread2()
     kprintf("Back again in thread 2. Variable is %d.\n", x);
     kprintf("Thread 2 will now run a while(1) and not call run_next_task().");
 
-    while(1) {}
+    run_next_task();
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -122,7 +123,7 @@ void init_thread() {
     kprintf("%p\n", *page_table);
     */
     schedule(task1, (uint64_t) thread1);
-    schedule(task2,(uint64_t)thread2);
+    //schedule(task2,(uint64_t)thread2);
     run_next_task();
     while(1);
     /*

@@ -5,6 +5,7 @@
 #include <sys/gdt.h>
 
 task_struct *current;
+task_struct *idle;
 
 /** list of available tasks - schedule() orders this */
 task_struct *available_tasks;
@@ -165,7 +166,14 @@ task_struct *get_next_task() {
 void run_next_task() {
     task_struct *prev = current;
     current = get_next_task();
-    switch_to(prev, current);
+
+    if (current)
+        switch_to(prev, current);
+    else {
+        // revert back for now
+        current = prev;
+        schedule_idle();
+    }
 }
 
 /**
@@ -271,3 +279,27 @@ task_struct *fork_process(task_struct *parent) {
     return child;
 }
 
+/**
+ * Schedule an idle task, creating it if doesn't exist
+ */
+void schedule_idle() {
+    if (idle) {
+        reschedule(idle);
+    } else {
+        idle = create_new_task(false);
+        schedule(idle, (uint64_t)idle_task);
+    }
+
+    run_next_task();
+}
+
+/**
+ * Idle task thread
+ */
+void idle_task() {
+
+    while(1) {
+        kprintf("Idle!\n");
+        run_next_task();
+    }
+}
