@@ -107,8 +107,8 @@ void thread5() {
 
 
 void init_thread() {
-    //task1 = create_new_task(false);
-    //task2 = create_new_task(false);
+    task1 = create_new_task(false);
+    task2 = create_new_task(false);
     /*
     task3 = create_new_task(false);
     task4 = create_new_task(false);
@@ -121,8 +121,10 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
     */
-    //schedule(task1, (uint64_t) thread1);
-    //schedule(task2,(uint64_t)thread2);
+    schedule(task1, (uint64_t) thread1);
+    schedule(task2,(uint64_t)thread2);
+    run_next_task();
+    while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
