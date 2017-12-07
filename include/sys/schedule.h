@@ -27,5 +27,5 @@ pid_t get_next_pid();
 void switch_to_user_mode(task_struct *next);
 task_struct *fork_process(task_struct *parent);
 
-void schedule_idle();
+void create_idle_task();
 void idle_task();

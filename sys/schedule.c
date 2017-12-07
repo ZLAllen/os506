@@ -113,7 +113,9 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 
     kprintf("e_entry: %x\n", e_entry);
 
-    reschedule(new_task);
+    // idle tasks shouldn't get added
+    if (new_task->runnable)
+        reschedule(new_task);
 
 }
 
@@ -124,6 +126,8 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 task_struct *create_new_task(bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
+
+    new_task->runnable = true;
 
     // initialize mm_struct
     mm_struct* my_mm = get_mm_struct();
@@ -150,14 +154,18 @@ task_struct *create_new_task(bool userp) {
  * Removes it from the list of available tasks
  */
 task_struct *get_next_task() {
-    if (available_tasks == NULL) {
-        // TODO - idle process
-        return NULL;
-    } else {
-        task_struct *next_struct = available_tasks;
-        available_tasks = available_tasks->next;
-        return next_struct;
+    task_struct *next_struct = available_tasks;
+
+    // only run runnable tasks
+    while (next_struct && !next_struct->runnable) {
+        next_struct = next_struct->next;
     }
+
+    if (!next_struct)
+        return idle;
+
+    available_tasks = available_tasks->next;
+    return next_struct;
 }
 
 /**
@@ -166,14 +174,7 @@ task_struct *get_next_task() {
 void run_next_task() {
     task_struct *prev = current;
     current = get_next_task();
-
-    if (current)
-        switch_to(prev, current);
-    else {
-        // revert back for now
-        current = prev;
-        schedule_idle();
-    }
+    switch_to(prev, current);
 }
 
 /**
@@ -280,17 +281,14 @@ task_struct *fork_process(task_struct *parent) {
 }
 
 /**
- * Schedule an idle task, creating it if doesn't exist
+ * Create idle task
  */
-void schedule_idle() {
-    if (idle) {
-        reschedule(idle);
-    } else {
+void create_idle_task() {
+    if (!idle) {
         idle = create_new_task(false);
+        idle->runnable = false;
         schedule(idle, (uint64_t)idle_task);
     }
-
-    run_next_task();
 }
 
 /**
