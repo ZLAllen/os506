@@ -299,5 +299,6 @@ void idle_task() {
     while(1) {
         kprintf("Idle!\n");
         run_next_task();
+        kprintf("Idle back!\n");
     }
 }
