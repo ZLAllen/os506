@@ -34,15 +34,9 @@ void switch_to(
     }
 
 
-    // switch to next task
-    __asm__ __volatile__
-        ("movq %0, %%rsp"
-         : // no output registers
-         :"m" (next->rsp) // replace stack pointer with next task
-         : // clobbered registers
-        );
-
+    __asm__ __volatile__(PUSHREGS);
     cr3_w(next->mm->pml4);
+    __asm__ __volatile__(POPREGS);
 
     // schedule "me" prev task
     if (me != NULL) {
@@ -50,6 +44,14 @@ void switch_to(
         reschedule(me);
         __asm__ __volatile__(POPREGS);
     }
+
+    // switch to next task
+    __asm__ __volatile__
+        ("movq %0, %%rsp"
+         : // no output registers
+         :"m" (next->rsp) // replace stack pointer with next task
+         : // clobbered registers
+        );
 
     // check if kernel process or user process
     // switch to ring 3 if needed
@@ -161,8 +163,10 @@ task_struct *get_next_task() {
         next_struct = next_struct->next;
     }
 
-    if (!next_struct)
+    if (!next_struct) {
+        available_tasks = NULL;
         return idle;
+    }
 
     available_tasks = available_tasks->next;
     return next_struct;
@@ -296,9 +300,11 @@ void create_idle_task() {
  */
 void idle_task() {
 
-    while(1) {
-        kprintf("Idle!\n");
+    //while(1) {
+        kprintf("Hello there\n");
         run_next_task();
         kprintf("Idle back!\n");
-    }
+        run_next_task();
+        kprintf("Eh?\n");
+    //}
 }
