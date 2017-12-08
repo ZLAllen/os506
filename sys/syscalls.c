@@ -4,6 +4,10 @@
 #include <sys/kprintf.h>
 #include <sys/dirent.h>
 
+/**
+ * Syscalls definitions
+ */
+
 /** current process (sys/schedule.c) */
 extern task_struct *current;
 
@@ -23,14 +27,22 @@ int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 /**
  * Fork current process
  * Creates new process as a child of the current
+ *
+ * Do NOT use this directly. Use fork() in syscall.h!
  */
 uint64_t sys_fork() {
+
+    uint64_t parent_rip;
 
     // create child process
     task_struct *child = fork_process(current);
 
+    // get current process RIP based on stack
+    // assumes fork() from syscall.h was called
+    __asm__ __volatile__("mov 160(%%rsp), %0":"=r"(parent_rip));
+
     // schedule new process like any other
-    schedule(child, current->rsp);
+    schedule(child, parent_rip);
 
     // return child PID to the parent
     return child->pid;
