@@ -30,15 +30,13 @@ void switch_to(
              : // clobbered registers
             );
 
+        // account for the junk added to stack with the switch method calls
         me->rsp += 40;
     }
 
-
-    /*
     __asm__ __volatile__(PUSHREGS);
     cr3_w(next->mm->pml4);
     __asm__ __volatile__(POPREGS);
-    */
 
     // schedule "me" prev task
     if (me != NULL) {
@@ -302,12 +300,6 @@ void create_idle_task() {
  */
 void idle_task() {
 
-    int i = 0;
-    while (i++ < 10) {
-        kprintf("Hello world\n");
-    }
-    while(1);
-
     while(1) {
         kprintf("Hello there\n");
         run_next_task();
@@ -317,3 +309,4 @@ void idle_task() {
         run_next_task();
     }
 }
+

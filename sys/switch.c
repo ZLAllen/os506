@@ -1,7 +1,7 @@
 #include <sys/switch.h>
 #include <sys/schedule.h>
 #include <sys/pging.h>
-#include <sys/syscalls.h>
+#include <sys/syscall.h>
 #include <sys/elf64.h>
 
 task_struct *task1, *task2, *task3, *task4, *task5;
@@ -13,19 +13,7 @@ void thread1()
 
     //__asm__ volatile("int $14");
 
-
-    uint64_t sysReturn;
-    uint64_t num = SYS_test;
-    uint64_t arg0 = 77;
-
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0): "%rax");
-    __asm__ volatile ("int $0x80"
-        : "=r" (sysReturn)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    );
+    uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
     run_next_task();
     x++;
@@ -122,7 +110,7 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
     */
-    //schedule(task1, (uint64_t) thread1);
+    schedule(task1, (uint64_t) thread1);
     //schedule(task2,(uint64_t)thread2);
     run_next_task();
     while(1);

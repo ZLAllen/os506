@@ -58,7 +58,7 @@ void init_idt() {
     //
     pic_remap();
 
-    //init_ktime();
+    init_ktime();
 
     //set up IRQ resp
     //32-bit interrupt gate

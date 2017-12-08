@@ -13,6 +13,7 @@ uint64_t sys_test(uint64_t testArg) {
     __asm__ __volatile__(POPREGS);
    return 9001;
 }
+
 /*
 int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
 {
@@ -35,6 +36,16 @@ uint64_t sys_fork() {
     return child->pid;
 }
 
+/**
+ * Exit current process
+ * Sets current process to not runnable
+ * Process will be removed from available_tasks
+ */
+uint64_t sys_exit() {
+    current->runnable = false;
+    return 0;
+}
+
 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
@@ -45,7 +56,6 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
 }
 
 
-
 /**
  * Supported syscalls
  * Functions defined above
@@ -53,9 +63,10 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
-    [SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test},
-	[SYS_getdents] {3, sys_getdents}
+    [SYS_fork] {0, sys_fork}, // 57
+    [SYS_test] {1, sys_test}, // 50
+    [SYS_exit] {0, sys_exit},
+	[SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**
@@ -140,42 +151,4 @@ uint64_t get_sys_return() {
     );
 
     return ret;
-}
-
-void syscallArg0(uint64_t num) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-}
-
-void syscallArg1(uint64_t num, uint64_t arg0) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0));
-}
-
-void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         ::"r" (arg0), "r" (arg1)
-        );
-}
-
-void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         "movq %2, %%rdx;"
-         ::"r" (arg0), "r" (arg1), "r" (arg2)
-        );
-}
-
-void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-}
-void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
 }
