@@ -1,7 +1,7 @@
 #include <sys/switch.h>
 #include <sys/schedule.h>
 #include <sys/pging.h>
-#include <sys/syscalls.h>
+#include <sys/syscall.h>
 #include <sys/elf64.h>
 #include <sys/pmap.h>
 #include <sys/kstring.h>
@@ -18,27 +18,24 @@ void thread1()
 
     //__asm__ volatile("int $14");
 
-
-    uint64_t sysReturn;
-    uint64_t num = SYS_test;
-    uint64_t arg0 = 77;
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0): "%rax");
-    __asm__ volatile ("int $0x80"
-        : "=r" (sysReturn)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    );
+    uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    while(1);
     run_next_task();
+    /*
+    uint64_t forkRet = fork();
+    if (forkRet == 0) {
+        kprintf("Child\n");
+    } else {
+        kprintf("Parent\n");
+    }
+    */
     x++;
     kprintf("Back in thread 1. Variable is %d.\n", x);
     run_next_task();
     x++;
     kprintf("Back again in thread 1. Variable is %d.\n", x);
     run_next_task();
+    kprintf("Boo\n");
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
@@ -58,7 +55,7 @@ void thread2()
     kprintf("Back again in thread 2. Variable is %d.\n", x);
     kprintf("Thread 2 will now run a while(1) and not call run_next_task().");
 
-    while(1) {}
+    run_next_task();
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
     __asm__ volatile("retq");
@@ -116,8 +113,8 @@ void thread6(){
 
 
 void init_thread() {
-    //task1 = create_new_task(false);
-    //task2 = create_new_task(false);
+    task1 = create_new_task(false);
+    task2 = create_new_task(false);
     /*
     task3 = create_new_task(false);
     task4 = create_new_task(false);
@@ -130,8 +127,10 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
     */
-    //schedule(task1, (uint64_t) thread1);
+    schedule(task1, (uint64_t) thread1);
     //schedule(task2,(uint64_t)thread2);
+    run_next_task();
+    while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);

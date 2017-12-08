@@ -5,6 +5,7 @@
 #include <sys/gdt.h>
 
 task_struct *current;
+task_struct *idle;
 
 /** list of available tasks - schedule() orders this */
 task_struct *available_tasks;
@@ -29,9 +30,20 @@ void switch_to(
              : // clobbered registers
             );
 
+        // account for the junk added to stack with the switch method calls
         me->rsp += 40;
     }
 
+    __asm__ __volatile__(PUSHREGS);
+    cr3_w(next->mm->pml4);
+    __asm__ __volatile__(POPREGS);
+
+    // schedule "me" prev task
+    if (me != NULL) {
+        __asm__ __volatile__(PUSHREGS);
+        reschedule(me);
+        __asm__ __volatile__(POPREGS);
+    }
 
     // switch to next task
     __asm__ __volatile__
@@ -40,15 +52,6 @@ void switch_to(
          :"m" (next->rsp) // replace stack pointer with next task
          : // clobbered registers
         );
-
-    cr3_w(next->mm->pml4);
-
-    // schedule "me" prev task
-    if (me != NULL) {
-        __asm__ __volatile__(PUSHREGS);
-        reschedule(me);
-        __asm__ __volatile__(POPREGS);
-    }
 
     // check if kernel process or user process
     // switch to ring 3 if needed
@@ -106,13 +109,15 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
     new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
 
     // let this be the place where they return to
-    new_task->kstack[KSTACK_SIZE-5] = (uint64_t)e_entry;
+    new_task->kstack[IP_REG] = (uint64_t)e_entry;
 
-    new_task->rsp = (uint64_t)&new_task->kstack[KSTACK_SIZE-5];
+    new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
 
     kprintf("e_entry: %x\n", e_entry);
 
-    reschedule(new_task);
+    // idle tasks shouldn't get added
+    if (new_task->runnable)
+        reschedule(new_task);
 
 }
 
@@ -123,6 +128,8 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 task_struct *create_new_task(bool userp) {
     task_struct *new_task = get_task_struct();
     new_task->kstack = kmalloc();
+
+    new_task->runnable = true;
 
     // initialize mm_struct
     mm_struct* my_mm = get_mm_struct();
@@ -149,14 +156,20 @@ task_struct *create_new_task(bool userp) {
  * Removes it from the list of available tasks
  */
 task_struct *get_next_task() {
-    if (available_tasks == NULL) {
-        // TODO - idle process
-        return NULL;
-    } else {
-        task_struct *next_struct = available_tasks;
-        available_tasks = available_tasks->next;
-        return next_struct;
+    task_struct *next_struct = available_tasks;
+
+    // only run runnable tasks
+    while (next_struct && !next_struct->runnable) {
+        next_struct = next_struct->next;
     }
+
+    if (!next_struct) {
+        available_tasks = NULL;
+        return idle;
+    }
+
+    available_tasks = available_tasks->next;
+    return next_struct;
 }
 
 /**
@@ -269,5 +282,31 @@ task_struct *fork_process(task_struct *parent) {
     kprintf("Child process PID %d created\n", child->pid);
 
     return child;
+}
+
+/**
+ * Create idle task
+ */
+void create_idle_task() {
+    if (!idle) {
+        idle = create_new_task(false);
+        idle->runnable = false;
+        schedule(idle, (uint64_t)idle_task);
+    }
+}
+
+/**
+ * Idle task thread
+ */
+void idle_task() {
+
+    while(1) {
+        kprintf("Hello there\n");
+        run_next_task();
+        kprintf("Idle back!\n");
+        run_next_task();
+        kprintf("Eh?\n");
+        run_next_task();
+    }
 }
 

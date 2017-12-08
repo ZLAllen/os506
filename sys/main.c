@@ -7,6 +7,7 @@
 #include <sys/pmap.h>
 #include <sys/pging.h>
 #include <sys/tarfs.h>
+#include <sys/schedule.h>
 #include <sys/switch.h>
 #include <sys/fs.h>
 #include <sys/elf64.h>
@@ -53,6 +54,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
+
+    // idle task - required for multitasking
+    create_idle_task();
+
     init_thread();
     //syscallArg1(SYS_test, 77);
     //

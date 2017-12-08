@@ -18,6 +18,7 @@ enum vma_perm{X, RW};
 typedef struct task_struct {
     pid_t pid; // unique process ID, starting at 0
     bool userp; // is this a user process?
+    bool runnable; // runnable process
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
