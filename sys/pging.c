@@ -48,17 +48,18 @@ void init_pging(uint64_t physfree)
 
 
 
+    // must change back to kernel only after
     pdpt = (uint64_t*)(physfree - PGSIZE*3);
-    pml4[pmle_off] = (uint64_t)pdpt|PAGE_RW|PAGE_P;
+    pml4[pmle_off] = (uint64_t)pdpt|PAGE_RW|PAGE_P|PAGE_U;
 
 
     pdt = (uint64_t*)(physfree - PGSIZE*2);
-    pdpt[pdpe_off] = (uint64_t)pdt|PAGE_RW|PAGE_P;
+    pdpt[pdpe_off] = (uint64_t)pdt|PAGE_RW|PAGE_P|PAGE_U;
 
 
     //this page is for page table 2M-4M
     pt = (uint64_t*)(physfree - PGSIZE);
-    pdt[pde_off] = (uint64_t)pt|PAGE_RW|PAGE_P;
+    pdt[pde_off] = (uint64_t)pt|PAGE_RW|PAGE_P|PAGE_U;
 
 
     int i;
@@ -67,7 +68,7 @@ void init_pging(uint64_t physfree)
     // don't think kernel will exceed 2M in this project
     for(i = 0; i < kern_size; ++i)
     {
-        pt[i] = kern|PAGE_RW|PAGE_P;
+        pt[i] = kern|PAGE_RW|PAGE_P|PAGE_U;
         kern += PGSIZE;
     }
 
@@ -77,6 +78,7 @@ void init_pging(uint64_t physfree)
 
     set_kern_temp_addr((void*)(KERN + physfree));
     set_kern_free_addr((void*)(KERN + physfree + PGSIZE));
+
 
     map_page(0xb8000, VIDEO, (uint64_t)0|PAGE_P|PAGE_RW);
 
@@ -202,6 +204,11 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
        while(1);
        }
        */
+
+    if(vaddr == 0x6000000)
+    {
+      kprintf("%p, %p, %p, %p\n", *pmle, *pdpe, *pde, *pte);
+    } 
 }
 uint64_t alloc_pml4(){
     // when we create a new pml4, the default contains kernel mapping and self reference

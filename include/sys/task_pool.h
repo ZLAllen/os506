@@ -26,7 +26,7 @@ typedef struct task_struct {
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct
-    struct file *fdarr[MAX_FD];	
+    struct file *fdarr[MAX_FD];  
 } task_struct;
 
 typedef struct vma_struct{
@@ -49,6 +49,7 @@ typedef struct mm_struct{
     uint64_t total_vm;
     uint64_t start_brk, brk, start_stack;   
     uint64_t arg_start, arg_end, env_start, env_end;
+    uint64_t entry;
 }mm_struct;
 
 

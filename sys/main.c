@@ -32,13 +32,14 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     uint64_t real_physfree = pmap_init(modulep,physbase, physfree);
 
-    //kprintf("new physfree is %p\n", real_physfree);
+    kprintf("new physfree is %p\n", real_physfree);
 
-    kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+   // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 
     init_pging((uint64_t)real_physfree);
 
+    
     /*
     struct file* fs= tfs_open("lib/", 0);
 
@@ -85,7 +86,7 @@ void boot(void)
       );
       init_gdt();
       init_idt();
-      __asm__ volatile("sti");
+      //__asm__ volatile("sti");
 
       start(
         (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),

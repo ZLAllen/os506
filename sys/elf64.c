@@ -116,10 +116,10 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 cr3_w(mm->pml4);
 
 
-                kprintf("what is that s_vaddr: %p???\n", s_vaddr);
 
 
                 kmmap(s_vaddr, size, vma_flag);//throws error
+
 
 
 
@@ -139,6 +139,9 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 memmove((void*) ehdr + phdr->p_offset, (void*) s_vaddr, phdr->p_filesz);
 
 
+                kprintf("look into text: %x\n", phdr->p_offset);
+                kprintf("try this %x\n", ((Elf64_Ehdr*)((uint64_t) ehdr + phdr->p_offset))->e_entry);
+
 
                 //3. bss
                 memset((void *)s_vaddr + phdr->p_filesz, 0, size - phdr->p_filesz);
@@ -152,7 +155,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
             count++;
               phdr++;
         }
-        
         //4.allocate heap 
         end_vma = traverse_vmas(mm->vm);
       
@@ -182,8 +184,13 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         //reserve space for return address, stack arguments 
         mm->start_stack = e_vaddr - 8; //8 bytes adddr
 
+
+
+        mm->entry = (uint64_t)(ehdr->e_entry);
         cr3_w(mm->pml4);
         kmmap(e_vaddr-PGSIZE, PGSIZE, RW_USER);//pagesize for now
+
+
         cr3_w(pt); 
 
 
@@ -225,7 +232,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
         //schedule process
         kprintf("schedule the new task\n");
         schedule(new_task,(uint64_t)(ehdr->e_entry));
-
         return new_task;
 }
 
