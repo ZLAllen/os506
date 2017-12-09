@@ -21,12 +21,14 @@ void thread1()
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
     run_next_task();
+    goto skipFork;
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
     } else {
         kprintf("Parent\n");
     }
+skipFork:
     x++;
     kprintf("Back in thread 1. Variable is %d.\n", x);
     run_next_task();
