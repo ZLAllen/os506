@@ -69,6 +69,9 @@ void switch_to(
         __asm__ __volatile__("iretq");
     }
 
+    // rax register for return values (used for fork)
+    __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
+
     __asm__ volatile("retq");
 }
 
@@ -112,6 +115,8 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
     new_task->kstack[IP_REG] = (uint64_t)e_entry;
 
     new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
+
+    new_task->rax = new_task->pid;
 
     kprintf("e_entry: %x\n", e_entry);
 
@@ -168,7 +173,7 @@ task_struct *get_next_task() {
         return idle;
     }
 
-    available_tasks = available_tasks->next;
+    available_tasks = next_struct->next;
     return next_struct;
 }
 
@@ -242,12 +247,10 @@ task_struct *fork_process(task_struct *parent) {
     // copy parent's kernel stack
     memcpy(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
 
-    // child's return should be 0
-    // TODO
-    //child->kstack[RAX_REG] = 0;
-
     // child shares the same stack pointer
     child->rsp = (uint64_t)&(child->kstack[SP_REG]);
+
+    child->parent = parent;
 
     // get current process's (parent's) pml4
     uint64_t pt = cr3_r();
@@ -292,6 +295,7 @@ void create_idle_task() {
         idle = create_new_task(false);
         idle->runnable = false;
         schedule(idle, (uint64_t)idle_task);
+        idle->rax = -1;
     }
 }
 
