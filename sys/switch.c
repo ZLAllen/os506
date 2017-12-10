@@ -20,7 +20,7 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    run_next_task();
+    yield();
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
@@ -29,14 +29,14 @@ void thread1()
     }
     x++;
     kprintf("Back in thread 1. Variable is %d.\n", x);
-    run_next_task();
+    yield();
     x++;
     kprintf("Back again in thread 1. Variable is %d.\n", x);
-    run_next_task();
-    kprintf("Boo\n");
+    yield();
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     //__asm__ volatile("retq");
+    kprintf("Thread 1 exiting!!\n");
     exit();
 }
 
@@ -45,18 +45,18 @@ void thread2()
     int x = 0;
     x++;
 	kprintf("Thread 2. Variable is %d. \n", x);
-    run_next_task();
+    yield();
     x++;
     kprintf("Back in thread 2. Variable is %d. \n", x);
-    run_next_task();
+    yield();
     x++;
     kprintf("Back again in thread 2. Variable is %d.\n", x);
-    kprintf("Thread 2 will now run a while(1) and not call run_next_task().");
 
-    run_next_task();
+    yield();
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
-    __asm__ volatile("retq");
+    kprintf("Thread 2 exiting!!\n");
+    exit();
 
 }
 
@@ -71,7 +71,7 @@ void thread3()
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
-    __asm__ volatile("retq");
+    exit();
 
 }
 void thread4()
@@ -87,7 +87,7 @@ void thread4()
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
-    __asm__ volatile("retq");
+    exit();
 
 }
 
@@ -100,7 +100,7 @@ void thread5() {
     while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task1->rsp) - 16));
-    __asm__ volatile("retq");
+    exit();
 
 }
 
@@ -126,7 +126,7 @@ void init_thread() {
     kprintf("%p\n", *page_table);
     */
     schedule(task1, (uint64_t) thread1);
-    //schedule(task2,(uint64_t)thread2);
+    schedule(task2,(uint64_t)thread2);
     run_next_task();
     while(1);
     /*

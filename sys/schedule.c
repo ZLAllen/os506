@@ -309,10 +309,8 @@ void create_idle_task() {
 void idle_task() {
 
     while(1) {
-        kprintf("Hello there\n");
-        run_next_task();
-        kprintf("Idle! See bottom of sys/schedule.c to remove this msg.\n");
-        run_next_task();
+        run_next_task(); // not calling yield to avoid flooding with syscall debug prints
+        //kprintf("Idle! See bottom of sys/schedule.c to remove this msg.\n");
     }
 }
 
