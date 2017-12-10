@@ -24,20 +24,28 @@ void thread1()
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
+        x++;
+        kprintf("Back in thread 1's child. Variable is %d.\n", x);
+        yield();
+        x++;
+        kprintf("Back again in thread 1's child. Variable is %d.\n", x);
+        yield();
+        kprintf("Thread 1's child exiting!!\n");
+        exit();
     } else {
         kprintf("Parent\n");
+        x++;
+        kprintf("Back in thread 1. Variable is %d.\n", x);
+        yield();
+        x++;
+        kprintf("Back again in thread 1. Variable is %d.\n", x);
+        yield();
+        kprintf("Thread 1 exiting!!\n");
+        exit();
     }
-    x++;
-    kprintf("Back in thread 1. Variable is %d.\n", x);
-    yield();
-    x++;
-    kprintf("Back again in thread 1. Variable is %d.\n", x);
-    yield();
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
     //__asm__ volatile("retq");
-    kprintf("Thread 1 exiting!!\n");
-    exit();
 }
 
 void thread2()
