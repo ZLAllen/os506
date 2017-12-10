@@ -311,9 +311,7 @@ void idle_task() {
     while(1) {
         kprintf("Hello there\n");
         run_next_task();
-        kprintf("Idle back!\n");
-        run_next_task();
-        kprintf("Eh?\n");
+        kprintf("Idle! See bottom of sys/schedule.c to remove this msg.\n");
         run_next_task();
     }
 }

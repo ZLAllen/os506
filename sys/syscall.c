@@ -5,6 +5,16 @@
  * so making syscalls aren't so tedious
  */
 
+void yield() {
+    uint64_t num = SYS_yield;
+
+    syscallArg0(num);
+
+    __asm__ volatile ("int $0x80"
+        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    ); 
+}
+
 uint64_t test(uint64_t arg) {
 
     uint64_t num = SYS_test;
@@ -40,6 +50,8 @@ void exit() {
     __asm__ volatile ("int $0x80"
         ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
     ); 
+
+    yield();
 }
 
 void syscallArg0(uint64_t num) {

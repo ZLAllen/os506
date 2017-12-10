@@ -9,6 +9,7 @@
     __asm__ volatile("movq %%rax, %0;":"=r" (sysReturn));
 
 // syscall numbers
+#define SYS_yield 24
 #define SYS_test 50
 #define SYS_fork 57
 #define SYS_exit 60

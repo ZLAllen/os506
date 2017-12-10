@@ -34,10 +34,10 @@ void thread1()
     kprintf("Back again in thread 1. Variable is %d.\n", x);
     run_next_task();
     kprintf("Boo\n");
-    while(1) {}
 
    // set_tss_rsp((void*)(ALIGN_UP(task2->rsp) - 16));
-    __asm__ volatile("retq");
+    //__asm__ volatile("retq");
+    exit();
 }
 
 void thread2()

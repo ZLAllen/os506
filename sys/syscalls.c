@@ -6,10 +6,16 @@
 
 /**
  * Syscalls definitions
+ * These functions should not be directly called. Use sys/syscall.c instead.
  */
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
+
+uint64_t sys_yield() {
+    run_next_task();
+    return 0;
+}
 
 uint64_t sys_test(uint64_t testArg) {
     __asm__ __volatile__(PUSHREGS);
@@ -79,9 +85,10 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
+    [SYS_yield] {0, sys_yield}, // 24
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit},
+    [SYS_exit] {0, sys_exit}, // 60
 	[SYS_getdents] {3, sys_getdents} // 78
 };
 
