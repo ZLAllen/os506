@@ -221,6 +221,10 @@ task_struct *fork_process(task_struct *parent) {
     // copy parent's task info into child
     memcpy(parent, child, sizeof(task_struct));
 
+    child->kstack = kmalloc();
+    child->runnable = true;
+    child->mm = get_mm_struct();
+
     // copy parent's mm struct
     memcpy(parent->mm, child->mm, sizeof(mm_struct));
 
