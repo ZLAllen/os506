@@ -56,9 +56,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   */
 
     // idle task - required for multitasking
-   // create_idle_task();
+    create_idle_task();
 
-    //init_thread();
+    init_thread();
     //syscallArg1(SYS_test, 77);
     //
     kprintf("\nelf process\n");

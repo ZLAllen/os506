@@ -50,16 +50,16 @@ void init_pging(uint64_t physfree)
 
     // must change back to kernel only after
     pdpt = (uint64_t*)(physfree - PGSIZE*3);
-    pml4[pmle_off] = (uint64_t)pdpt|PAGE_RW|PAGE_P|PAGE_U;
+    pml4[pmle_off] = (uint64_t)pdpt|PAGE_RW|PAGE_P;
 
 
     pdt = (uint64_t*)(physfree - PGSIZE*2);
-    pdpt[pdpe_off] = (uint64_t)pdt|PAGE_RW|PAGE_P|PAGE_U;
+    pdpt[pdpe_off] = (uint64_t)pdt|PAGE_RW|PAGE_P;
 
 
     //this page is for page table 2M-4M
     pt = (uint64_t*)(physfree - PGSIZE);
-    pdt[pde_off] = (uint64_t)pt|PAGE_RW|PAGE_P|PAGE_U;
+    pdt[pde_off] = (uint64_t)pt|PAGE_RW|PAGE_P;
 
 
     int i;
@@ -68,7 +68,7 @@ void init_pging(uint64_t physfree)
     // don't think kernel will exceed 2M in this project
     for(i = 0; i < kern_size; ++i)
     {
-        pt[i] = kern|PAGE_RW|PAGE_P|PAGE_U;
+        pt[i] = kern|PAGE_RW|PAGE_P;
         kern += PGSIZE;
     }
 
@@ -165,6 +165,14 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     pde = (uint64_t *)((vaddr << 16 >> 37 << 3) | PDE_REF);
     pte = (uint64_t *)((vaddr << 16 >> 28 << 3) | PTE_REF);
 
+    /*
+       if(paddr == 0xD000)
+       {
+         kprintf("didn't crash here\n");
+         kprintf("%p, %p\n", pmle, *pmle);
+       while(1);
+       }
+       */
 
     if(!IS_PRESENT(*pmle))
     {
@@ -172,6 +180,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
         zero_page(addr);
         *pmle = addr|flags;
     }
+
 
 
     if(!IS_PRESENT(*pdpe))
@@ -197,12 +206,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
         kprintf("address %p has been mapped\n", vaddr);
         release_page((void*)paddr);
     }
-      /* if(paddr == 0xF000)
-       {
-         kprintf("didn't crash here\n");
-         kprintf("%p, %p\n", pte, *pte);
-       while(1);
-       }
+      /* 
        */
 
     if(vaddr == 0x6000000)
@@ -218,11 +222,13 @@ uint64_t alloc_pml4(){
 
     pml4 = (uint64_t)get_free_page(); // a phys addr
 
+    zero_page(pml4);
+
     uint64_t* vir_pml4 = get_kern_free_addr();
 
     set_kern_free_addr(vir_pml4+PGSIZE);
 
-    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW|PAGE_U);
+    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW);
 
     vir_pml4[511] = init_pml4[511]; //kernel mapping is shared
 

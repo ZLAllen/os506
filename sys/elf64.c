@@ -118,8 +118,9 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
 
 
 
-                kmmap(s_vaddr, size, vma_flag);//throws error
 
+
+                kmmap(s_vaddr, size, vma_flag);//throws error
 
 
 
