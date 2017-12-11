@@ -5,6 +5,7 @@
  * Kernel syscall utility functions
  */
 
+void yield();
 uint64_t test(uint64_t arg);
 uint64_t fork();
 void exit();
