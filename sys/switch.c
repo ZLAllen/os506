@@ -135,8 +135,7 @@ void init_thread() {
     */
     schedule(task1, (uint64_t) thread1);
     schedule(task2,(uint64_t)thread2);
-    run_next_task();
-    while(1);
+   // run_next_task();
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
@@ -149,6 +148,7 @@ void init_thread() {
     task_struct *new_task = create_elf_process(fname, argv);
    
     cr3_w(new_task->mm->pml4);
+    while(1);
   //uint64_t* ret = 0;
     //schedule(new_task, (uint64_t) thread1);
     
