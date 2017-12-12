@@ -7,24 +7,28 @@ enum vma_perm{X, RW};
 
 #define STACK_TOP_USR  0xF000000000UL
 #define STACK_SIZE_USR 0x10000 
+#define MAX_FD 50
+
 
 #include <sys/defs.h>
 #include <sys/fs.h>
 #include <sys/dirent.h>
 
-
 // process struct
 typedef struct task_struct {
     pid_t pid; // unique process ID, starting at 0
     bool userp; // is this a user process?
+    bool runnable; // runnable process
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
+    uint64_t rax; // rax register value (for fork)
     struct mm_struct *mm; // memory descriptor
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
-    struct task_struct *free; //next free task_struct 
+    struct task_struct *free; //next free task_struct
+    struct file *fdarr[MAX_FD];//keeps track of files for this process	
 } task_struct;
 
 typedef struct vma_struct{
@@ -47,6 +51,7 @@ typedef struct mm_struct{
     uint64_t total_vm;
     uint64_t start_brk, brk, start_stack;   
     uint64_t arg_start, arg_end, env_start, env_end;
+    uint64_t entry;
 }mm_struct;
 
 

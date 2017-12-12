@@ -9,7 +9,8 @@
 
 extern char _binary_tarfs_start;
 extern char _binary_tarfs_end;
-extern struct file_ops tfs_file_ops;
+
+extern struct file_ops tfs_file_ops;//operations available on file objects
 
 
 struct posix_header_ustar {
@@ -32,7 +33,7 @@ struct posix_header_ustar {
   char pad[12];
 };
 
-enum {O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x02, O_TRUNC = 0x04, O_DIRECTORY = 0x10000 };
+//enum {O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x02, O_TRUNC = 0x04, O_DIRECTORY = 0x10000 };
 
 
 
@@ -46,20 +47,17 @@ enum {O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x02, O_TRUNC = 0x04, O_
 
 
 
-//octal to binary
-uint64_t oct_to_bin(char *optr, int length);
-int print_tfs(struct posix_header_ustar *hdr);
-
 //functions
 
-struct posix_header_ustar *get_tfs_next(struct posix_header_ustar *hdr);
-struct posix_header_ustar *get_tfs_first(void);
-struct file *tfs_open(const char *fpath, int flags); //int open(struct inode *inode,struct file *file)
+struct file *tfs_open(const char *fpath); //int open(struct inode *inode,struct file *file)
 ssize_t tfs_read(struct file *filep, char *buf, size_t count, off_t *offset);
 int tfs_close(struct file *filep);
 
 int tfs_opendir(const char *fpath, int flags);
-int tfs_readdir(struct file *filep, void *buf, size_t count);
+int tfs_readdir(struct file *filep, void *buf, unsigned int count);
 int tfs_closedir(struct file *filep);
+
+
+void test_tarfs();
 
 #endif

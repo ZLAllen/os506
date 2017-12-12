@@ -23,7 +23,7 @@ struct file
 
 struct file_ops 
 { 
-    struct file* (*open) (const char *, int);
+    struct file* (*open) (const char *);
     ssize_t (*read) (struct file *, char *, size_t, off_t *);
     int (*close) (struct file *);
 };

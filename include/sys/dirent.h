@@ -1,46 +1,23 @@
 #ifndef _DIRENT_H
 #define _DIRENT_H
 
-#include <sys/fs.h>
 
-enum file_type {DIR, FILE};
+#define MAX_NAME 256
+#define BUFF_SIZE 204
 
+//dirent types
+#define DT_DIR 4
+#define DT_REG 8
+#define DT_UNKNOWN 0
 
-struct dirent 
-{
-    uint64_t inum;       /* inode number */
-    //off_t d_off;       /* offset to the next dirent */
-    //unsigned short d_reclen;    /* length of this record */
-    //unsigned char d_type;      /* type of file; not supported by all file system types */
-    char name[256]; /* filename */
-};
-
-
-//directory stream
 struct dstream
 {
-        /*int fd;
-        size_t size;
-        size_t offset;
-	char data[100]; //size?*/
-	struct file *node;
-    uint64_t curr;
-    struct dirent drent;
+	int fd;
+    size_t size;
+    size_t offset;
+	char buff[BUFF_SIZE]; 
 	
 };
-
-
-struct f_desc 
-{
-    struct file *node;
-    uint64_t curr;
-    uint64_t perm;
-    uint64_t inum;
-};
-
-struct dstream *opendir(const char *dirname);
-struct dirent *readdir(struct dstream *dirp);
-int closedir(struct dstream *dirp);
 
 
 
@@ -50,9 +27,16 @@ struct linux_dirent {
     unsigned short d_reclen; 
     unsigned char d_type;
     struct linux_dirent* free;
-    char d_name[];
+    char d_name[MAX_NAME];
 };
 
+
+
+struct dstream *opendir(const char *name);
+struct dirent *readdir(struct dstream *dirp);
+int closedir(struct dstream *dirp);
+
+int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
 
 
 

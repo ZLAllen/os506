@@ -7,11 +7,12 @@
 #include <sys/pmap.h>
 #include <sys/pging.h>
 #include <sys/tarfs.h>
+#include <sys/schedule.h>
 #include <sys/switch.h>
 #include <sys/fs.h>
 #include <sys/elf64.h>
 #include <sys/syscalls.h>
-#include <sys/dirent.h>
+
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -34,51 +35,39 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("new physfree is %p\n", real_physfree);
 
-    kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+   // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 
-    init_pging((uint64_t)real_physfree);
+    //init_pging((uint64_t)real_physfree);
 
+    
     /*
     struct file* fs= tfs_open("lib/", 0);
 
     kprintf("file name %s\n", ((struct posix_header_ustar*)fs->private_data)->name);
 
     kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
+*/
 
- 
+	test_tarfs();
+ /*
     //small test
     uint64_t new_pml4 = alloc_pml4();
     cr3_w(new_pml4);
     kprintf("will I work %p\n", new_pml4);
   */
 
+    // idle task - required for multitasking
+    //create_idle_task();
 
     //init_thread();
-    /*
-    syscallArg1(SYS_test, 77);
-    __asm__ volatile ("int $0x80");
-    uint64_t sysReturn = get_sys_return();
-    kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    */
-
-		
-	char *path = "/";
-	struct dstream *dirp = (struct dstream *) kmalloc();
-	syscallArg2(SYS_opendir, (int64_t) path, (uint64_t) dirp);
-	__asm__ volatile ("int $0x80");
-	uint64_t ret = get_sys_return();	
-	kprintf("\nret %d\n", ret);
-
- 	/*   
+    //syscallArg1(SYS_test, 77);
+    //
     kprintf("\nelf process\n");
-    char *fname = "test";
+    char *fname = "test2";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
     create_elf_process(fname, argv);
-    */
-
-
     //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");
@@ -102,7 +91,7 @@ void boot(void)
       );
       init_gdt();
       init_idt();
-      __asm__ volatile("sti");
+      //__asm__ volatile("sti");
 
       start(
         (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),

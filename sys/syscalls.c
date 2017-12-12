@@ -3,132 +3,73 @@
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
 #include <sys/dirent.h>
-#include <sys/kstring.h>
-#include <sys/system.h>
-#include <sys/kmalloc.h>
 
+/**
+ * Syscalls definitions
+ * These functions should not be directly called. Use sys/syscall.c instead.
+ */
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
-extern struct file *rt_node;
 
-
-uint64_t sys_test(uint64_t testArg) {
-   kprintf("print me. Argument is %d\n", testArg);
-   return 9001;
-}
-/*
-int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
-{
+uint64_t sys_yield() {
+    run_next_task();
     return 0;
 }
-*/
+
+uint64_t sys_test(uint64_t testArg) {
+    __asm__ __volatile__(PUSHREGS);
+   kprintf("print me. Argument is %d\n", testArg);
+    __asm__ __volatile__(POPREGS);
+   return 9001;
+}
+
+
 /**
  * Fork current process
  * Creates new process as a child of the current
+ *
+ * Do NOT use this directly. Use fork() in syscall.h!
  */
 uint64_t sys_fork() {
+
+    uint64_t parent_rip;
 
     // create child process
     task_struct *child = fork_process(current);
 
+    // get current process RIP based on stack
+    // assumes fork() from syscall.h was called
+    __asm__ __volatile__("mov 160(%%rsp), %0":"=r"(parent_rip));
+
     // schedule new process like any other
-    //schedule(child);
+    schedule(child, parent_rip);
+
+    // return value of child should be 0
+    // parent would return pid
+    child->rax = 0;
 
     // return child PID to the parent
     return child->pid;
 }
 
-
-struct dstream *sys_opendir(uint64_t* apath, uint64_t* adirp)
-{
-     kprintf("\nsys call to opendir\n");
-     char* path = (char *) apath;	
-     struct dstream *dirp = (struct dstream *) adirp; 
-	 struct file *curr_node = rt_node; 
-	 char *cpath = kmalloc();
-	 memcpy(path, cpath, kstrlen(path));
-	 uint64_t end;
-
-	 char *token = kstrtok(path, "/");
-     while (token != NULL) 
-	 {
-        end = curr_node->end;	
-
-        if (memcmp(token, ".", 2) == 0) //current 
-            curr_node = (struct file *)curr_node->child[0];
-
-         else if (memcmp(token, "..", 2) == 0) 
-            curr_node = (struct file *)curr_node->child[1]; //root
-		else 
-		{
-			int length = kstrlen(token), i=2;
-	
-            while (i < curr_node->end)
-			{
-                if (memcmp(token, curr_node->child[i]->name, length) == 0) 
-				{
-                    curr_node = (struct file *)curr_node->child[i];
-                    break;       
-                }        
-				++i;
-            }
-            
-			if (i == end) 
-			{
-                dirp->curr = 0;
-                dirp->node = NULL;
-                return dirp;
-            }
-        }
- 		token = kstrtok(NULL, "/");//next token		
-      }
-
-    if (curr_node->type == DIR) 
-	{
-        dirp->curr = 2; 
-        dirp->node = curr_node; 
-    } 
-	else 
-	{
-        dirp->curr = 0;
-        dirp->node = NULL;
-    }
-
-     return dirp;
+/**
+ * Exit current process
+ * Sets current process to not runnable
+ * Process will be removed from available_tasks
+ */
+uint64_t sys_exit() {
+    current->runnable = false;
+    return 0;
 }
 
 
-struct dirent *sys_readdir(uint64_t *adirp)
+uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
-    kprintf("\nsys call to readdir\n");
-    struct dstream *dirp = (struct dstream*) adirp;
-    if (dirp->node->end < 3 || dirp->curr == dirp->node->end || dirp->curr == 0)
-    {
-        return NULL;
-    }
-    else
-    {
-        memcpy(dirp->drent.name, dirp->node->child[dirp->curr]->name, kstrlen(dirp->drent.name));
-        dirp->curr++;
-        return &dirp->drent;
-    }
-}
+    if(!dirp || count <= 0)
+        return -1;
 
-
-int sys_closedir(uint64_t *adirp)
-{
-    kprintf("\nsys call to closedir\n");
-    struct dstream *dirp = (struct dstream *) adirp;
-    if(dirp->node->type == DIR && dirp->curr > 1) 
-    {
-
-        dirp->node = NULL; 
-        dirp->curr = 0;
-        return 0;
-    } 
-    else
-        return -1; 
+    return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
 }
 
 
@@ -139,9 +80,11 @@ int sys_closedir(uint64_t *adirp)
  * Number indicates how many arguments function requires
  */
 functionWithArg syscalls[] = {
-   	//[SYS_fork] {0, sys_fork},
-    [SYS_test] {1, sys_test}
-	//[SYS_opendir] {2, sys_opendir}
+    [SYS_yield] {0, sys_yield}, // 24
+    [SYS_fork] {0, sys_fork}, // 57
+    [SYS_test] {1, sys_test}, // 50
+    [SYS_exit] {0, sys_exit}, // 60
+	[SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**
@@ -155,7 +98,7 @@ functionWithArg syscalls[] = {
  * Return:
  * rax
  */
-void syscall(void) {
+void syscall_handler(void) {
 
     uint64_t num, ret;
     functionWithArg callFunc;
@@ -187,7 +130,6 @@ void syscall(void) {
 
     // default return
     ret = 0;
-
     switch (callFunc.count) {
         case 0:
             ret = callFunc.func();
@@ -208,60 +150,23 @@ void syscall(void) {
             ret = callFunc.func(arg0, arg1, arg2, arg3, arg4);
             break;
     }
-
     // store return value into rax register
     __asm__ __volatile__(
         "movq %0, %%rax;"
          ::"r" (ret)
     );
-
-    __asm__ __volatile__("iretq");
 }
 
+/**
+ * Unused, calling this messes up rax defeating the purpose
+ */
 uint64_t get_sys_return() {
     uint64_t ret;
     __asm__ __volatile__(
         "movq %%rax, %0;"
          :"=r" (ret)
+         :: "%rax"
     );
 
     return ret;
-}
-
-void syscallArg0(uint64_t num) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-}
-
-void syscallArg1(uint64_t num, uint64_t arg0) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0));
-}
-
-void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         ::"r" (arg0), "r" (arg1)
-        );
-}
-
-void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         "movq %2, %%rdx;"
-         ::"r" (arg0), "r" (arg1), "r" (arg2)
-        );
-}
-
-void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-}
-void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
 }

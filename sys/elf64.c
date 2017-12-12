@@ -31,7 +31,7 @@ struct vma_struct *traverse_vmas(struct vma_struct *ptr);
 
 struct task_struct *create_elf_process(char *fname, char *argv[])
 {
-    struct file *filep = tfs_open(fname, 0);//set flags
+    struct file *filep = tfs_open(fname);
     kprintf("file object created");
     Elf64_Ehdr *ehdr = get_ehdr(filep);
     int valid = validate_ehdr(ehdr);
