@@ -1,4 +1,4 @@
-#include <sys/syscall.h>
+#include <syscall.h>
 
 /**
  * Kernel syscall utility functions
@@ -29,9 +29,9 @@ uint64_t test(uint64_t arg) {
     return ret;
 }
 
-uint64_t fork() {
+pid_t fork() {
     uint64_t num = SYS_fork;
-    uint64_t ret;
+    pid_t ret;
 
     syscallArg0(num);
 

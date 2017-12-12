@@ -1,7 +1,7 @@
 #include <sys/switch.h>
 #include <sys/schedule.h>
 #include <sys/pging.h>
-#include <sys/syscall.h>
+#include <syscall.h>
 #include <sys/elf64.h>
 #include <sys/pmap.h>
 #include <sys/kstring.h>
