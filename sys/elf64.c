@@ -139,6 +139,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[])
                 //1. and 2. text and data
                 memmove((void*) ehdr + phdr->p_offset, (void*) s_vaddr, phdr->p_filesz);
 
+                kprintf("%x\n", ehdr);
 
                 kprintf("look into text: %x\n", phdr->p_offset);
                 kprintf("try this %x\n", ((Elf64_Ehdr*)((uint64_t) ehdr + phdr->p_offset))->e_entry);

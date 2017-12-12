@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 void _start(void) {
+  /*
     char** argv, **envp;
     int* argc;
     int ret;
@@ -21,6 +22,9 @@ void _start(void) {
      }
 
     // call main() and exit() here
-    ret = main(*argc,argv,envp);
-    exit(ret);
+    // */
+   // ret = main(*argc,argv,envp);
+   main(0, 0, 0);
+    while(1);
+    //    exit(ret);
 }
