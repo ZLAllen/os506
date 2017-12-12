@@ -1,6 +1,6 @@
-
 #include <stdlib.h>
-
+#include <stdio.h>
+#include <syscall.h>
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -8,6 +8,9 @@ int main(int argc, char *argv[], char *envp[])
    __asm__ volatile ("movq $60, %rbx");
 
   __asm__ volatile ("int $0x80");
+
+  test(7000);
+  //yield(); // lol that'd be too easy...
   
   while(1);
 

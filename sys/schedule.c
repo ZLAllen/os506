@@ -56,48 +56,48 @@ void switch_to(
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
-   */
-      if (next->userp) {
+    */
+    if (next->userp) {
         //switch_to_user_mode(next);
-  set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
+        set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
 
 
-   __asm__ volatile("cli");
+        __asm__ volatile("cli");
         __asm__ __volatile__(
-        "movq $0x23, %%rax;"
-        "movq %%rax, %%ds;"
-        "movq %%rax, %%es;"
-        "movq %%rax, %%fs;"
-        "movq %%rax, %%gs;"
-        "pushq %%rax;"         /* ring3 ss, should be _USER_DS|RPL = 0x23 */
-        "movq %0, %%rax;"
-        "pushq %%rax;"            /* ring3 rsp change back to %0 after*/
-        "pushfq;"              /* ring3 rflags */
-        "popq %%rax;"
-        "or $0x200, %%rax;"    /* Set the IF flag, for interrupts in ring3 */
-        "pushq %%rax;"
-        "pushq $0x2B;"         /* ring3 cs, should be _USER64_CS|RPL = 0x2B */
-        "pushq %1;"            /* ring3 rip change back to %1 after */ 
-        "xorq %%rax, %%rax;"   /* zero the user registers */
-        "xorq %%rbx, %%rbx;"
-        "xorq %%rcx, %%rcx;"
-        "xorq %%rdx, %%rdx;"
-        "xorq %%rbp, %%rbp;"
-        "xorq %%rsi, %%rsi;"
-        "xorq %%rdi, %%rdi;"
-        "xorq %%r8, %%r8;"
-        "xorq %%r9, %%r9;"
-        "xorq %%r10, %%r10;"
-        "xorq %%r11, %%r11;"
-        "xorq %%r12, %%r12;"
-        "xorq %%r13, %%r13;"
-        "xorq %%r14, %%r14;"
-        "xorq %%r15, %%r15;"
-        "iretq;"
-        : /* No output */
-        : "r"(next->mm->start_stack), "r"(next->mm->entry)
-        :"memory", "rax"
-    );
+                "movq $0x23, %%rax;"
+                "movq %%rax, %%ds;"
+                "movq %%rax, %%es;"
+                "movq %%rax, %%fs;"
+                "movq %%rax, %%gs;"
+                "pushq %%rax;"         /* ring3 ss, should be _USER_DS|RPL = 0x23 */
+                "movq %0, %%rax;"
+                "pushq %%rax;"            /* ring3 rsp change back to %0 after*/
+                "pushfq;"              /* ring3 rflags */
+                "popq %%rax;"
+                "or $0x200, %%rax;"    /* Set the IF flag, for interrupts in ring3 */
+                "pushq %%rax;"
+                "pushq $0x2B;"         /* ring3 cs, should be _USER64_CS|RPL = 0x2B */
+                "pushq %1;"            /* ring3 rip change back to %1 after */ 
+                "xorq %%rax, %%rax;"   /* zero the user registers */
+                "xorq %%rbx, %%rbx;"
+                "xorq %%rcx, %%rcx;"
+                "xorq %%rdx, %%rdx;"
+                "xorq %%rbp, %%rbp;"
+                "xorq %%rsi, %%rsi;"
+                "xorq %%rdi, %%rdi;"
+                "xorq %%r8, %%r8;"
+                "xorq %%r9, %%r9;"
+                "xorq %%r10, %%r10;"
+                "xorq %%r11, %%r11;"
+                "xorq %%r12, %%r12;"
+                "xorq %%r13, %%r13;"
+                "xorq %%r14, %%r14;"
+                "xorq %%r15, %%r15;"
+                "iretq;"
+                : /* No output */
+                : "r"(next->mm->start_stack), "r"(next->mm->entry)
+                :"memory", "rax"
+                    );
     }
 
     // rax register for return values (used for fork)
