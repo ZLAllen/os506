@@ -5,6 +5,7 @@
 int main(int argc, char *argv[], char *envp[])
 {
    __asm__ volatile ("movq $50, %rax");
+   __asm__ volatile ("movq $60, %rbx");
 
   __asm__ volatile ("int $0x80");
   
