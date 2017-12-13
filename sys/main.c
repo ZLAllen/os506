@@ -37,7 +37,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
    // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 
-    //init_pging((uint64_t)real_physfree);
+    init_pging((uint64_t)real_physfree);
 
     
     /*
