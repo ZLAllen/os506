@@ -14,12 +14,15 @@ uint64_t oct_to_bin(char *ostr, int length);
 int print_tfs(struct posix_header_ustar *hdr);
 struct linux_dirent *create_dirent(struct posix_header_ustar *hdr, unsigned short size);
 
+
+//we provide these operations on the file object
 struct file_ops tfs_file_ops =
 {
     open: tfs_open,
     read: tfs_read,
     close: tfs_close,
-	readdir: tfs_readdir
+	readdir: tfs_readdir,
+	closedir: tfs_closedir
 };
 
 // initialize a root node here
@@ -228,6 +231,19 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 
 	return 0;
 
+
+}
+
+int tfs_closedir(struct file *filep)
+{
+	struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->data;
+
+	if (hdr->typeflag[0] != '5')
+	{
+		kprintf("not a dir, wont call closedir");
+		return -1;
+	}
+	return tfs_close(filep);
 
 }
 
