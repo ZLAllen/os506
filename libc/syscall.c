@@ -2,6 +2,7 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
 
 /**
  * Kernel syscall utility functions
@@ -124,7 +125,7 @@ int fstat(int fd, struct stat *buf){
 }
 */
 
-/*
+
 int getdents(int fd, struct linux_dirent *d, int count){
     int ret;
     __asm("syscall"
@@ -135,7 +136,8 @@ int getdents(int fd, struct linux_dirent *d, int count){
     
     return ret;
 }
-*/
+
+
 void* brk(void* addr){
     void* ret;
 

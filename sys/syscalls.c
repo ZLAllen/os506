@@ -2,7 +2,7 @@
 #include <sys/syscalls.h>
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
-#include <sys/dirent.h>
+#include <dirent.h>
 
 /**
  * Syscalls definitions
@@ -24,12 +24,7 @@ uint64_t sys_test(uint64_t testArg) {
    return 9001;
 }
 
-/*
-int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
-{
-    return 0;
-}
-*/
+
 /**
  * Fork current process
  * Creates new process as a child of the current
@@ -68,7 +63,7 @@ uint64_t sys_exit() {
     return 0;
 }
 
-
+/*I don't think this is needed 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
     if(!dirp || count <= 0)
@@ -76,7 +71,7 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
 
     return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
 }
-
+*/
 
 /**
  * Supported syscalls
@@ -88,8 +83,8 @@ functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit}, // 60
-	[SYS_getdents] {3, sys_getdents} // 78
+    [SYS_exit] {0, sys_exit} // 60
+	//,[SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**

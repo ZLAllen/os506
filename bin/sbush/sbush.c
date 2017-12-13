@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <syscall.h>
+#include <dirent.h>
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -12,6 +13,8 @@ int main(int argc, char *argv[], char *envp[])
   test(7000);
   //yield(); // lol that'd be too easy...
   
+  printf("just wanna test opendir\n");
+  opendir("/rootfs");
   while(1);
 
   return 0;

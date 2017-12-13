@@ -9,7 +9,7 @@
 #include <sys/tarfs.h>
 #include <sys/schedule.h>
 #include <sys/switch.h>
-#include <sys/fs.h>
+#include <sys/files.h>
 #include <sys/elf64.h>
 #include <sys/syscalls.h>
 
@@ -38,7 +38,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
    // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 
-    init_pging((uint64_t)real_physfree);
+    //init_pging((uint64_t)real_physfree);
 
     
     /*
@@ -48,6 +48,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
 */
+
+	test_tarfs();
  /*
     //small test
     uint64_t new_pml4 = alloc_pml4();
@@ -56,9 +58,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   */
 
     // idle task - required for multitasking
-    create_idle_task();
+    //create_idle_task();
 
-    init_thread();
+    //init_thread();
     //syscallArg1(SYS_test, 77);
     //
     kprintf("\nelf process\n");

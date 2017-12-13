@@ -3,7 +3,7 @@
 #define _SYSCALLS_H
 
 #include <sys/defs.h>
-#include <sys/dirent.h>
+#include <dirent.h>
 #include <sysdefs.h>
 
 #define GET_SYS_RET(sysReturn) \
