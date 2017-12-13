@@ -49,7 +49,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
 */
 
-	test_tarfs();
+	//test_tarfs();
  /*
     //small test
     uint64_t new_pml4 = alloc_pml4();
@@ -58,9 +58,9 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   */
 
     // idle task - required for multitasking
-    //create_idle_task();
+    create_idle_task();
 
-    //init_thread();
+    init_thread();
     //syscallArg1(SYS_test, 77);
     //
     kprintf("\nelf process\n");

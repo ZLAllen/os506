@@ -13,8 +13,8 @@ int main(int argc, char *argv[], char *envp[])
   test(7000);
   //yield(); // lol that'd be too easy...
   
-  printf("just wanna test opendir\n");
-  opendir("/rootfs");
+ // printf("just wanna test opendir\n");
+  //opendir("/rootfs");
   while(1);
 
   return 0;
