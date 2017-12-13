@@ -11,7 +11,6 @@
 #include <sys/switch.h>
 #include <sys/files.h>
 #include <sys/elf64.h>
-#include <sys/syscalls.h>
 
 
 #define INITIAL_STACK_SIZE 4096

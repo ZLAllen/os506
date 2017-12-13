@@ -1,6 +1,7 @@
 #include <sys/defs.h>
 #include <sysdefs.h>
 #include <dirent.h>
+#include <sys/syscall_handler.h>
 
 /**
  * Syscall utility functions

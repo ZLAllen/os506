@@ -2,7 +2,7 @@
 #include <sys/kprintf.h>
 #include <sys/system.h>
 #include <sys/ktime.h>
-#include <sys/syscalls.h>
+#include <sys/syscall_handler.h>
 
 // define ASCII for special keys
 #define SHIFT_UP 0xAA
