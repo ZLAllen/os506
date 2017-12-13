@@ -1,5 +1,6 @@
 #include <sys/defs.h>
 #include <sysdefs.h>
+#include <dirent.h>
 
 /**
  * Syscall utility functions
@@ -22,6 +23,9 @@ void yield();
 uint64_t test(uint64_t arg);
 pid_t fork();
 void exit();
+
+
+int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
 
 // utility functions to set arguments for syscall
 void syscallArg0(uint64_t num);

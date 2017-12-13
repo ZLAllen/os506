@@ -36,7 +36,6 @@ struct dstream *opendir(const char *name);
 struct linux_dirent *readdir(struct dstream *dirp);
 int closedir(struct dstream *dirp);
 
-int getdents(int fd, struct linux_dirent *dirp, int count);
 
 
 

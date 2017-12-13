@@ -126,7 +126,7 @@ int fstat(int fd, struct stat *buf){
 */
 
 
-int getdents(int fd, struct linux_dirent *d, int count){
+int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
     int ret;
     __asm("syscall"
             :"=a"(ret)

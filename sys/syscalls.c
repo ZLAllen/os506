@@ -63,15 +63,24 @@ uint64_t sys_exit() {
     return 0;
 }
 
-/*I don't think this is needed 
+ 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
     if(!dirp || count <= 0)
-        return -1;
+        return -1; 
 
-    return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
+	if(fd <0 || fd >= MAX_FD)
+		return -1;
+
+	struct file *filep = current->fdarr[fd];//file object pointed by the fd
+	
+	if(!filep)
+		return -1;
+
+	return (uint64_t) filep->fop->readdir(filep, dirp, count);//num bytes read
+
 }
-*/
+
 
 /**
  * Supported syscalls
@@ -84,7 +93,7 @@ functionWithArg syscalls[] = {
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
     [SYS_exit] {0, sys_exit} // 60
-	//,[SYS_getdents] {3, sys_getdents} // 78
+	,[SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**

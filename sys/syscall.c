@@ -54,6 +54,18 @@ void exit() {
     yield();
 }
 
+int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
+    int ret;
+    __asm("syscall"
+            :"=a"(ret)
+            :"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
+            :"cc", "rcx", "r11", "memory"
+         );
+    
+    return ret;
+}
+
+
 void syscallArg0(uint64_t num) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));

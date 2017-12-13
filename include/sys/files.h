@@ -23,6 +23,8 @@ struct file_ops
     ssize_t (*read) (struct file *, char *, size_t, off_t *);
     int (*close) (struct file *);
 	int (*readdir) (struct file *, void *, unsigned int);
+	int (*closedir) (struct file *);
+
 };
 
 
