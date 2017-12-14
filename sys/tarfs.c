@@ -32,7 +32,7 @@ struct posix_header_ustar root_hdr = {{0}};//TODO shouldn't we set type to '5' a
 //open a tarfs file/directory
 struct file *tfs_open(const char *fpath, int flags) 
 {
-    //kprintf("tarfs open\n");
+    kprintf("tarfs open\n");
 	struct file *filep;
 	if (!fpath)
 		return NULL;

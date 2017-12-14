@@ -87,7 +87,7 @@ uint64_t sys_brk(void *addr)
 
 	kprintf("sys brk. addr is %x\n", addr);
 	uint64_t ret = sysbrk(current->mm, (uint64_t)addr);//addr on success else current one 
-	kprintf("sys brk. returned %d\n", ret);
+	kprintf("sys brk. returned %x\n", ret);
 	return ret;
 }
 

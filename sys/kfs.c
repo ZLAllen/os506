@@ -3,7 +3,7 @@
 #include <sys/tarfs.h>
 
 /*
- *syscall handler forwards sys calls to these functions
+ *syscall handler forwards sys calls to these functions; these call the operations in file ops
  * */
 
 
@@ -16,8 +16,10 @@ int sysopen(char *name, int flags)
 
 	int fd = get_free_fd(); 
 
-	struct file *filep = tfs_open(name, flags);//??check path
-	current->fdarr[fd] = filep;//add it to list of oen files
+	//TODO determine the abs path here
+	
+	struct file *filep = tfs_open(name, flags);
+	current->fdarr[fd] = filep;//add it to the list of open files by the process
 
 	return fd;
 }

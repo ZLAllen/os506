@@ -34,7 +34,7 @@ struct linux_dirent
 };
 
 
-
+//dir related libc functions
 struct dstream *opendir(const char *name);
 struct linux_dirent *readdir(struct dstream *dirp);
 int closedir(struct dstream *dirp);
