@@ -1,7 +1,7 @@
 #include <sys/system.h>
 #include <sys/stdarg.h>
 #include <sys/kprintf.h>
-#include <sys/fs.h>
+#include <sys/files.h>
 
 #define WIDTH 80
 #define HEIGHT 24

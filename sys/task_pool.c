@@ -264,3 +264,15 @@ void release_vma_struct(vma_struct* ptr)
     ptr->free = free_vma_struct;
     free_vma_struct = ptr;
 }
+
+int get_free_fd()
+{	
+	for(int n =0; n < MAX_FD; n++)
+	{
+		if(current->fdarr[n] == NULL)//yey found a fd
+			return n;
+	}
+
+	return -1;
+}
+

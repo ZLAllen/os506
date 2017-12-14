@@ -54,27 +54,37 @@ void exit() {
     yield();
 }
 
-ssize_t write(unsigned int fd, const char *buf, size_t count)
-{
-
-
-
-}
-
-ssize_t read(unsigned int fd, char *buf, size_t count)
-{
-
-
-}
-
-
-int close(unsigned int fd)
+/*
+ssize_t write(unsigned int fd, const void *buf, size_t count)
 {
 
 }
 
+ssize_t read(unsigned int fd, void *buf, size_t count)
+{
 
-void* brk(void* addr){
+}
+
+*/
+
+
+
+int close(int fd){
+
+   uint64_t num = SYS_close;
+   int ret;
+
+   syscallArg1(num, (uint64_t) fd);
+
+   __asm__ volatile("int $0x80"
+        : "=r"(ret)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+       );
+   return ret;
+}
+
+
+void *brk(void* addr){
 
 	int num = SYS_brk;
     void* ret;

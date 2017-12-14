@@ -52,14 +52,15 @@ int open(const char *file, int flags) {
 
 
 int close(int fd){
+
+   uint64_t num = SYS_close;
    int ret;
 
-   __asm
-       (
-        "syscall"
-        : "=a"(ret)
-        : "0"(SYS_close), "D"(fd)
-        : "cc", "rcx", "r11"
+   syscallArg1(num, (uint64_t) fd);
+
+   __asm__ volatile("int $0x80"
+        : "=r"(ret)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
        );
    return ret;
 }
@@ -149,10 +150,10 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
 
 
-void* brk(void* addr){
+void *brk(void* addr){
 
 	int num = SYS_brk;
-    void* ret;
+    void *ret;
 
 	syscallArg1(num, (uint64_t)addr);
 

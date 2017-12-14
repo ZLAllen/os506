@@ -14,7 +14,7 @@ int sysopen(char *name, int flags)
 	if(!name)
 		return -1;
 
-	int fd = 5; //select the next fd...look into fdarr?
+	int fd = get_free_fd(); 
 
 	struct file *filep = tfs_open(name, flags);//??check path
 	current->fdarr[fd] = filep;//add it to list of oen files

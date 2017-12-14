@@ -18,12 +18,12 @@ int main(int argc, char *argv[], char *envp[])
   //test cases
 
 
-  /*     
+       
   //printf("WILL START TESTING\n");
   
   struct dstream *dirp;
   struct linux_dirent *drent;
-  char *path = "/";
+  char *path = "/hello";
    
   
   //printf("start openddir\n");  
@@ -32,18 +32,19 @@ int main(int argc, char *argv[], char *envp[])
 
   
   //printf("start readdir\n");
-  //while(1);
+  int num = 0;
   while((drent = readdir(dirp)) != NULL) 
   {
 	//printf("reading file: %s\n", drent->d_name);
+	num ++;
   }
   //printf("done readdir\n");
-
+  
   //printf("start closedir");
-  closedir(dirp);
+  //closedir(dirp);
   //printf("done closedir");
 
-  
+  /*
   printf("start open");
   int fd = open("", O_RDONLY);  
   printf("done open");

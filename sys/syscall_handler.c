@@ -3,6 +3,7 @@
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
 #include <dirent.h>
+#include <sys/kfs.h>
 
 /**
  * Syscalls definitions
@@ -63,40 +64,40 @@ uint64_t sys_exit() {
     return 0;
 }
 
-// TODO
+
 uint64_t sys_open(char *name, int flags)
 {
-	kprintf("print me. file name is %s\n", name);
-	return 0;
+	kprintf("sys open. file name %s and flags %x\n", name, flags);
+	uint64_t ret = sysopen(name, flags);
+	kprintf("sys open. returned %d\n", ret);
+	return ret;
 }
 
-//TODO
+
+uint64_t sys_close(int fd)
+{
+	kprintf("sys close. fd %d\n", fd);	
+	uint64_t ret = sysclose(fd);
+	kprintf("sys close. returned %d\n", ret);
+	return ret;
+}
+
 uint64_t sys_brk(void *addr)
 {
 
-	kprintf("print me. addr is %x\n", addr);
-	return 0;
+	kprintf("sys brk. addr is %x\n", addr);
+	uint64_t ret = sysbrk(current->mm, (uint64_t)addr);//addr on success else current one 
+	kprintf("sys brk. returned %d\n", ret);
+	return ret;
 }
-
 
 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
-	kprintf("print me. argument is %d and %d", fd, count);
-	while(1);
-    if (!dirp || count <= 0)
-        return -1; 
-
-    if(fd <0 || fd >= MAX_FD)
-        return -1;
-
-    struct file *filep = current->fdarr[fd];//file object pointed by the fd
-
-    if(!filep)
-        return -1;
-
-    return (uint64_t) filep->fop->readdir(filep, dirp, count);//num bytes read
-
+	kprintf("sys getdents. fd is %d dirp %x,  %d", fd, dirp, count);
+	uint64_t ret = sysgetdents(fd, dirp, count);	
+	kprintf("sys getdents. returned %d\n", ret);
+    return ret;
 }
 
 
@@ -113,7 +114,8 @@ functionWithArg syscalls[] = {
     [SYS_exit] {0, sys_exit}, // 60
 	[SYS_open] {2, sys_open},//2
     [SYS_getdents] {3, sys_getdents}, // 78
-	[SYS_brk] {1, sys_brk}
+	[SYS_brk] {1, sys_brk},//12
+	[SYS_close] {1, sys_close}//3
 };
 
 /**

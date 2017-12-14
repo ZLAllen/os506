@@ -9,7 +9,8 @@
 #define SYS_read 0
 #define SYS_write 0
 #define SYS_open 2
-#define SYS_close 0
+#define SYS_close 3
+
 #define SYS_chdir 0
 #define SYS_pipe 0
 #define SYS_dup 0
