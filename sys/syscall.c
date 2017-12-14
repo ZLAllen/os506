@@ -1,4 +1,4 @@
-#include <sys/syscall.h>
+#include <syscall.h>
 
 /**
  * Kernel syscall utility functions
@@ -29,9 +29,9 @@ uint64_t test(uint64_t arg) {
     return ret;
 }
 
-uint64_t fork() {
+pid_t fork() {
     uint64_t num = SYS_fork;
-    uint64_t ret;
+    pid_t ret;
 
     syscallArg0(num);
 
@@ -77,6 +77,18 @@ int close(unsigned int fd)
 {
 
 }
+
+int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
+    int ret;
+    __asm("syscall"
+            :"=a"(ret)
+            :"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
+            :"cc", "rcx", "r11", "memory"
+         );
+    
+    return ret;
+}
+
 
 void syscallArg0(uint64_t num) {
     __asm__ __volatile__

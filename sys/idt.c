@@ -2,7 +2,7 @@
 #include <sys/isr.h>
 #include <sys/system.h>
 #include <sys/ktime.h>
-#include <syscalls.h>
+#include <sys/syscall_handler.h>
 
 #define MAX_IDT 256
 

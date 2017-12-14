@@ -1,7 +1,7 @@
 #include <sys/switch.h>
 #include <sys/schedule.h>
 #include <sys/pging.h>
-#include <sys/syscall.h>
+#include <syscall.h>
 #include <sys/elf64.h>
 #include <sys/pmap.h>
 #include <sys/kstring.h>
@@ -160,6 +160,7 @@ void init_thread() {
 
     //uint64_t* ret = 0;
     //schedule(new_task, (uint64_t) thread1);
+    run_next_task();
     
         //set_tss_rsp((void*)&new_task->kstack[KSTACK_SIZE-1]);
        /* __asm__ __volatile__

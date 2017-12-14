@@ -4,5 +4,8 @@
 #rootfs/lib/
 #rootfs/bin/
 
+*~
+*.swp
+*.swo
 tags
 

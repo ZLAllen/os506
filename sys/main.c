@@ -9,9 +9,8 @@
 #include <sys/tarfs.h>
 #include <sys/schedule.h>
 #include <sys/switch.h>
-#include <sys/fs.h>
+#include <sys/files.h>
 #include <sys/elf64.h>
-#include <sys/syscalls.h>
 
 
 #define INITIAL_STACK_SIZE 4096
@@ -48,6 +47,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     kprintf("file name %s\n", ((get_tfs_next((struct posix_header_ustar*)fs->private_data))->name));
 */
+
+	//test_tarfs();
  /*
     //small test
     uint64_t new_pml4 = alloc_pml4();

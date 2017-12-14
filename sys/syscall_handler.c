@@ -1,8 +1,8 @@
 #include <sys/defs.h>
-#include <sys/syscalls.h>
+#include <sys/syscall_handler.h>
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
-#include <sys/dirent.h>
+#include <dirent.h>
 
 /**
  * Syscalls definitions
@@ -19,17 +19,12 @@ uint64_t sys_yield() {
 
 uint64_t sys_test(uint64_t testArg) {
     __asm__ __volatile__(PUSHREGS);
-   kprintf("print me. Argument is %d\n", testArg);
+    kprintf("print me. Argument is %d\n", testArg);
     __asm__ __volatile__(POPREGS);
-   return 9001;
+    return 9001;
 }
 
-/*
-int sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count)
-{
-    return 0;
-}
-*/
+
 /**
  * Fork current process
  * Creates new process as a child of the current
@@ -71,10 +66,19 @@ uint64_t sys_exit() {
 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
-    if(!dirp || count <= 0)
+    if (!dirp || count <= 0)
+        return -1; 
+
+    if(fd <0 || fd >= MAX_FD)
         return -1;
 
-    return (uint64_t) getdents(fd, dirp, count);//num bytes read is returned
+    struct file *filep = current->fdarr[fd];//file object pointed by the fd
+
+    if(!filep)
+        return -1;
+
+    return (uint64_t) filep->fop->readdir(filep, dirp, count);//num bytes read
+
 }
 
 
@@ -88,8 +92,8 @@ functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit}, // 60
-	[SYS_getdents] {3, sys_getdents} // 78
+    [SYS_exit] {0, sys_exit} // 60
+    ,[SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**
@@ -111,10 +115,10 @@ void syscall_handler(void) {
 
     // read syscall number from rax register
     __asm__ __volatile__(
-        "movq %%rax, %0;"
-         :"=r" (num)
-         ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
-    );
+            "movq %%rax, %0;"
+            :"=r" (num)
+            ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
+            );
 
     __asm__ __volatile__(PUSHREGS);
     kprintf("Performing syscall %d\n", num);
@@ -128,7 +132,7 @@ void syscall_handler(void) {
             "movq %%rsi, %3;"
             "movq %%rdi, %4;"
             :"=r" (arg0), "=r" (arg1), "=r" (arg2), "=r" (arg3), "=r" (arg4)
-        );
+            );
 
     // get function associated with syscall
     callFunc = syscalls[num];
@@ -157,9 +161,9 @@ void syscall_handler(void) {
     }
     // store return value into rax register
     __asm__ __volatile__(
-        "movq %0, %%rax;"
-         ::"r" (ret)
-    );
+            "movq %0, %%rax;"
+            ::"r" (ret)
+            );
 }
 
 /**
@@ -168,10 +172,10 @@ void syscall_handler(void) {
 uint64_t get_sys_return() {
     uint64_t ret;
     __asm__ __volatile__(
-        "movq %%rax, %0;"
-         :"=r" (ret)
-         :: "%rax"
-    );
+            "movq %%rax, %0;"
+            :"=r" (ret)
+            :: "%rax"
+            );
 
     return ret;
 }

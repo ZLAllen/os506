@@ -11,8 +11,8 @@ enum vma_perm{X, RW};
 
 
 #include <sys/defs.h>
-#include <sys/fs.h>
-#include <sys/dirent.h>
+#include <sys/files.h>
+#include <dirent.h> //??is it right
 
 // process struct
 typedef struct task_struct {
@@ -28,7 +28,7 @@ typedef struct task_struct {
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct
-    struct file *fdarr[MAX_FD];  
+    struct file *fdarr[MAX_FD];//keeps track of files for this process	
 } task_struct;
 
 typedef struct vma_struct{

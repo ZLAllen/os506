@@ -3,12 +3,14 @@
 #include <sys/kprintf.h>
 #include <sys/tarfs.h>
 #include <sys/task_pool.h>
-#include <sys/fs.h>
+#include <sys/files.h>
 #include <sys/pmap.h>
 #include <sys/schedule.h>
 #include <sys/mm.h>
 #include <sys/pging.h>
 #include <sys/kstring.h>
+#include <fcntl.h>
+
 
 Elf64_Ehdr* get_ehdr(struct file *filep); 
 Elf64_Phdr* get_phdr(Elf64_Ehdr *ehdr);
@@ -31,7 +33,7 @@ struct vma_struct *traverse_vmas(struct vma_struct *ptr);
 
 struct task_struct *create_elf_process(char *fname, char *argv[])
 {
-    struct file *filep = tfs_open(fname, 0);//set flags
+    struct file *filep = tfs_open(fname, O_RDONLY);//??
     kprintf("file object created");
     Elf64_Ehdr *ehdr = get_ehdr(filep);
     int valid = validate_ehdr(ehdr);
@@ -41,6 +43,7 @@ struct task_struct *create_elf_process(char *fname, char *argv[])
         return NULL;
     }
     struct task_struct *newtask = load_elf(ehdr, argv);
+	kprintf("task scheduled\n");
     return newtask;
 }
 
