@@ -63,9 +63,27 @@ uint64_t sys_exit() {
     return 0;
 }
 
+// TODO
+uint64_t sys_open(char *name, int flags)
+{
+	kprintf("print me. file name is %s\n", name);
+	return 0;
+}
+
+//TODO
+uint64_t sys_brk(void *addr)
+{
+
+	kprintf("print me. addr is %x\n", addr);
+	return 0;
+}
+
+
 
 uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
+	kprintf("print me. argument is %d and %d", fd, count);
+	while(1);
     if (!dirp || count <= 0)
         return -1; 
 
@@ -92,8 +110,10 @@ functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit} // 60
-    ,[SYS_getdents] {3, sys_getdents} // 78
+    [SYS_exit] {0, sys_exit}, // 60
+	[SYS_open] {2, sys_open},//2
+    [SYS_getdents] {3, sys_getdents}, // 78
+	[SYS_brk] {1, sys_brk}
 };
 
 /**
