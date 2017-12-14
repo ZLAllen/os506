@@ -1,6 +1,7 @@
 #include <sys/system.h>
 #include <sys/stdarg.h>
 #include <sys/kprintf.h>
+#include <sys/fs.h>
 
 #define WIDTH 80
 #define HEIGHT 24
@@ -8,6 +9,49 @@
 #define BLACK 0x0700
 
 #define CLOCK_OFFSET 15
+
+#define TERMBUF_SIZE 256
+
+typedef struct term_buf{
+  int start;
+  int end;  //double pointer
+  char echo; //echo enable
+  char full; // full indicator
+  volatile char count; //number of input delims;
+  int backspace; // number of backspace can have, probably won't need
+  char buf[TERMBUF_SIZE]; //holds all the read data
+}terminal;
+
+// define one instance of the terminal used by all process(probably only shell
+// for input
+terminal term = {
+  .start = 0,
+  .end = 0,
+  .echo = 1,
+  .full = 0,
+  .count = 0,
+  .backspace = 0,
+  .buf = {0}
+}; // dont know why I have to use designated assignment, stupid compiler 
+
+struct file_ops term_op = {
+  .open = 0, // open doesn't make sense to me, just call it from terminal.c
+  .close = term_close,
+  .read = term_read,
+  .write = term_write,
+  .readdir = term_readdir  // this one just return error
+};
+
+
+// the file object that connects to terminal
+struct file term_file = {
+  .fop = &term_op, //pointer to struct of file functions
+  .count = 1, // this file will be hold by at least 1 process, never die until system shutdown
+  .offset = 0, // not useful in terminal
+  .data = &term, // this points to the terminal object
+  .size = 0 // not useful in terminal
+};
+
 
 int x = 0,y = 0;
 short arr[SIZE];
@@ -17,7 +61,215 @@ static char Rep[] = "0123456789ABCDEF";
 static void kputTime(int integer, short* loc);
 static void convert(unsigned long i, int base);
 static void updatecsr();
-        
+
+//terminal static function
+static int term_pop(); //pop the first character available, return 0 at delim
+static void term_push(const char a); //push a character into the term_buf, called by term_putchar, which is used during keyboard interrupt
+static void term_poplast();
+
+
+struct file* term_open(const char* path, int mode)
+{
+  // increment terminal file object reference count then return pointer to the
+  // object
+  term_file.count++;
+  return &term_file;
+}  
+
+int term_close(struct file* file)
+{
+  // in close syscall must check fd != 0 first
+  term_file.count--;
+  return 0; 
+}
+
+/* func: term_pop
+ *
+ * @return the first character available to pop, -1 if none
+ */
+static int term_pop()
+{
+  if(term.start == term.end && !term.full)
+  {
+    return -1;  // empty, nothing to pop 
+  }
+
+  char c = term.buf[term.start];
+  
+  //move cursor to the next position, wrap around if needed
+  term.start = (term.start + 1) % TERMBUF_SIZE;
+
+  // clear any full flag
+  term.full = 0;
+
+  if(c == EOT || c == '\n')
+  {
+    // decrement 1 delim count upon end of pop sequence
+    term.count--;
+  }
+
+  return c;
+}
+
+
+/* func: term_read
+ * fp: file object that holds the terminal buf
+ * buf: buf to receive data
+ * size: size of the data to read
+ * offset: offset into the file, not useful here
+ *
+ * @return: the actual numebr of bytes read
+ */
+ssize_t term_read(struct file* fp, char* buf, size_t size, off_t* offset)
+{
+  if(!fp || !buf) // if file object and buf not valid
+  {
+    return -1; // setting error code later
+  }
+
+  if(size == 0)
+    return 0;
+
+  int count = 0;
+  while(count <= size)
+  {
+    int c = term_pop();
+    if(c < 0)
+    {
+      break; // empty
+    }
+    buf[count++] = (char)c;
+
+    if(c == EOT || c == '\n')
+    {
+      break; //stops here at delims
+    }
+  }
+  return count;
+}
+/* func term_write
+ * fp: pointer to file object not useful
+ * buf: user buffer with data
+ * count: number of bytes to output 
+ * offset: not useful
+ */ 
+ssize_t term_write(struct file* fp, char* buf, size_t count, off_t * offset)
+{
+  if(!fp || !buf)
+  {
+    return -1; // same error as in read
+  }
+
+  //simply print to console, sorry didn't buffer it
+  kputs(buf);
+
+  return count;
+}
+
+
+int term_readdir(struct file* fp, void* buf, unsigned int count)
+{
+  return -1; // this is an illegal operation
+} 
+
+/*
+ * keyboard interrupt call this function to place a character into term_buf
+ *
+ * a: the character to put
+ * @return: 0 if succeed, -1 if failed
+ *
+ */
+int term_putchar(char a)
+{
+  //since we have only one foregrond process, do not implement EOT
+  if(a == '\b')
+  {
+    // now we implement backspace, first look at how much we can backspace
+    if(term.backspace == 0)
+    {
+      return -1;
+    }
+
+    term_poplast();
+    // check echo 
+    if(term.echo)
+    {
+      //reflect this on display
+      kputchar('\b');
+    }
+  }
+
+  // reject inputs upon full
+  if(term.full)
+  {
+    return -1;
+  }
+
+  // add to buffer
+  
+  if(a == '\t')
+  {
+    int count = 0;
+    while(count++ < 4)
+    {
+      term_push(' ');
+    }
+    term.backspace += 4;
+  }else{
+    term.backspace++;
+    term_push(a);
+  }
+
+  if(term.echo)
+    kputchar(a);
+
+  return 0;
+}
+
+/*
+ *
+ * remove the most recent character from the terminal buffer
+ *
+ */
+
+static void term_poplast()
+{
+  // here we need to be careful, decrementing end can result in negative value,
+  // which is undesire, but adding TERMBUF_SIZE-1 will wrap the value around
+  term.end = (term.end + TERMBUF_SIZE-1 )% TERMBUF_SIZE; 
+  term.full = 0; // full must not be true 
+}
+
+
+
+
+
+/*
+ * push a character into the terminal buffer
+ * move the end pointer to the next position,
+ * update any full status
+ *
+ * a: character to push
+ * @return: 0 if succeed, -1 otherwise
+ */
+static void term_push(const char a)
+{
+
+  term.buf[term.end] = a;
+
+  term.end = (term.end + 1) % TERMBUF_SIZE;
+
+  if(term.start == term.end)
+  {
+    term.full = 1;
+  }
+
+  if(a == '\n' || a == EOT)
+  {
+    term.count++;
+    term.backspace = 0; //reset backspace upon receiving delim
+  }
+}
 
 void kprintf(const char *fmt, ...)
 {
@@ -106,7 +358,30 @@ void kputchar(const char c)
         *(((char*)BASE)+x*2+y*WIDTH*2) = c;
         arr[x+y*WIDTH] = BLACK|(short)c;
         x++;
-    }
+    }else if(c == '\b'){ 
+      // move the x cursor first  
+      if(x == 0)
+      {
+        y--;
+        x = WIDTH-1;
+      }
+      else
+      {
+        x--;
+      }
+      // clear the backspace
+       *(((char*)BASE)+x*2+y*WIDTH*2) = ' ';
+       arr[x+y*WIDTH] = BLACK|0x20;
+    }else if(c == '\t'){
+      // move cursor 4 blank space forward
+      int cnt = 0;
+      while(cnt < 4)
+      {
+        kputchar(' ');
+      }
+    }else{
+      return;
+    }  
 
     if(x >= WIDTH){
         x=0;

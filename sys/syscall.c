@@ -54,6 +54,30 @@ void exit() {
     yield();
 }
 
+ssize_t write(unsigned int fd, const char *buf, size_t count)
+{
+
+
+
+}
+
+ssize_t read(unsigned int fd, char *buf, size_t count)
+{
+
+
+}
+
+int open(const char *filename, int flags)
+{
+
+
+}
+
+int close(unsigned int fd)
+{
+
+}
+
 void syscallArg0(uint64_t num) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));
