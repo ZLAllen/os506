@@ -58,9 +58,9 @@ uint64_t sys_fork() {
  * Sets current process to not runnable
  * Process will be removed from available_tasks
  */
-uint64_t sys_exit() {
+void sys_exit() {
     current->runnable = false;
-    return 0;
+    sys_yield();
 }
 
 
@@ -81,6 +81,14 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
 
 }
 
+uint64_t sys_read(unsigned int fd, char *buf, size_t count)
+{
+
+
+
+
+}
+
 
 /**
  * Supported syscalls
@@ -92,8 +100,12 @@ functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit} // 60
-    ,[SYS_getdents] {3, sys_getdents} // 78
+    [SYS_exit] {0, sys_exit}, // 60
+    [SYS_getdents] {3, sys_getdents}, // 78
+    [SYS_open] {2, sys_open},
+    [SYS_close] {3, sys_close},
+    [SYS_read] {3, sys_read},
+    [SYS_write] {3, sys_write}
 };
 
 /**

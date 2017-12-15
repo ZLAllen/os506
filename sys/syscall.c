@@ -54,30 +54,6 @@ void exit() {
     yield();
 }
 
-ssize_t write(unsigned int fd, const char *buf, size_t count)
-{
-
-
-
-}
-
-ssize_t read(unsigned int fd, char *buf, size_t count)
-{
-
-
-}
-
-int open(const char *filename, int flags)
-{
-
-
-}
-
-int close(unsigned int fd)
-{
-
-}
-
 int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
     int ret;
     __asm("syscall"

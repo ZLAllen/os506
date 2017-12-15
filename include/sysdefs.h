@@ -5,10 +5,10 @@
 #define SYS_getdents 78
 
 // TODO
-#define SYS_read 0
-#define SYS_write 0
-#define SYS_open 0
-#define SYS_close 0
+#define SYS_read 0x03
+#define SYS_write 0x04
+#define SYS_open 0x05
+#define SYS_close 0x06
 #define SYS_chdir 0
 #define SYS_pipe 0
 #define SYS_dup 0
