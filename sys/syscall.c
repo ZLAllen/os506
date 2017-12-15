@@ -68,41 +68,84 @@ void exit() {
     yield();
 }
 
-ssize_t write(unsigned int fd, const char *buf, size_t count)
-{
-
-    return 0;
-
-}
-
-ssize_t read(unsigned int fd, char *buf, size_t count)
+/*
+ssize_t write(unsigned int fd, const void *buf, size_t count)
 {
 
     return 0;
 }
 
-int open(const char *filename, int flags)
+ssize_t read(unsigned int fd, void *buf, size_t count)
 {
-
-    return 0;
 
 }
 
-int close(unsigned int fd)
-{
-    return 0;
+*/
+
+
+int close(int fd){
+
+   uint64_t num = SYS_close;
+   int ret;
+
+   syscallArg1(num, (uint64_t) fd);
+
+   __asm__ volatile("int $0x80"
+        : "=r"(ret)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+       );
+   return ret;
 }
+
+void *brk(void* addr){
+
+	int num = SYS_brk;
+    void* ret;
+
+	syscallArg1(num, (uint64_t)addr);
+
+    __asm volatile("int $0x80"
+         :"=r"(ret)
+         ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+        );
+
+    return ret;
+
+}
+
+
 
 int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
+
+	uint64_t num = SYS_getdents;
     int ret;
-    __asm("syscall"
-            :"=a"(ret)
-            :"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
-            :"cc", "rcx", "r11", "memory"
+
+	syscallArg3(num, (uint64_t)fd,(uint64_t)d, (uint64_t)count);
+
+    __asm volatile("int $0x80"
+            :"=r"(ret)
+			::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" 
          );
 
     return ret;
 }
+
+
+int open(const char *file, int flags) {
+
+    uint64_t num = SYS_open;
+    uint64_t ret;
+
+    syscallArg2(num, (uint64_t)file, (uint64_t)flags);
+
+    __asm__ volatile ("int $0x80"
+        :"=r" (ret)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    ); 
+
+    return ret;
+}
+
 
 
 void syscallArg0(uint64_t num) {

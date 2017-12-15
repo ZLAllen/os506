@@ -7,10 +7,11 @@
  * Syscall utility functions
  */
 
-ssize_t read(unsigned int fd, char *buf, size_t size);
-ssize_t write(unsigned int fd, const char *buf, size_t size);
+//ssize_t read(unsigned int fd, char *buf, size_t size);
+//ssize_t write(unsigned int fd, const char *buf, size_t size);
+int close(int fd);
 int open(const char *file, int flag);
-int close(unsigned int fd);
+
 int chdir(const char *path);
 int pipe(int pipefd[]);
 int dup2(int srcfd, int destfd);
@@ -36,4 +37,5 @@ void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1);
 void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2);
 void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3);
 void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4);
+
 
