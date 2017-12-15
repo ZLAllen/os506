@@ -2,22 +2,28 @@
 #include <sys/task_pool.h>
 #include <sys/pmap.h>
 #include <sys/kprintf.h>
-
+#include <sys/error.h>
 
 uint64_t sysbrk(struct mm_struct *mm,  uint64_t nbrk) 
 {
 
 	if(!mm)
-		kprintf("mm struct null in brk\n");//send panic
+		panic("mm struct null in brk");//send panic
+		
 
-	//get the current brk
+	//get the current end brk
 	uint64_t curr_brk = mm->brk;
 
 	struct vma_struct *vma = mm->vm;
+	
 	while(vma != NULL)//find the heap vma
 	{
-		if (vma->vm_start == mm->start_brk);
-			break;//found it so break out
+		if(vma->vm_start == vma->vm_end && vma->vm_start == mm->start_brk)//boundary 
+				break;
+
+		if (vma->vm_start <= mm->start_brk && mm->start_brk <= vma->vm_end)//within
+			break;
+			
 		vma = vma->next;
 	}
 
@@ -38,3 +44,5 @@ uint64_t sysbrk(struct mm_struct *mm,  uint64_t nbrk)
 
 	return curr_brk;//error 
 }
+
+
