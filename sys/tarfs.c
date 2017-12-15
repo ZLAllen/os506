@@ -32,7 +32,7 @@ struct posix_header_ustar root_hdr = {{0}};//TODO shouldn't we set type to '5' a
 //open a tarfs file/directory
 struct file *tfs_open(const char *fpath, int flags) 
 {
-    kprintf("tarfs open\n");
+    //kprintf("tarfs open\n");
 	struct file *filep;
 	if (!fpath)
 		return NULL;
@@ -56,6 +56,13 @@ struct file *tfs_open(const char *fpath, int flags)
         //  kprintf("path %s vs hdr name %s\n", path, hdr->name, sizeof(path), memcmp(path, hdr->name, sizeof(hdr->name))); 
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0) 
 		{
+			
+			if(hdr->typeflag[0] != TFS_DIR && flags & O_DIRECTORY)//opendir asks for a dir but hdr is a file case
+			{
+				kprintf("hdr is a file but flags say directory\n");
+				return NULL;
+			}
+			
 			kprintf("found the matching file\n");
 			filep = kmalloc();
 			filep->data = hdr;
@@ -63,7 +70,7 @@ struct file *tfs_open(const char *fpath, int flags)
 			filep->fop = &tfs_file_ops;
 			if (root == 0)
 			{
-				if (hdr->typeflag[0] == '5') //directory points to the next
+				if (hdr->typeflag[0] == TFS_DIR) //directory points to the next
             		filep->offset = (uint64_t)get_tfs_next(hdr);
 				else
 					filep->offset = 0;//file points to nothing
@@ -88,7 +95,7 @@ struct file *tfs_open(const char *fpath, int flags)
 ssize_t tfs_read(struct file *filep, char *buff, size_t count, off_t *offset)
 {
 	struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->data;
-	if (hdr->typeflag[0] == '5')//can't read a directory
+	if (hdr->typeflag[0] == TFS_DIR)//can't read a directory
 		kprintf("trying to read a directory\n");
 
 	size_t size  = filep->size - *offset;

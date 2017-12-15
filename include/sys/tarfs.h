@@ -36,14 +36,14 @@ struct posix_header_ustar {
 
 
 
-
-#define TFS_FILE1 0
+//typeflag is a char array of 1 in hdr
+#define TFS_FILE1 '0'
 #define TFS_FILE2 '\0'
-#define TFS_HLINK 1
-#define TFS_SYMLINK 2
-#define TFS_CHAR_DEVICE 3
-#define TFS_BLK_DEVICE 4
-#define TFS_DIR 5
+#define TFS_HLINK '1'
+#define TFS_SYMLINK '2'
+#define TFS_CHAR_DEVICE '3'
+#define TFS_BLK_DEVICE '4'
+#define TFS_DIR '5'
 
 
 
