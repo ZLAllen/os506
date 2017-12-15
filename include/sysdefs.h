@@ -1,4 +1,5 @@
 #define SYS_yield 24
+#define SYS_sleep 35
 #define SYS_test 50
 #define SYS_fork 57
 #define SYS_exit 60

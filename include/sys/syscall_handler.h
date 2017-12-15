@@ -10,6 +10,7 @@
 
 // syscall functions
 uint64_t sys_test(uint64_t testArg);
+uint64_t sys_sleep(uint64_t ms);
 uint64_t sys_fork();
 uint64_t sys_exit();
 

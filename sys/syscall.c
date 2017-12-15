@@ -15,6 +15,20 @@ void yield() {
     ); 
 }
 
+void sleep(uint64_t ms) {
+
+    uint64_t num = SYS_sleep;
+    uint64_t ret;
+    syscallArg1(num, ms);
+
+    __asm__ volatile ("int $0x80"
+        :"=r" (ret)
+        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    ); 
+
+    yield();
+}
+
 uint64_t test(uint64_t arg) {
 
     uint64_t num = SYS_test;

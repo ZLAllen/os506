@@ -66,6 +66,9 @@ int main(int argc, char *argv[], char *envp[])
 
 
   //while(1);
+ // printf("just wanna test opendir\n");
+  //opendir("/rootfs");
+  while(1);
 
   return 0;
 
