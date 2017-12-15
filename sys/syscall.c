@@ -11,8 +11,8 @@ void yield() {
     syscallArg0(num);
 
     __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
 }
 
 void sleep(uint64_t ms) {
@@ -22,9 +22,9 @@ void sleep(uint64_t ms) {
     syscallArg1(num, ms);
 
     __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
 
     yield();
 }
@@ -36,9 +36,9 @@ uint64_t test(uint64_t arg) {
     syscallArg1(num, arg);
 
     __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
 
     return ret;
 }
@@ -50,9 +50,9 @@ pid_t fork() {
     syscallArg0(num);
 
     __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
     return ret;
 }
 
@@ -62,8 +62,8 @@ void exit() {
     syscallArg0(num);
 
     __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
 
     yield();
 }
@@ -71,25 +71,26 @@ void exit() {
 ssize_t write(unsigned int fd, const char *buf, size_t count)
 {
 
-
+    return 0;
 
 }
 
 ssize_t read(unsigned int fd, char *buf, size_t count)
 {
 
-
+    return 0;
 }
 
 int open(const char *filename, int flags)
 {
 
+    return 0;
 
 }
 
 int close(unsigned int fd)
 {
-
+    return 0;
 }
 
 int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
@@ -99,7 +100,7 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
             :"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
             :"cc", "rcx", "r11", "memory"
          );
-    
+
     return ret;
 }
 
