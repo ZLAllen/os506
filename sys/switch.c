@@ -20,7 +20,7 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    yield();
+    sleep(5000);
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
@@ -143,8 +143,8 @@ void init_thread() {
     schedule(task1, (uint64_t) thread1);
     schedule(task2,(uint64_t)thread2);
 
-    //run_next_task();
-    //while(1);
+    run_next_task();
+    while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
@@ -189,6 +189,9 @@ void init_thread() {
  memcpy(thread6, (void*)vaddr, 20);
 */
 
+    /**
+     * CODE BELOW HERE WILL NOT RUN AS LONG AS RUN NEXT TASK IS CALLED ABOVE
+     */
 
     uint64_t* a = (uint64_t*)new_task->mm->entry;
     kprintf("text entry %x\n",*a); 

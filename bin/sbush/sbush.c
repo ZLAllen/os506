@@ -11,8 +11,10 @@ int main(int argc, char *argv[], char *envp[])
   __asm__ volatile ("int $0x80");
 
   test(7000);
-  //yield(); // lol that'd be too easy...
+  yield(); // lol that'd be too easy...
+  test(6000);
   
+  exit();
  // printf("just wanna test opendir\n");
   //opendir("/rootfs");
   while(1);

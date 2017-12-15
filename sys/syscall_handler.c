@@ -3,6 +3,9 @@
 #include <sys/schedule.h>
 #include <sys/kprintf.h>
 #include <dirent.h>
+#include <sys/ktime.h>
+
+extern uint64_t ms;
 
 /**
  * Syscalls definitions
@@ -22,6 +25,14 @@ uint64_t sys_test(uint64_t testArg) {
     kprintf("print me. Argument is %d\n", testArg);
     __asm__ __volatile__(POPREGS);
     return 9001;
+}
+
+/**
+ * Sleep process for given number of milliseconds
+ */
+uint64_t sys_sleep(uint64_t msec) {
+    current->sleep_time = ms + msec;
+    return 0;
 }
 
 
@@ -90,10 +101,11 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
  */
 functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
+    [SYS_sleep] {1, sys_sleep}, // 35
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
-    [SYS_exit] {0, sys_exit} // 60
-    ,[SYS_getdents] {3, sys_getdents} // 78
+    [SYS_exit] {0, sys_exit}, // 60
+    [SYS_getdents] {3, sys_getdents} // 78
 };
 
 /**

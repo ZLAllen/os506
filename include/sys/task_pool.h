@@ -23,6 +23,7 @@ typedef struct task_struct {
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
     uint64_t rax; // rax register value (for fork)
+    uint64_t sleep_time; // sleep time - clock ms that it is allowed to run
     struct mm_struct *mm; // memory descriptor
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
