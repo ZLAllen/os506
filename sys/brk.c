@@ -4,6 +4,26 @@
 #include <sys/kprintf.h>
 #include <sys/error.h>
 
+
+
+
+uint64_t sysbrk(struct mm_struct *mm,  uint64_t nbrk) 
+{
+	uint64_t curr_brk = mm->brk;
+
+	if(nbrk == -1)
+		return curr_brk;
+	else
+	{
+		if(nbrk > curr_brk)
+			mm->brk = nbrk;
+
+		return curr_brk;
+	}
+}
+
+
+/*
 uint64_t sysbrk(struct mm_struct *mm,  uint64_t nbrk) 
 {
 
@@ -45,4 +65,5 @@ uint64_t sysbrk(struct mm_struct *mm,  uint64_t nbrk)
 	return curr_brk;//error 
 }
 
+*/
 
