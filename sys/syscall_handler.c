@@ -130,7 +130,7 @@ functionWithArg syscalls[] = {
 	[SYS_open] {2, sys_open},//2
     [SYS_getdents] {3, sys_getdents}, // 78
 	[SYS_brk] {1, sys_brk},//12
-	[SYS_close] {1, sys_close}//3
+	[SYS_close] {1, sys_close},//3
     [SYS_getdents] {3, sys_getdents} // 78
 };
 
