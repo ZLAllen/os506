@@ -10,6 +10,8 @@
 
 //work in progress: this is non blocking!!!
 
+//think of this pipe as a circular array: FIFO 
+
 struct pipe_buf
 {
 	int start;//read head
