@@ -69,7 +69,8 @@ uint64_t sys_open(char *name, int flags)
 {
 	kprintf("sys open. file name %s and flags %x\n", name, flags);
 	uint64_t ret = sysopen(name, flags);
-	kprintf("sys open. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys open. returned %d\n", ret);
 	return ret;
 }
 
@@ -78,7 +79,8 @@ uint64_t sys_close(int fd)
 {
 	kprintf("sys close. fd %d\n", fd);	
 	uint64_t ret = sysclose(fd);
-	kprintf("sys close. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys close. returned %d\n", ret);
 	return ret;
 }
 
@@ -96,7 +98,8 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
 {
 	kprintf("sys getdents. fd is %d dirp %x,  %d", fd, dirp, count);
 	uint64_t ret = sysgetdents(fd, dirp, count);	
-	kprintf("sys getdents. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys getdents. returned %d\n", ret);
     return ret;
 }
 

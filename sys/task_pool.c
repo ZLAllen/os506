@@ -269,10 +269,10 @@ int get_free_fd()
 {	
 	for(int n =0; n < MAX_FD; n++)
 	{
-		if(current->fdarr[n] == NULL)//yey found a fd
-			return n;
+		if(current->fdarr[n] == NULL)//yey found a valid fd
+			return n;//success
 	}
 
-	return -1;
+	return -1;//failure
 }
 
