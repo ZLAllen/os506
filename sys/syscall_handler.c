@@ -30,6 +30,14 @@ int64_t sys_test(uint64_t testArg) {
     return 9001;
 }
 
+int64_t sys_test3(uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+    __asm__ __volatile__(PUSHREGS);
+    kprintf("print me. Arguments are %d, %d, and %d\n", arg1, arg2, arg3);
+    __asm__ __volatile__(POPREGS);
+    return 2018;
+}
+
+
 /**
  * Sleep process for given number of milliseconds
  */
@@ -204,6 +212,7 @@ functionWithArg syscalls[] = {
     [SYS_sleep] {1, sys_sleep}, // 35
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
+    [SYS_test3] {3, sys_test3}, // 53
     [SYS_exit] {0, sys_exit}, // 60
     [SYS_getdents] {3, sys_getdents}, // 78
     [SYS_open] {2, sys_open},

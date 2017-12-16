@@ -23,6 +23,7 @@ char *getcwd(char *buf, size_t size);
 
 void yield();
 uint64_t test(uint64_t arg);
+uint64_t test3(uint64_t arg1, uint64_t arg2, uint64_t arg3);
 void sleep(uint64_t ms);
 pid_t fork();
 void exit();
