@@ -11,6 +11,7 @@
 #include <sys/switch.h>
 #include <sys/files.h>
 #include <sys/elf64.h>
+#include <syscall.h>
 
 
 #define INITIAL_STACK_SIZE 4096
@@ -38,8 +39,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
 
     init_pging((uint64_t)real_physfree);
-
-    
+ 
     /*
     struct file* fs= tfs_open("lib/", 0);
 

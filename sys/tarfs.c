@@ -14,12 +14,12 @@ uint64_t oct_to_bin(char *ostr, int length);
 int print_tfs(struct posix_header_ustar *hdr);
 void set_dirent(struct linux_dirent *dent, struct posix_header_ustar *hdr, char *dname, unsigned short size);
 
-
 //we provide these operations on the file object
 struct file_ops tfs_file_ops =
 {
     open: tfs_open,
     read: tfs_read,
+    write: tfs_write,
     close: tfs_close,
 	readdir: tfs_readdir,
 	closedir: tfs_closedir
@@ -27,6 +27,13 @@ struct file_ops tfs_file_ops =
 
 // initialize a root node here
 struct posix_header_ustar root_hdr = {{0}};//TODO shouldn't we set type to '5' and name to "/"
+
+ssize_t tfs_write(struct file *filep, char *buff, size_t count, off_t *offset)
+{
+  kprintf("file write not available\n");
+  return -1;
+}
+
 
 
 //open a tarfs file/directory
@@ -98,10 +105,14 @@ ssize_t tfs_read(struct file *filep, char *buff, size_t count, off_t *offset)
 	if (hdr->typeflag[0] == TFS_DIR)//can't read a directory
 		kprintf("trying to read a directory\n");
 
-	size_t size  = filep->size - *offset;
+  uint64_t off = (uint64_t)offset;
+
+	size_t size  = filep->size - off;
 	size_t acount = count<size?count:size;
-	memcpy((char *) (hdr + 1) + *offset, buff, acount);
-	*offset += acount;
+	memcpy((char *) (hdr + 1) + off, buff, acount);
+
+  off += acount;
+  filep->offset = (off_t*)off;
 	return 0;
 }
 

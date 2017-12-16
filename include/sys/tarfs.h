@@ -57,6 +57,7 @@ int tfs_opendir(const char *fpath, int flags);
 int tfs_readdir(struct file *filep, void *buf, unsigned int count);
 int tfs_closedir(struct file *filep);
 
+ssize_t tfs_write(struct file *filep, char *buff, size_t count, off_t *offset);
 
 void test_tarfs();
 
