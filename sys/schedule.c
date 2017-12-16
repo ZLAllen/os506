@@ -25,6 +25,23 @@ void switch_to(
         task_struct *me,
         task_struct *next) {
 
+    // save return address
+    uint64_t next_task, timer;
+    // save current processes's stack pointer
+    __asm__ __volatile__
+        ("movq %%rsp, %0"
+         :"=r" (next_task) // save stack pointer into current task
+         :
+         : // clobbered registers
+        );
+
+    __asm__ __volatile__
+        ("movq 32(%%rsp), %0"
+         :"=r" (timer) // save stack pointer into current task
+         :
+         : // clobbered registers
+        );
+
     if (me != NULL) {
         // save current processes's stack pointer
         __asm__ __volatile__
@@ -35,7 +52,7 @@ void switch_to(
             );
 
         // account for the junk added to stack with the switch method calls
-        me->rsp += 40;
+        //me->rsp += 40;
     }
 
     __asm__ __volatile__(PUSHREGS);
@@ -107,7 +124,20 @@ void switch_to(
     // rax register for return values (used for fork)
     __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
 
-    __asm__ volatile("retq");
+    
+    // save current processes's stack pointer
+    __asm__ __volatile__
+        ("pushq %0"
+         :: "m" (timer)
+         : // clobbered registers
+        );
+    __asm__ __volatile__
+        ("pushq %0"
+         :: "m" (next_task)
+         : // clobbered registers
+        );
+
+    //__asm__ volatile("retq");
 }
 
 /**
@@ -170,7 +200,6 @@ task_struct *create_new_task(bool userp) {
     new_task->kstack = kmalloc();
 
     new_task->runnable = true;
-    new_task->sleep_time = 0;
 
     // initialize mm_struct
     mm_struct* my_mm = get_mm_struct();
@@ -210,6 +239,8 @@ task_struct *get_next_task() {
 
     if (!next_struct) {
         available_tasks = NULL;
+        if (!idle)
+            create_idle_task();
         return idle;
     }
 
@@ -224,6 +255,8 @@ void run_next_task() {
     task_struct *prev = current;
     current = get_next_task();
     switch_to(prev, current);
+
+    __asm__ volatile("retq");
 }
 
 /**
@@ -349,7 +382,7 @@ void create_idle_task() {
 void idle_task() {
 
     while(1) {
-        run_next_task(); // not calling yield to avoid flooding with syscall debug prints
+        //run_next_task(); // not calling yield to avoid flooding with syscall debug prints
         //kprintf("Idle! See bottom of sys/schedule.c to remove this msg.\n");
     }
 }

@@ -1,4 +1,5 @@
 #include <syscall.h>
+#include <sys/kprintf.h>
 
 /**
  * Kernel syscall utility functions
@@ -17,6 +18,8 @@ void yield() {
 
 void sleep(uint64_t ms) {
 
+    kprintf("SLEEEP");
+
     uint64_t num = SYS_sleep;
     uint64_t ret;
     syscallArg1(num, ms);
@@ -25,7 +28,6 @@ void sleep(uint64_t ms) {
             :"=r" (ret)
             :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
             ); 
-
     yield();
 }
 

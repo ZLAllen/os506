@@ -1,6 +1,7 @@
 #include <sys/defs.h>
 #include <sys/isr.h>
 #include <sys/system.h>
+#include <sys/kprintf.h>
 #include <sys/ktime.h>
 #include <sys/syscall_handler.h>
 
@@ -58,6 +59,7 @@ void init_idt() {
     //
     pic_remap();
 
+    kprintf("Moo\n");
     init_ktime();
 
     //set up IRQ resp

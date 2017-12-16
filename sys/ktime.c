@@ -1,6 +1,7 @@
 #include <sys/ktime.h>
 #include <sys/kprintf.h>
 #include <sys/system.h>
+#include <sys/schedule.h>
 
 #define CH0 0x40
 #define CMD 0x43
@@ -21,7 +22,7 @@ void init_ktime(){
 }
 
 void addTick(){
-   //kputs("ticks\n");
+    kputs("ticks\n");
     if(s_cnt < 4) {
         if(ticks < 18) {
             ++ticks;
@@ -32,6 +33,7 @@ void addTick(){
             ticks = 0;
             ++s_cnt;
             update_time(day, second);
+            run_next_task();
         }
     }else{
         if(ticks < 19) {

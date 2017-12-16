@@ -58,15 +58,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
     // idle task - required for multitasking
     create_idle_task();
+    __asm__ volatile("sti;");
 
-    init_thread();
+    //init_thread();
     //syscallArg1(SYS_test, 77);
     //
     //__asm__ volatile ("movq $50, %%rax");
     //__asm__ volatile ("movq $50, %rax");
     //__asm__ volatile ("movq $77, %rbx");
     //ahciTest()
-    while(1) __asm__ volatile ("hlt");
+    while(1);
+    //while(1) __asm__ volatile ("hlt;");
 }
 
 void boot(void)
@@ -85,7 +87,6 @@ void boot(void)
       );
       init_gdt();
       init_idt();
-      //__asm__ volatile("sti");
 
       start(
         (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),

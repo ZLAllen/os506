@@ -66,6 +66,7 @@ ISR_E 14
 
 
 irq_common:
+    cli
     pushq %rax
     pushq %rbx
     pushq %rcx
@@ -85,12 +86,14 @@ irq_common:
     popq %rbx
     popq %rax
     add $16, %rsp #pop the num byte and err code
+    sti
     iretq
 
 # basically irq_common, but without rax
 # rax used
 .global _isr128
   _isr128:
+    cli
     pushq %rbx
     pushq %rcx
     pushq %rdx
@@ -107,4 +110,5 @@ irq_common:
     popq %rdx
     popq %rcx
     popq %rbx
+    sti
     iretq
