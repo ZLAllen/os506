@@ -120,7 +120,8 @@ uint64_t sys_pipe(int *pipefd)
 {
 	kprintf("sys pipe.\n");
 	uint64_t ret = syspipe(pipefd);
-	kprintf("sys pipe. returned %d \n", ret);
+	if (ret >= 0)
+		kprintf("sys pipe. returned %d \n", ret);
 	return ret;
 }
 

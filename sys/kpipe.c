@@ -23,7 +23,7 @@ struct file_ops rhead_ops = {
 	.open = 0,
     .read = rhead_read,
     .close = pipe_close,
-	.write = 0,
+	.write = rhead_write,
 	.readdir = pipe_readdir
 };
 
@@ -67,10 +67,11 @@ ssize_t rhead_read(struct file* filep, char* buf, size_t count, off_t* offset)
 }
 
 
-ssize_t rhead_write(struct file *filep, const char *buf, size_t count, off_t *offset) 
+ssize_t rhead_write(struct file *filep, char *buf, size_t count, off_t *offset) 
 {
-    return 0;
+    return -1;//invalid op
 }
+
 
 int pipe_close(struct file* filep)
 {
@@ -87,8 +88,9 @@ int pipe_close(struct file* filep)
 
 ssize_t whead_read(struct file *filep, char *buf, size_t count, off_t *offset) 
 {
-    return -1;
+    return -1;//invalid op
 }
+
 
 ssize_t whead_write(struct file* filep, char* buf, size_t count, off_t* offset)
 {

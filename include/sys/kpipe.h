@@ -8,7 +8,7 @@
 int syspipe(int pipefd[]);
 
 ssize_t rhead_read(struct file* filep, char* buf, size_t size, off_t* offset);
-ssize_t rhead_write(struct file *fp, const char *buf, size_t count, off_t *offset);
+ssize_t rhead_write(struct file *fp, char *buf, size_t count, off_t *offset);
 
 
 ssize_t whead_read(struct file *fp, char *buf, size_t count, off_t *offset);
