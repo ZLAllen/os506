@@ -43,6 +43,20 @@ uint64_t test(uint64_t arg) {
     return ret;
 }
 
+uint64_t test3(uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+
+    uint64_t num = SYS_test3;
+    uint64_t ret;
+    syscallArg3(num, arg1, arg2, arg3);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    return ret;
+}
+
 pid_t fork() {
     uint64_t num = SYS_fork;
     pid_t ret;
@@ -193,6 +207,8 @@ void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
          "movq %1, %%rsi;"
          "movq %2, %%rdx;"
          ::"r" (arg0), "r" (arg1), "r" (arg2)
+         : "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+         
         );
 }
 
