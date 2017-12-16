@@ -20,7 +20,7 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    uint64_t sysReturn2 = test3(50, 60, 70);
+    uint64_t sysReturn2 = 0; //test3(50, 60, 70);
     kprintf("Syscal SYS_test3 with arg 50, 60, 70 returns %d\n", sysReturn2);
     kprintf("Thread 1 going to sleep for 6 seconds!\n");
     sleep(1000);
@@ -156,13 +156,13 @@ void init_thread() {
     schedule(task4,(uint64_t)thread4);
     */
     //schedule(task5);
-	
+
     kprintf("\nelf process\n");
     char *fname = "bin/sbush";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
     task_struct *new_task = create_elf_process(fname, argv);
-    
+   
 
     //cr3_w(new_task->mm->pml4);
 

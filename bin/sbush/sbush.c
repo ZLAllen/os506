@@ -10,12 +10,13 @@ int main(int argc, char *argv[], char *envp[])
   // __asm__ volatile ("movq $60, %rbx");
 
   //__asm__ volatile ("int $0x80");
-
+/*
   test(7000);
   yield(); // lol that'd be too easy...
-
+*/
 
   //test cases
+  /*
   char* msg = "usr/next_hello";
   int fd = open(msg, 0);
   if(fd < 0)
@@ -23,7 +24,7 @@ int main(int argc, char *argv[], char *envp[])
     write(1, "a", 1);
     while(1);
   }
-
+*/
   char a[10];
   if(read(0, a, 10) < 0)
   {
