@@ -15,11 +15,16 @@ int sysopen(char *name, int flags)
 		return -1;
 
 	int fd = get_free_fd(); 
+	if (fd < 0)
+		return -1; //didn't get a valid fd
 
-	//TODO determine the abs path here
+	//TODO determine the abs path here??
 	
 	struct file *filep = tfs_open(name, flags);
-	current->fdarr[fd] = filep;//add it to the list of open files by the process
+	if(!filep)
+		return -1;//failure #TODO there has to be a better way to handle this
+
+	current->fdarr[fd] = filep;//sucess [add it to the list of open files by the process]
 
 	return fd;
 }

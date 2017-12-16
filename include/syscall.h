@@ -6,12 +6,11 @@
 /**
  * Syscall utility functions
  */
-/*
-ssize_t read(int fd, void *buf, size_t size);
-ssize_t write(int fd, const void *buf, size_t size);*/
 
-int close(int fd);
+ssize_t read(unsigned int fd, char *buf, size_t size);
+ssize_t write(unsigned int fd, const char *buf, size_t size);
 int open(const char *file, int flag);
+int close(unsigned int fd);
 
 int chdir(const char *path);
 int pipe(int pipefd[]);
@@ -24,6 +23,7 @@ char *getcwd(char *buf, size_t size);
 
 void yield();
 uint64_t test(uint64_t arg);
+void sleep(uint64_t ms);
 pid_t fork();
 void exit();
 

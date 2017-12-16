@@ -1,4 +1,5 @@
 #define SYS_yield 24
+#define SYS_sleep 35
 #define SYS_test 50
 #define SYS_fork 57
 #define SYS_exit 60
@@ -11,7 +12,7 @@
 #define SYS_open 0x05
 #define SYS_close 0x06
 #define SYS_chdir 0
-#define SYS_pipe 0
+#define SYS_pipe 22
 #define SYS_dup 0
 #define SYS_getcwd 0
 #define SYS_dup2 0

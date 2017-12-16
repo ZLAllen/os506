@@ -3,6 +3,8 @@
 
 #include <sys/defs.h>
 
+uint64_t ms;
+
 void init_ktime();
 
 void addTick();

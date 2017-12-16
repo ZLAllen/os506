@@ -3,12 +3,16 @@
 #include <sys/kprintf.h>
 #include <sys/pging.h>
 #include <sys/gdt.h>
+#include <sys/ktime.h>
 
 task_struct *current;
 task_struct *idle;
 
 /** list of available tasks - schedule() orders this */
 task_struct *available_tasks;
+
+/** current clock ms */
+extern uint64_t ms;
 
 /** pid counter */
 static pid_t pid = 0;
@@ -166,6 +170,7 @@ task_struct *create_new_task(bool userp) {
     new_task->kstack = kmalloc();
 
     new_task->runnable = true;
+    new_task->sleep_time = 0;
 
     // initialize mm_struct
     mm_struct* my_mm = get_mm_struct();
@@ -193,9 +198,13 @@ task_struct *create_new_task(bool userp) {
  */
 task_struct *get_next_task() {
     task_struct *next_struct = available_tasks;
+    uint64_t cur_sleep_time = 0;
 
     // only run runnable tasks
-    while (next_struct && !next_struct->runnable) {
+    while (next_struct && (!next_struct->runnable || (cur_sleep_time = next_struct->sleep_time) > ms)) {
+        if (next_struct->runnable && cur_sleep_time > ms)
+            reschedule(next_struct);
+
         next_struct = next_struct->next;
     }
 

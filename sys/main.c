@@ -85,7 +85,7 @@ void boot(void)
       );
       init_gdt();
       init_idt();
-      //__asm__ volatile("sti");
+      __asm__ volatile("sti");
 
       start(
         (uint32_t*)((char*)(uint64_t)loader_stack[3] + (uint64_t)&kernmem - (uint64_t)&physbase),

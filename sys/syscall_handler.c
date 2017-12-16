@@ -4,6 +4,11 @@
 #include <sys/kprintf.h>
 #include <dirent.h>
 #include <sys/kfs.h>
+#include <sys/ktime.h>
+#include <sys/kpipe.h>
+
+extern uint64_t ms;
+
 
 /**
  * Syscalls definitions
@@ -13,16 +18,24 @@
 /** current process (sys/schedule.c) */
 extern task_struct *current;
 
-uint64_t sys_yield() {
+int64_t sys_yield() {
     run_next_task();
     return 0;
 }
 
-uint64_t sys_test(uint64_t testArg) {
+int64_t sys_test(uint64_t testArg) {
     __asm__ __volatile__(PUSHREGS);
     kprintf("print me. Argument is %d\n", testArg);
     __asm__ __volatile__(POPREGS);
     return 9001;
+}
+
+/**
+ * Sleep process for given number of milliseconds
+ */
+int64_t sys_sleep(uint64_t msec) {
+    current->sleep_time = ms + msec;
+    return 0;
 }
 
 
@@ -32,7 +45,7 @@ uint64_t sys_test(uint64_t testArg) {
  *
  * Do NOT use this directly. Use fork() in syscall.h!
  */
-uint64_t sys_fork() {
+int64_t sys_fork() {
 
     uint64_t parent_rip;
 
@@ -59,30 +72,33 @@ uint64_t sys_fork() {
  * Sets current process to not runnable
  * Process will be removed from available_tasks
  */
-void sys_exit() {
+int64_t sys_exit() {
     current->runnable = false;
     sys_yield();
+    return 0;
 }
 
 
-uint64_t sys_open(char *name, int flags)
+int64_t sys_open(char *name, int flags)
 {
 	kprintf("sys open. file name %s and flags %x\n", name, flags);
 	uint64_t ret = sysopen(name, flags);
-	kprintf("sys open. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys open. returned %d\n", ret);
 	return ret;
 }
 
 
-uint64_t sys_close(int fd)
+int64_t sys_close(int fd)
 {
 	kprintf("sys close. fd %d\n", fd);	
 	uint64_t ret = sysclose(fd);
-	kprintf("sys close. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys close. returned %d\n", ret);
 	return ret;
 }
 
-uint64_t sys_brk(void *addr)
+int64_t sys_brk(void *addr)
 {
 
 	kprintf("sys brk. addr is %x\n", addr);
@@ -92,20 +108,75 @@ uint64_t sys_brk(void *addr)
 }
 
 
-uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
+int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
 	kprintf("sys getdents. fd is %d dirp %x,  %d", fd, dirp, count);
 	uint64_t ret = sysgetdents(fd, dirp, count);	
-	kprintf("sys getdents. returned %d\n", ret);
+	if (ret >= 0)
+		kprintf("sys getdents. returned %d\n", ret);
     return ret;
 }
 
-uint64_t sys_read(unsigned int fd, char *buf, size_t count)
+int64_t sys_read(unsigned int fd, char *buf, size_t count)
 {
+  if(fd < 0 || fd >= MAX_FD)
+  {
+    kprintf("invalid fd\n");
+    return -1;
+  }
+
+  if(count == 0)
+  {
+    return 0;
+  }
+
+  struct file* filep = current->fdarr[fd]; 
+
+  if(!filep) 
+  {
+    kprintf("no such file object for fd %d\n", fd);
+    return -1;
+  }
+
+  size_t nread = filep->fop->read(filep, buf, count, filep->offset); 
+
+  return nread;
+}
+
+int64_t sys_write(unsigned int fd, char *buf, size_t count)
+{
+  if(fd < 0 || fd >= MAX_FD)
+  {
+    kprintf("invalid fd\n");
+    return -1;
+  }
+
+  if(count == 0)
+  {
+    return 0;
+  }
+
+  struct file* filep = current->fdarr[fd]; 
+
+  if(!filep) 
+  {
+    kprintf("no such file object for fd %d\n", fd);
+    return -1;
+  }
+
+  size_t nwrite = filep->fop->write(filep, buf, count, filep->offset); 
+
+  return nwrite;
+}
 
 
-
-
+int64_t sys_pipe(int *pipefd)
+{
+	kprintf("sys pipe.\n");
+	uint64_t ret = syspipe(pipefd);
+	if (ret >= 0)
+		kprintf("sys pipe. returned %d \n", ret);
+	return ret;
 }
 
 
@@ -117,21 +188,17 @@ uint64_t sys_read(unsigned int fd, char *buf, size_t count)
  */
 functionWithArg syscalls[] = {
     [SYS_yield] {0, sys_yield}, // 24
+    [SYS_sleep] {1, sys_sleep}, // 35
     [SYS_fork] {0, sys_fork}, // 57
     [SYS_test] {1, sys_test}, // 50
     [SYS_exit] {0, sys_exit}, // 60
-<<<<<<< HEAD
     [SYS_getdents] {3, sys_getdents}, // 78
     [SYS_open] {2, sys_open},
-    [SYS_close] {3, sys_close},
+    [SYS_close] {1, sys_close},
     [SYS_read] {3, sys_read},
-    [SYS_write] {3, sys_write}
-=======
-	[SYS_open] {2, sys_open},//2
-    [SYS_getdents] {3, sys_getdents}, // 78
+    [SYS_write] {3, sys_write},
 	[SYS_brk] {1, sys_brk},//12
-	[SYS_close] {1, sys_close}//3
->>>>>>> c787d39d5d78076ea9d52bcc14bd9ed95599ee77
+	[SYS_pipe] {1, sys_pipe} //22
 };
 
 /**
