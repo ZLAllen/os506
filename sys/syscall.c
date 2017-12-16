@@ -68,7 +68,7 @@ void exit() {
     yield();
 }
 
-int close(int fd){
+int close(unsigned int fd){
 
     uint64_t num = SYS_close;
     int ret;
@@ -96,81 +96,76 @@ void *brk(void* addr){
             );
 
     return ret;
-
-    int close(unsigned int fd)
-    {
-        return 0;
-    }
+}
 
 
+int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
-    int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
+    uint64_t num = SYS_getdents;
+    int ret;
 
-        uint64_t num = SYS_getdents;
-        int ret;
+    syscallArg3(num, (uint64_t)fd,(uint64_t)d, (uint64_t)count);
 
-        syscallArg3(num, (uint64_t)fd,(uint64_t)d, (uint64_t)count);
-
-        __asm volatile("int $0x80"
-                :"=r"(ret)
-                ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" 
-                );
-
-        return ret;
-    }
-
-
-    int open(const char *file, int flags) {
-
-        uint64_t num = SYS_open;
-        uint64_t ret;
-
-        syscallArg2(num, (uint64_t)file, (uint64_t)flags);
-
-        __asm__ volatile ("int $0x80"
-                :"=r" (ret)
-                :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-                ); 
-
-        return ret;
-    }
-
-
-
-    void syscallArg0(uint64_t num) {
-        __asm__ __volatile__
-            ("movq %0, %%rax" :: "r" (num));
-    }
-
-    void syscallArg1(uint64_t num, uint64_t arg0) {
-        __asm__ __volatile__
-            ("movq %0, %%rax" :: "r" (num));
-        __asm__ __volatile__
-            ("movq %0, %%rbx" ::"r" (arg0));
-    }
-
-    void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
-        __asm__ __volatile__
-            ("movq %0, %%rax" :: "r" (num));
-        __asm__ __volatile__
-            ("movq %0, %%rbx;" 
-             "movq %1, %%rcx;"
-             ::"r" (arg0), "r" (arg1)
+    __asm volatile("int $0x80"
+            :"=r"(ret)
+            ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" 
             );
-    }
 
-    void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
-        __asm__ __volatile__
-            ("movq %0, %%rax" :: "r" (num));
-        __asm__ __volatile__
-            ("movq %0, %%rbx;" 
-             "movq %1, %%rcx;"
-             "movq %2, %%rdx;"
-             ::"r" (arg0), "r" (arg1), "r" (arg2)
-            );
-    }
+    return ret;
+}
 
-    void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-    }
-    void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
-    }
+
+int open(const char *file, int flags) {
+
+    uint64_t num = SYS_open;
+    uint64_t ret;
+
+    syscallArg2(num, (uint64_t)file, (uint64_t)flags);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    return ret;
+}
+
+
+
+void syscallArg0(uint64_t num) {
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+}
+
+void syscallArg1(uint64_t num, uint64_t arg0) {
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+    __asm__ __volatile__
+        ("movq %0, %%rbx" ::"r" (arg0));
+}
+
+void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+    __asm__ __volatile__
+        ("movq %0, %%rbx;" 
+         "movq %1, %%rcx;"
+         ::"r" (arg0), "r" (arg1)
+        );
+}
+
+void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+    __asm__ __volatile__
+        ("movq %0, %%rbx;" 
+         "movq %1, %%rcx;"
+         "movq %2, %%rdx;"
+         ::"r" (arg0), "r" (arg1), "r" (arg2)
+        );
+}
+
+void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+}
+void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
+}
