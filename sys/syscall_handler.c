@@ -156,8 +156,6 @@ int64_t sys_write(unsigned int fd, char *buf, size_t count)
     return 0;
   }
 
-  kprintf("fd : %d\n", fd);
-  while(1);
 
   struct file* filep = current->fdarr[fd]; 
 
@@ -225,7 +223,7 @@ void syscall_handler(void) {
     __asm__ __volatile__(
             "movq %%rax, %0;"
             :"=r" (num)
-            ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
+            ::"%r8", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
             );
 
     __asm__ __volatile__(PUSHREGS);
@@ -234,12 +232,13 @@ void syscall_handler(void) {
 
     // read arguments from registers
     __asm__ __volatile__(
-            "movq %%rbx, %0;"
-            "movq %%rcx, %1;"
+            "movq %%rdi, %0;"
+            "movq %%rsi, %1;"
             "movq %%rdx, %2;"
-            "movq %%rsi, %3;"
-            "movq %%rdi, %4;"
+            "movq %%rcx, %3;"
+            "movq %%r8, %4;"
             :"=r" (arg0), "=r" (arg1), "=r" (arg2), "=r" (arg3), "=r" (arg4)
+            ::"rdi", "rsi", "rdx", "rcx", "r8"
             );
 
     // get function associated with syscall

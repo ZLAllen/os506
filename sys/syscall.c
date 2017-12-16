@@ -156,7 +156,7 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
 
     __asm__ volatile ("int $0x80"
             :"=r" (ret)
-            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            :: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
             ); 
 
     return ret;
@@ -172,15 +172,15 @@ void syscallArg1(uint64_t num, uint64_t arg0) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));
     __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0));
+        ("movq %0, %%rdi" ::"r" (arg0));
 }
 
 void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));
     __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
+        ("movq %0, %%rdi;" 
+         "movq %1, %%rsi;"
          ::"r" (arg0), "r" (arg1)
         );
 }
@@ -189,8 +189,8 @@ void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));
     __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
+        ("movq %0, %%rdi;" 
+         "movq %1, %%rsi;"
          "movq %2, %%rdx;"
          ::"r" (arg0), "r" (arg1), "r" (arg2)
         );

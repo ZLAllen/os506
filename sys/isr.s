@@ -98,7 +98,6 @@ irq_common:
     pushq %rdi
     pushq %rbp
     pushq %rsp
-    movq %rsp, %rdi
     call syscall_handler
     popq %rsp
     popq %rbp

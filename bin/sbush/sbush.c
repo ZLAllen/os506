@@ -19,7 +19,7 @@ int main(int argc, char *argv[], char *envp[])
 
   char* a = "Hello";
   write(1, a, 5); 
-
+  while(1);
   
 
        
