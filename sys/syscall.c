@@ -108,7 +108,7 @@ int close(unsigned int fd){
 
     __asm__ volatile("int $0x80"
             : "=r"(ret)
-            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            :: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
             );
     return ret;
 }
@@ -144,7 +144,6 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
     return ret;
 }
 
-
 int open(const char *file, int flags) {
 
     uint64_t num = SYS_open;
@@ -154,7 +153,24 @@ int open(const char *file, int flags) {
 
     __asm__ volatile ("int $0x80"
             :"=r" (ret)
-            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            :: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    return ret;
+}
+
+ssize_t read(unsigned int fd, char* buf, size_t size){
+
+
+    uint64_t num = SYS_read;
+    uint64_t ret;
+
+    while(1);
+    syscallArg3(num, (uint64_t)fd, (uint64_t)buf, (uint64_t)size);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
             ); 
 
     return ret;

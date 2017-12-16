@@ -17,7 +17,7 @@ int term_close(struct file*); // return close status
 ssize_t term_read(struct file*, char*, size_t, off_t*); // return num of bytes read
 ssize_t term_write(struct file*, char*, size_t, off_t*); // return num of bytes written
 int term_readdir(struct file*, void*, unsigned int); // return error 
-
+struct file* term_open1(const char* path, int flag);
 int term_putchar(char a); // called by keyboard interrupt to place a character inside term_buf
 
 // defines

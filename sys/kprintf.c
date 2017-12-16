@@ -35,7 +35,7 @@ terminal term = {
 }; // dont know why I have to use designated assignment, stupid compiler 
 
 struct file_ops term_op = {
-  .open = 0, // open doesn't make sense to me, just call it from terminal.c
+  .open = term_open1, // open doesn't make sense to me, just call it from terminal.c
   .close = term_close,
   .read = term_read,
   .write = term_write,
@@ -66,6 +66,13 @@ static void updatecsr();
 static int term_pop(); //pop the first character available, return 0 at delim
 static void term_push(const char a); //push a character into the term_buf, called by term_putchar, which is used during keyboard interrupt
 static void term_poplast();
+
+
+struct file* term_open1(const char* path, int flag)
+{
+  kprintf("terminal cannot be created by open\n");
+  return 0;
+}
 
 
 struct file* term_open(const char* path, int flag)
@@ -129,6 +136,9 @@ ssize_t term_read(struct file* fp, char* buf, size_t size, off_t* offset)
 
   if(size == 0)
     return 0;
+
+  // if nothing to pop, wait here
+  while(term.count == 0);
 
   int count = 0;
   while(count <= size)

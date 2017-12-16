@@ -16,9 +16,32 @@ int main(int argc, char *argv[], char *envp[])
 
 
   //test cases
+  char* msg = "usr/next_hello";
+  int fd = open(msg, 0);
+  if(fd < 0)
+  {
+    write(1, "a", 1);
+    while(1);
+  }
 
-  char* a = "Hello";
-  write(1, a, 5); 
+  char a[10];
+  if(read(fd, a, 10) < 0)
+  {
+    write(1, "b", 1);
+    while(1);
+  }
+  if(write(1, a, 5) < 0)
+  {
+  } 
+  if(read(fd, a, 10) < 0)
+  {
+    write(1, "b", 1);
+    while(1);
+  }
+  if(write(1, a, 5) < 0)
+  {
+  } 
+  while(1);
   
 
        

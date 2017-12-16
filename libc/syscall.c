@@ -35,14 +35,12 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
 
 int open(const char *file, int flags) {
 
-	uint64_t num = SYS_open;
 	uint64_t ret;
 
-	syscallArg2(num, (uint64_t)file, (uint64_t)flags);
 
 	__asm__ volatile ("int $0x80"
 		:"=r" (ret)
-		:: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    : "0"(SYS_open), "D"(file), "S"(flags)
 	);
 
 	return ret;
