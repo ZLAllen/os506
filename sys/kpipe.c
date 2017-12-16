@@ -8,7 +8,7 @@
 
 #define PIPEBUF_SIZE 2048
 
-//work in progress: do the read and write end interact or depend on each other??
+//work in progress: this is non blocking!!!
 
 struct pipe_buf
 {
@@ -48,14 +48,17 @@ ssize_t rhead_read(struct file* filep, char* buf, size_t count, off_t* offset)
 		return 0;
 	
 	struct pipe_buf *pipe = (struct pipe_buf *)filep->data;
+	
+	if(!pipe)
+		return -1;//pipe object is NULL
 
 	if(pipe->start == pipe->end && !pipe->full)
 	{
-		return -1; //empty nothing to read
+		return 0; //empty pipe nothing to read
 	}
 
 	ssize_t nread = 0;
-	while(nread <= count)
+	while(nread <= count && pipe->start != pipe->end)//TODO check this cond
 	{
 		nread ++;
 		*buf++ = pipe->buf[pipe->start]; //read into the buffer
@@ -75,9 +78,12 @@ ssize_t rhead_write(struct file *filep, char *buf, size_t count, off_t *offset)
 
 int pipe_close(struct file* filep)
 {
+	if(!filep)
+		return -1;
+
 	filep->count--;
 	
-	if(filep->count ==0)
+	if(filep->count == 0)
 	{
 		kfree(filep);
 	}
@@ -100,11 +106,15 @@ ssize_t whead_write(struct file* filep, char* buf, size_t count, off_t* offset)
   	}
 
 	struct pipe_buf *pipe = (struct pipe_buf *)filep->data;
+		
+	if(!pipe)
+		return -1;//pipe object is NULL
+
 	int nwrite = 0;
-	while(nwrite <= count)
+	while(nwrite <= count && pipe->start != pipe->end)//TODO check this cond
 	{
 		nwrite ++;
-		pipe->buf[pipe->end] = (unsigned char)*buf++;
+		pipe->buf[pipe->end] = *buf++;
 		pipe->end = (pipe->end + 1) % PIPEBUF_SIZE;//move and wrap around if needed
 	}
 
@@ -123,7 +133,8 @@ int syspipe(int pipefd[])
 {
 	
 	if (!pipefd)
-		panic("pipfd is NULL");
+		panic("pipefd is NULL");
+		return -1;
 
 	int rfd = get_free_fd(); //next fd in fdarr
 	int wfd = get_free_fd();
@@ -134,6 +145,7 @@ int syspipe(int pipefd[])
 	struct pipe_buf *buf = kmalloc();
 	if(!buf)
 		panic("kmalloc failed for pipe buf");
+		return -1;
 
 	//init buffer
 	memset(buf, 0, sizeof(struct pipe_buf));
@@ -141,6 +153,8 @@ int syspipe(int pipefd[])
 	struct file *rhead = kmalloc();
 	if(!rhead)
 		panic("kmalloc failed for pipe read head");
+		return -1;
+
 
 	struct file *whead = kmalloc();
 	if(!whead)
