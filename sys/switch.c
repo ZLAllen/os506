@@ -20,9 +20,8 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    sleep(5000);
-
-    while(1);
+    kprintf("Thread 1 going to sleep for 6 seconds!\n");
+    sleep(1000);
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
@@ -36,6 +35,8 @@ void thread1()
         exit();
     } else {
         kprintf("Parent\n");
+        kprintf("Thread 1 going to sleep for 15 seconds!\n");
+        sleep(15000);
         x++;
         kprintf("Back in thread 1. Variable is %d.\n", x);
         yield();

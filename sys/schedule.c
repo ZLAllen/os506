@@ -201,6 +201,7 @@ task_struct *get_next_task() {
     uint64_t cur_sleep_time = 0;
 
     // only run runnable tasks
+    // TODO - this does not work well
     while (next_struct && (!next_struct->runnable || (cur_sleep_time = next_struct->sleep_time) > ms)) {
         if (next_struct->runnable && cur_sleep_time > ms)
             reschedule(next_struct);
@@ -221,6 +222,7 @@ task_struct *get_next_task() {
  * Run the next available runnable task
  */
 void run_next_task() {
+    __asm__ __volatile__("sti;");
     task_struct *prev = current;
     current = get_next_task();
     switch_to(prev, current);
