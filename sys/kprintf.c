@@ -68,7 +68,7 @@ static void term_push(const char a); //push a character into the term_buf, calle
 static void term_poplast();
 
 
-struct file* term_open(const char* path, int mode)
+struct file* term_open(const char* path, int flag)
 {
   // increment terminal file object reference count then return pointer to the
   // object

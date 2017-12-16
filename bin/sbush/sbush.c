@@ -6,28 +6,34 @@
 
 int main(int argc, char *argv[], char *envp[])
 {
-   __asm__ volatile ("movq $50, %rax");
-   __asm__ volatile ("movq $60, %rbx");
+  // __asm__ volatile ("movq $50, %rax");
+  // __asm__ volatile ("movq $60, %rbx");
 
-  __asm__ volatile ("int $0x80");
+  //__asm__ volatile ("int $0x80");
 
-  test(7000);
+  //test(7000);
   //yield(); // lol that'd be too easy...
 
 
   //test cases
 
+  char* a = "Hello";
+  write(1, a, 5); 
+
+  
 
        
   //printf("WILL START TESTING\n");
   
-  struct dstream *dirp;
+  //struct dstream *dirp;
   //struct linux_dirent *drent;
-  char *path = "hello";
+  //char *path = "usr/next_hello";
+  //
+  
    
   
   //printf("start openddir\n");  
-  dirp = opendir(path); 
+ // dirp = opendir(path); 
   //printf("done opendir\n");
 
     
@@ -42,7 +48,7 @@ int main(int argc, char *argv[], char *envp[])
   //printf("done readdir\n");
   */
   //printf("start closedir");
-  closedir(dirp);
+ // closedir(dirp);
   //printf("done closedir");
 
   /*

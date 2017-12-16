@@ -146,8 +146,8 @@ void init_thread() {
     schedule(task1, (uint64_t) thread1);
     schedule(task2,(uint64_t)thread2);
 
-    run_next_task();
-    while(1);
+   // run_next_task();
+   // while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
@@ -161,7 +161,7 @@ void init_thread() {
     task_struct *new_task = create_elf_process(fname, argv);
     
 
-    cr3_w(new_task->mm->pml4);
+    //cr3_w(new_task->mm->pml4);
 
     //uint64_t* ret = 0;
     //schedule(new_task, (uint64_t) thread1);
@@ -207,7 +207,6 @@ void init_thread() {
 
     uint64_t entry = new_task->mm->entry;
   set_tss_rsp((void*)&new_task->kstack[KSTACK_SIZE-1]);
-
 
    __asm__ volatile("cli");
         __asm__ __volatile__(

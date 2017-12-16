@@ -146,6 +146,21 @@ int open(const char *file, int flags) {
     return ret;
 }
 
+ssize_t write(unsigned int fd, const char* buf, size_t size){
+
+
+    uint64_t num = SYS_write;
+    uint64_t ret;
+
+    syscallArg3(num, (uint64_t)fd, (uint64_t)buf, (uint64_t)size);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    return ret;
+}
 
 
 void syscallArg0(uint64_t num) {

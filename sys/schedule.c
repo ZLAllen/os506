@@ -178,6 +178,11 @@ task_struct *create_new_task(bool userp) {
 
     new_task->mm = my_mm;
 
+    new_task->fdarr[0] = term_open(0, 0); 
+    new_task->fdarr[1] = term_open(0, 0); 
+    new_task->fdarr[2] = term_open(0, 0);
+
+
     // task rsp
     // here we initialize a few things assuming a kthread
     // for user tasks, see schedule_new()

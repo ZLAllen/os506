@@ -354,8 +354,8 @@ typedef volatile struct {
 /*type def mature */
 void probe_port(hba_mem_t* abar);
 void port_rebase(hba_port_t* port, int portno);
-int read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
-int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
+int ahci_read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
+int ahci_write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf);
 void ahciTest();
 
 #endif

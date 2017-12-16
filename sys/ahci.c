@@ -9,7 +9,7 @@ static void start_cmd(hba_port_t* port);
 static void stop_cmd(hba_port_t* port);
 static int find_cmdslot(hba_port_t* port);
 
-int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf)
+int ahci_write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf)
 {
 
     port->is_rwc = (int)-1;
@@ -118,7 +118,7 @@ int write(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, ui
 }
 
 
-int read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf)
+int ahci_read(hba_port_t* port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t buf)
 {
     port->is_rwc = 0xFFFFFFFF;
     uint32_t spin = 0;
@@ -466,14 +466,14 @@ void ahciTest()
     for(k = 0; k < 100; ++k)
     {
         memset(buf1, k, 4*1024);
-        if(!write(&abar->ports[0],8*k,0,8,(uint64_t)buf1))
+        if(!ahci_write(&abar->ports[0],8*k,0,8,(uint64_t)buf1))
             kprintf("Write data failed\n");
     }
 
     for(k = 0; k < 100; ++k)
     {
         memset(buf2, 0, 4*1024);
-        if(!read(&abar->ports[0],8*k,0, 8, (uint64_t)buf2))
+        if(!ahci_read(&abar->ports[0],8*k,0, 8, (uint64_t)buf2))
             kprintf("Read data failed\n");
 
 

@@ -71,12 +71,12 @@ struct file *tfs_open(const char *fpath, int flags)
 			if (root == 0)
 			{
 				if (hdr->typeflag[0] == TFS_DIR) //directory points to the next
-            		*(filep->offset) = (uint64_t)get_tfs_next(hdr);
+            		filep->offset = (off_t*)get_tfs_next(hdr);
 				else
-					*(filep->offset) = 0;//file points to nothing
+					filep->offset = 0;//file points to nothing
 			}
 			else
-				*(filep->offset) = (uint64_t)hdr;//root points to the first hdr
+				filep->offset = (off_t*)hdr;//root points to the first hdr
            
             filep->count = 1;
             filep->size = oct_to_bin(hdr->size, sizeof(hdr->size));
@@ -178,7 +178,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 		//kprintf("ROOT dir");
 		is_root = 1;
 	}
-	struct posix_header_ustar *next_hdr = (struct posix_header_ustar *)(*(filep->offset));//get the offset- first dstream
+	struct posix_header_ustar *next_hdr = (struct posix_header_ustar *)(filep->offset);//get the offset- first dstream
 	
 	while(next_hdr != NULL) //desired dirent struct
 	{
@@ -199,7 +199,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 		unsigned int size = (unsigned int) ((size_t)&(((struct linux_dirent *)0)->d_name) + kstrlen(dname));
 		if(size < count)
 		{
-			*(filep->offset) = (uint64_t) next_hdr;//no more
+			filep->offset = (off_t*) next_hdr;//no more
 			return -1;
 		}
 		
@@ -207,7 +207,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 		struct linux_dirent *drent = buff;//buff holds the dirent struct
 		set_dirent(drent, next_hdr, dname, (unsigned short)size);
 
-		*(filep->offset) = (uint64_t) get_tfs_next(next_hdr);//go to next one
+		filep->offset = (off_t*) get_tfs_next(next_hdr);//go to next one
 
 		next_hdr = get_tfs_next(next_hdr);
 		return size;

@@ -156,6 +156,9 @@ int64_t sys_write(unsigned int fd, char *buf, size_t count)
     return 0;
   }
 
+  kprintf("fd : %d\n", fd);
+  while(1);
+
   struct file* filep = current->fdarr[fd]; 
 
   if(!filep) 

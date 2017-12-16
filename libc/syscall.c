@@ -12,7 +12,7 @@ ssize_t read(unsigned int fd, char* buf, size_t size){
 
     __asm
         (
-         "syscall"
+         "int $0x80"
          : "=a" (ret)
          : "0"(SYS_read), "D"(fd), "S"(buf), "d"(size)
          : "cc", "rcx", "r11", "memory"
@@ -24,7 +24,7 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
     int ret;
     __asm
         (
-         "syscall"
+         "int $0x80"
          : "=a" (ret)
          : "0"(SYS_write), "D"(fd), "S"(buf), "d"(size)
          : "cc", "rcx", "r11", "memory"
