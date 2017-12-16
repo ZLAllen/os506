@@ -5,8 +5,10 @@
 #include <dirent.h>
 #include <sys/kfs.h>
 #include <sys/ktime.h>
+#include <sys/kpipe.h>
 
 extern uint64_t ms;
+
 
 /**
  * Syscalls definitions
@@ -114,6 +116,14 @@ uint64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int c
     return ret;
 }
 
+uint64_t sys_pipe(int *pipefd)
+{
+	kprintf("sys pipe.\n");
+	uint64_t ret = syspipe(pipefd);
+	kprintf("sys pipe. returned %d \n", ret);
+	return ret;
+}
+
 
 /**
  * Supported syscalls
@@ -131,7 +141,7 @@ functionWithArg syscalls[] = {
     [SYS_getdents] {3, sys_getdents}, // 78
 	[SYS_brk] {1, sys_brk},//12
 	[SYS_close] {1, sys_close},//3
-    [SYS_getdents] {3, sys_getdents} // 78
+	[SYS_pipe] {1, sys_pipe} //22
 };
 
 /**

@@ -21,28 +21,28 @@ int main(int argc, char *argv[], char *envp[])
        
   //printf("WILL START TESTING\n");
   
-  //struct dstream *dirp;
+  struct dstream *dirp;
   //struct linux_dirent *drent;
   char *path = "hello";
    
   
   //printf("start openddir\n");  
-  opendir(path); 
+  dirp = opendir(path); 
   //printf("done opendir\n");
 
     
   //printf("start readdir\n");
-  /*
+  /*  
   int num = 0;
   while((drent = readdir(dirp)) != NULL) 
   {
 	//printf("reading file: %s\n", drent->d_name);
 	num ++;
-  }*/
+  }
   //printf("done readdir\n");
-  
+  */
   //printf("start closedir");
-  //closedir(dirp);
+  closedir(dirp);
   //printf("done closedir");
 
   /*

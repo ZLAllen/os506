@@ -3,13 +3,16 @@
 #include <sys/system.h>
 #include <sys/stdarg.h>
 #include <sys/kmalloc.h>
+#include <sys/schedule.h>
+
 
 #define PIPEBUF_SIZE 2048
 
+//work in progress: do the read and write end interact or depend on each other??
 
 struct pipe_buf
 {
-	int start;//rad head
+	int start;//read head
 	int end;//write head
 	char full;//full indicator
 	char buf[PIPEBUF_SIZE];//holds data
@@ -111,4 +114,55 @@ ssize_t whead_write(struct file* filep, char* buf, size_t count, off_t* offset)
 int pipe_readdir(struct file* filep, void* buf, unsigned int count)
 {
   return -1; // this is an illegal operation
-} 
+}
+
+
+int syspipe(int pipefd[])
+{
+	
+	if (!pipefd)
+		panic("pipfd is NULL");
+
+	int rfd = get_free_fd(); //next fd in fdarr
+	int wfd = get_free_fd();
+
+	if(rfd < 0 || wfd < 0)
+		return -1;
+
+	struct pipe_buf *buf = kmalloc();
+	if(!buf)
+		panic("kmalloc failed for pipe buf");
+
+	//init buffer
+	memset(buf, 0, sizeof(struct pipe_buf));
+
+	struct file *rhead = kmalloc();
+	if(!rhead)
+		panic("kmalloc failed for pipe read head");
+
+	struct file *whead = kmalloc();
+	if(!whead)
+		panic("kmaloc failed for pip write head");
+
+	//init read head
+	rhead->fop = &rhead_ops;
+    rhead->count = 1;
+    rhead->flags = rhead->offset = rhead->size = 0;
+	
+	//init write head
+	whead->fop = &whead_ops;
+    whead->count = 1;
+    whead->flags = whead->offset = whead->size = 0;
+    
+	//point to the same buffer??
+	rhead->data = whead->data = buf;
+	
+	current->fdarr[rfd] = rhead;
+	current->fdarr[wfd] = whead;
+
+	pipefd[0] = rfd;
+	pipefd[1] = wfd;
+
+	return 0; //success
+}
+

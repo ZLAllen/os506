@@ -18,9 +18,11 @@ struct dstream *opendir(const char *name)
 
     if(fd < 0)//fd boundary check; doing MAX check elsewhere
         return NULL;
+	
+	//while(1);	
 
-    while(1);	
     dirp = malloc(sizeof(*dirp));
+	//while(1);
     if(!dirp)
         return NULL;
 
@@ -42,7 +44,7 @@ struct linux_dirent *readdir(struct dstream *dirp)
     if(!dirp)
         return NULL;
 
-    while(1);
+    //while(1);
     int size = getdents((unsigned int) dirp->fd, (struct linux_dirent*) dirp->buff, (unsigned int) sizeof(dirp->buff));
 
     if (size <= 0) 

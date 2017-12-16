@@ -68,10 +68,27 @@ void exit() {
     yield();
 }
 
+
+int pipe(int pipefd[]) {
+	
+	uint64_t num = SYS_pipe;
+	int ret;
+
+	syscallArg1(num, (uint64_t)pipefd);
+
+	__asm__ volatile("int $0x80"
+			:"=r"(ret)
+			:: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+			);
+
+	return ret;
+}
+
+
 int close(unsigned int fd){
 
     uint64_t num = SYS_close;
-    int ret;
+	int ret;
 
     syscallArg1(num, (uint64_t) fd);
 

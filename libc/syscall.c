@@ -78,13 +78,15 @@ int chdir(const char* path){
 }
 
 int pipe(int pipefd[]) {
+
+	uint64_t num = SYS_pipe;
     int ret;
 
-    __asm
-        ("syscall"
-         :"=a"(ret)
-         :"0"(SYS_pipe), "D"(pipefd)
-         :"cc", "rcx", "r11"
+	syscallArg1(num, (uint64_t)pipefd);
+
+    __asm__ volatile("int $0x80"
+         :"=r"(ret)
+         :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
         );
     return ret;
 
