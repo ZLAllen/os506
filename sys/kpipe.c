@@ -81,10 +81,11 @@ int pipe_close(struct file* filep)
 	if(!filep)
 		return -1;
 
-	filep->count--;
-	
+	filep->count--;	
+
 	if(filep->count == 0)
 	{
+		filep->data = NULL;
 		kfree(filep);
 	}
 
@@ -133,7 +134,7 @@ int syspipe(int pipefd[])
 {
 	
 	if (!pipefd)
-		panic("pipefd is NULL");
+		panic("pipefd is NULL\n");
 		return -1;
 
 	int rfd = get_free_fd(); //next fd in fdarr
@@ -144,7 +145,7 @@ int syspipe(int pipefd[])
 
 	struct pipe_buf *buf = kmalloc();
 	if(!buf)
-		panic("kmalloc failed for pipe buf");
+		panic("kmalloc failed for pipe buf\n");
 		return -1;
 
 	//init buffer
@@ -152,13 +153,13 @@ int syspipe(int pipefd[])
 
 	struct file *rhead = kmalloc();
 	if(!rhead)
-		panic("kmalloc failed for pipe read head");
+		panic("kmalloc failed for pipe read head\n");
 		return -1;
 
 
 	struct file *whead = kmalloc();
 	if(!whead)
-		panic("kmaloc failed for pip write head");
+		panic("kmalloc failed for pipe write head\n");
 
 	//init read head
 	rhead->fop = &rhead_ops;
