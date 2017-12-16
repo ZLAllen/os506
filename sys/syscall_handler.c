@@ -138,8 +138,19 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
     return -1;
   }
 
-  size_t nread = filep->fop->read(filep, buf, count, filep->offset); 
+  if(!buf)
+  {
+    kprintf("buffer invalid\n");
+    return -1;
+  }
 
+  ssize_t nread;
+  while((nread = filep->fop->read(filep, buf, count, filep->offset)) < 0)
+  {
+    sys_yield();
+  } 
+
+  kprintf("going back\n");
   return nread;
 }
 

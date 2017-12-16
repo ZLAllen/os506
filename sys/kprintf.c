@@ -2,6 +2,7 @@
 #include <sys/stdarg.h>
 #include <sys/kprintf.h>
 #include <sys/files.h>
+#include <sys/syscall_handler.h>
 
 #define WIDTH 80
 #define HEIGHT 24
@@ -129,17 +130,13 @@ static int term_pop()
  */
 ssize_t term_read(struct file* fp, char* buf, size_t size, off_t* offset)
 {
-  if(!fp || !buf) // if file object and buf not valid
-  {
-    return -1; // setting error code later
-  }
-
   if(size == 0)
     return 0;
 
-  // if nothing to pop, wait here
-  while(term.count == 0);
-
+  if(term.count == 0)
+  {
+    return -1;
+  }
   int count = 0;
   while(count <= size)
   {
@@ -202,11 +199,6 @@ int term_putchar(char a)
 
     term_poplast();
     // check echo 
-    if(term.echo)
-    {
-      //reflect this on display
-      kputchar('\b');
-    }
   }
 
   // reject inputs upon full

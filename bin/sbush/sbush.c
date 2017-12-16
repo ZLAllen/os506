@@ -25,23 +25,15 @@ int main(int argc, char *argv[], char *envp[])
   }
 
   char a[10];
-  if(read(fd, a, 10) < 0)
+  if(read(0, a, 10) < 0)
   {
     write(1, "b", 1);
     while(1);
   }
-  if(write(1, a, 5) < 0)
+
+  if(write(1, a, 10) < 0)
   {
   } 
-  if(read(fd, a, 10) < 0)
-  {
-    write(1, "b", 1);
-    while(1);
-  }
-  if(write(1, a, 5) < 0)
-  {
-  } 
-  while(1);
   
 
        
