@@ -19,7 +19,7 @@ uint32_t* loader_stack;
 extern char kernmem, physbase;
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
-{
+{   
 
     clr();
 

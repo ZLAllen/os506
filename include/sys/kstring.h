@@ -5,4 +5,5 @@
 int kstrlen(const char *str);
 
 
+
 #endif

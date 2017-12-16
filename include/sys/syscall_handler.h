@@ -1,4 +1,3 @@
-//got error so adding these lines
 #ifndef _SYSCALLS_H
 #define _SYSCALLS_H
 
@@ -13,7 +12,10 @@
 uint64_t sys_test(uint64_t testArg);
 uint64_t sys_fork();
 uint64_t sys_exit();
-uint64_t sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);
+
+uint64_t sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);//convert ars to uint64_t inside code
+uint64_t sys_open(char *name, int flags);
+uint64_t sys_brk(void *addr);
 
 
 // syscall handler

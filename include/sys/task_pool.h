@@ -14,6 +14,8 @@ enum vma_perm{X, RW};
 #include <sys/files.h>
 #include <dirent.h> //??is it right
 
+
+
 // process struct
 typedef struct task_struct {
     pid_t pid; // unique process ID, starting at 0
@@ -76,5 +78,9 @@ void release_file_struct(struct file* ptr);
 void release_dirent_struct(struct linux_dirent* ptr);
 
 extern task_struct *current;
+
+int get_free_fd();
+
+uint64_t sysbrk(struct mm_struct *mm, uint64_t nbrk);	 
 
 #endif

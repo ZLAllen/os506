@@ -42,6 +42,7 @@ struct task_struct *create_elf_process(char *fname, char *argv[])
         kprintf("\nfile object not valid\n");
         return NULL;
     }
+	kprintf("calling elf loader\n");
     struct task_struct *newtask = load_elf(ehdr, argv);
 	kprintf("task scheduled\n");
     return newtask;

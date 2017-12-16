@@ -2,6 +2,7 @@
 #define SYS_test 50
 #define SYS_fork 57
 #define SYS_exit 60
+
 #define SYS_getdents 78
 
 // TODO
@@ -15,5 +16,5 @@
 #define SYS_getcwd 0
 #define SYS_dup2 0
 #define SYS_wait4 0
-#define SYS_brk 0
+#define SYS_brk 12
 #define SYS_execve 0

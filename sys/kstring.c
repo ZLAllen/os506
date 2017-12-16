@@ -8,3 +8,5 @@ int kstrlen(const char *str)
         length++;
     return length;
 }
+
+

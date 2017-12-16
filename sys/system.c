@@ -75,6 +75,20 @@ void *memcpy(const void *src, void *dst, uint count)
 	return dst;
 }
 
+
+void *memchr(const void *str, int ch, uint count)
+{
+	const unsigned char *p = str;
+	while (count-- != 0)
+	{
+		if ((unsigned char)ch == *p++)
+		{
+			return (void *)(p - 1);
+		}
+	}
+	return NULL;
+}
+
 /******************* IO functions ************************/
 
 
@@ -106,4 +120,5 @@ uint32_t in32(uint32_t port)
 
 
 /*********** Registers **************/
+
 
