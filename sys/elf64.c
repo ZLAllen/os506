@@ -29,12 +29,20 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[]);
 struct vma_struct *set_vma(uint64_t s_addr, uint64_t e_addr, uint64_t type, uint64_t flag);
 struct vma_struct *traverse_vmas(struct vma_struct *ptr);
 
+static char arg_buf[MAX_ARG][MAX_ARG_LEN];
+static char env_buf[MAX_ENV][MAX_ENV_LEN];
 
 
 struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
 {
 	struct file *filep = tfs_open(fname, O_RDONLY);
-	kprintf("file object created");
+	
+	if(!filep)
+	{
+		kprintf("file object could not be created\n");
+		return NULL;
+	}
+	
 	Elf64_Ehdr *ehdr = get_ehdr(filep);
 	int valid = validate_ehdr(ehdr);
 	if (valid != 0)
@@ -42,9 +50,9 @@ struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
 		kprintf("\nfile object not valid\n");
 		return NULL;
 	}
-	kprintf("calling elf loader\n");
+	//kprintf("calling elf loader\n");
 	struct task_struct *newtask = load_elf(ehdr, argv, envp);
-	kprintf("task scheduled\n");
+	//kprintf("task scheduled\n");
 	return newtask;
 }
 
@@ -76,27 +84,29 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			s_vaddr = phdr->p_vaddr;
 			size = phdr->p_memsz;
 			e_vaddr = s_vaddr + size;
-			kprintf("vma start address %p and end vaddress %p\n", s_vaddr, e_vaddr);
+			//kprintf("vma start address %p and end vaddress %p\n", s_vaddr, e_vaddr);
 
 			if (phdr->p_flags == 5)
 			{
-				kprintf("TEXT section\n");
+				//kprintf("TEXT section\n");
 				vma_type = TEXT;
 				vma_flag = RX_USER; //(uint64_t)0|PAGE_P|PAGE_U|PAGE_RW;
 			}
 			else if (phdr->p_flags == 6)
 			{
-				kprintf("DATA section\n");
+				//kprintf("DATA section\n");
 				vma_type = DATA;
 				vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U;
 			}
 			else
 			{
-				kprintf("no type\n");
+				//kprintf("no type\n");
 				vma_type = NO_TYPE;
 				vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U;
 			}
 			kprintf("vma type %d and flag %d set\n", vma_type, vma_flag);
+
+
 			// allocate a new vma and add to mm_struct
 			struct vma_struct *tdb_vma = set_vma(s_vaddr, e_vaddr, phdr->p_type, X);
 			mm->vma_count++;
@@ -114,7 +124,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			// we need to record the top address available for heap and stack allocation
 			top_vaddr = (top_vaddr < e_vaddr) ? e_vaddr : top_vaddr;
 
-			kprintf("new pml4 data: %p\n", mm->pml4);
+			//kprintf("new pml4 data: %p\n", mm->pml4);
 
 			//load plm4 from the process
 			cr3_w(mm->pml4);
@@ -123,7 +133,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			kmmap(s_vaddr, size, vma_flag);//throws error
 
 
-			kprintf("%p, %p, %p\n", size, phdr->p_filesz, phdr->p_offset);
+			//kprintf("%p, %p, %p\n", size, phdr->p_filesz, phdr->p_offset);
 
 			/*
 			   if(count > 2)
@@ -138,10 +148,10 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			//1. and 2. text and data
 			memmove((void*) ehdr + phdr->p_offset, (void*) s_vaddr, phdr->p_filesz);
 
-			kprintf("%x\n", ehdr);
+			//kprintf("%x\n", ehdr);
 
-			kprintf("look into text: %x\n", phdr->p_offset);
-			kprintf("try this %x\n", ((Elf64_Ehdr*)((uint64_t) ehdr + phdr->p_offset))->e_entry);
+			//kprintf("look into text: %x\n", phdr->p_offset);
+			//kprintf("try this %x\n", ((Elf64_Ehdr*)((uint64_t) ehdr + phdr->p_offset))->e_entry);
 
 
 			//3. bss
@@ -159,9 +169,9 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 	//4.allocate heap 
 	end_vma = traverse_vmas(mm->vm);
 
-	kprintf("max_addr: %p\n", top_vaddr);
+	//kprintf("max_addr: %p\n", top_vaddr);
 	s_vaddr = e_vaddr = ((((top_vaddr - 1) >> 12) + 1) << 12);//4kb will make it 1GB
-	kprintf("heap start address %p and end address %p\n", s_vaddr, e_vaddr);
+	//kprintf("heap start address %p and end address %p\n", s_vaddr, e_vaddr);
 	end_vma->next = set_vma(s_vaddr, e_vaddr, HEAP, RW);
 	mm->vma_count++;
 	mm->start_brk = s_vaddr;
@@ -176,7 +186,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 	// need to make sure user_stack_top didn't collide with s_vaddr
 	e_vaddr = USER_STACK_TOP;
 	s_vaddr = e_vaddr - USER_STACK_SIZE; // this will be the end of stack
-	kprintf("stack upper address %x and lower address %x\n", s_vaddr, e_vaddr);
+	//kprintf("stack upper address %x and lower address %x\n", s_vaddr, e_vaddr);
 
 	end_vma = traverse_vmas(mm->vm);
 	end_vma->next = set_vma(s_vaddr, e_vaddr, STACK, RW);
@@ -202,48 +212,57 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 	if(envp)
 	{
 		while(envp[nenvp])
+		{
+			kstrcpy(envp[nenvp], env_buf[nenvp]);
 			nenvp++;
+		}
 	}
-	kprintf("\nnenvp %d\n", nenvp);
+	kprintf("nenvp %d\n", nenvp);
 
 	int nargs = 0; //num args; filename at the beginning and null terminated
 	if (argv)
 	{
 		while(argv[nargs])
+		{
+			kstrcpy(argv[nargs], arg_buf[nargs]);
 			nargs++;
+		}
 
 	}
-	kprintf("\nnargs %d\n", nargs);
+	kprintf("nargs %d\n", nargs);
+
 
 	cr3_w(mm->pml4);
 
 	uint64_t *envp_ptr[nenvp];
 	uint64_t *args_ptr[nargs], *ss; 
 
-	kprintf("start stack at %x\n", mm->start_stack);
+	kprintf("initially stack top at %x\n", mm->start_stack);
 	ss = (uint64_t*) mm->start_stack; 
 
 	//stores envp
 	for(int n = nenvp-1; n >= 0; n--)
 	{
-		uint64_t length = kstrlen(envp[n]) + 1;//each env is null terminated
+		int length = kstrlen(env_buf[n]) + 1;//each env is null terminated
 		ss = (uint64_t *)((void *)ss - length);
-		memmove(envp[n], (char *)ss, length);
+		memmove(env_buf[n], (char *)ss, length);
 		envp_ptr[n] = ss;
 		kprintf("envp_ptr[%d] contains %x\n", n, ss);
 	}
 
-	kprintf("ss is at %x\n", ss);
+	kprintf("after envp copy ss is at %x\n", ss);
 
 	//stores args
 	for (int n = nargs-1; n >= 0; n--)
 	{
-		uint64_t length = kstrlen(argv[n]) + 1;//each arg is null terminated
+		int length = kstrlen(arg_buf[n]) + 1;//each arg is null terminated
 		ss =  (uint64_t*)((void*)ss - length);
-		memmove(argv[n], (char*)ss, length);
+		memmove(arg_buf[n], (char*)ss, length);
 		args_ptr[n] = ss;
 		kprintf("args_ptr[%d] contains %x\n", n, ss);
 	}
+
+	kprintf("after args copy ss is at %x\n", ss);
 
 	//stores env vector
 	for(int n= nenvp-1; n >= 0; n--)
@@ -256,7 +275,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 	//CAUTION: adding a NULL between arg vector and env vector. will this screw up something?
 	ss--;
 	*ss = (uint64_t)NULL;
-
+	kprintf("NULL copied at %x\n", ss);
 
 	// stores arg vector
 	for (int n = nargs-1; n >= 0; n--)
@@ -265,11 +284,14 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 		*ss = (uint64_t)args_ptr[n];
 		kprintf("arg value at %x is %x\n", ss, *ss);
 	}
-	*ss =  (uint64_t)nargs;//stores argc
 
+	ss--;
+	*ss =  (uint64_t)nargs;//stores argc
+	kprintf("nargs at %x\n", ss);
 
 	mm->start_stack = (uint64_t)ss;
-	kprintf("start stack at %x\n", mm->start_stack);
+	kprintf("finally stack top at %x\n", mm->start_stack);
+	
 	cr3_w(pt);
 
 	//schedule process

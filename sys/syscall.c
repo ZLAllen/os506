@@ -192,7 +192,7 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
     return ret;
 }
 
-int execve(char *path, char *argv[], char *envp[]){
+int execve(char *path, char **argv, char **envp){
 
 	uint64_t num = SYS_execve;
 	int ret;
@@ -201,7 +201,7 @@ int execve(char *path, char *argv[], char *envp[]){
 
 	__asm__ volatile ("int $0x80"
 			:"=r" (ret)
-			:: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
+			:: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
 			);
 
 	return ret;

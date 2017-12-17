@@ -198,7 +198,7 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
   } 
 
   kprintf("going back\n");
-  while(1);
+  //while(1);
   return nread;
 }
 
@@ -241,15 +241,20 @@ int64_t sys_pipe(int *pipefd)
 }
 
 
-int64_t sys_execve(char *file, char *argv[], char *envp[])
+int64_t sys_execve(char *file, char **argv, char **envp)
 {
-	//create a new process
-	task_struct *new_task = create_elf_process(file, argv, envp);
+	kprintf("sys execvpe. file %s\n", file);	
+	
+	struct task_struct *new_task;
+	
 
+	//create a new process
+	new_task = create_elf_process(file, argv, envp);
+	
 	if(new_task)
 	{
 		
-		kprintf("created a new task\n");
+		//kprintf("created a new task\n");
 		
 		//replace curr process with this new process CAUTION anything else??	
 		new_task->parent = current->parent;
@@ -262,6 +267,7 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		prev->next = new_task;
 		new_task->next = next;
 		kprintf("placed new process between prev and next\n");
+
 
 		//clean up the original process and loads new pml4
 		replace_task(current, new_task);		
@@ -297,7 +303,7 @@ functionWithArg syscalls[] = {
     [SYS_write] {3, sys_write},
 	[SYS_brk] {1, sys_brk},//12
 	[SYS_pipe] {1, sys_pipe}, //22
-	[SYS_execve] {3, sys_execve}
+	[SYS_execve] {3, sys_execve}//59
 };
 
 /**

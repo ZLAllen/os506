@@ -19,4 +19,4 @@
 #define SYS_dup2 0
 #define SYS_wait4 0
 #define SYS_brk 0x2d
-#define SYS_execve 0x0b
+#define SYS_execve 59
