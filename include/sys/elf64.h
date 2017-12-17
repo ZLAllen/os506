@@ -6,7 +6,11 @@
 #include <sys/task_pool.h>
 
 #define EI_NIDENT 16
-#define MAX_ARG 5
+
+#define MAX_ARG 10
+#define MAX_ARG_LEN 100
+#define MAX_ENV 10
+#define MAX_ENV_LEN 100
 
 
 // elf data types

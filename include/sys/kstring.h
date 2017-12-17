@@ -3,7 +3,7 @@
 
 
 int kstrlen(const char *str);
-
+char * kstrcpy(const char *src, char *dest);
 
 
 #endif

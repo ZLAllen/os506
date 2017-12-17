@@ -161,7 +161,8 @@ void init_thread() {
     char *fname = "bin/sbush";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {0};
-    task_struct *new_task = create_elf_process(fname, argv, NULL);
+	char *envp[] = {0};
+    task_struct *new_task = create_elf_process(fname, argv, envp);
     
 
     //cr3_w(new_task->mm->pml4);

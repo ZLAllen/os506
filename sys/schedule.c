@@ -16,6 +16,9 @@ task_struct *available_tasks;
 /** sleeping tasks */
 task_struct *sleeping_tasks;
 
+/** first userp switch */
+bool userp_switch = false;
+
 /** current clock ms */
 extern uint64_t ms;
 
@@ -54,20 +57,17 @@ void switch_to(
         __asm__ __volatile__(POPREGS);
     }
 
-    // switch to next task
-    __asm__ __volatile__
-        ("movq %0, %%rsp"
-         : // no output registers
-         :"m" (next->rsp) // replace stack pointer with next task
-         : // clobbered registers
-        );
-
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
     */
+<<<<<<< HEAD
     if (next->userp && next->first_run) {
+=======
+    if (next->userp && !userp_switch) {
+>>>>>>> 136fa3c32c7aa320d60d93b38b251883fc32b5ad
         //switch_to_user_mode(next);
+        userp_switch = true;
         set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
         next->first_run = 0;
         __asm__ volatile("cli");
@@ -106,6 +106,17 @@ void switch_to(
                 : "r"(next->mm->start_stack), "r"(next->rsp)
                 :"memory", "rax"
                     );
+    } else {
+
+        // switch to next task
+        __asm__ __volatile__
+            ("movq %0, %%rsp"
+             : // no output registers
+             :"m" (next->rsp) // replace stack pointer with next task
+             : // clobbered registers
+            );
+
+
     }
     
 
