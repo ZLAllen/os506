@@ -280,15 +280,20 @@ int get_free_fd()
 void replace_task(struct task_struct *task, struct task_struct *new_task)
 {
 
-	struct mm_struct *mm = task->mm;
+	mm_struct *mm = task->mm;
+	
+	if (!mm)
+		panic("original process mm struct is NULL in execve\n");
 
 	//empty the vmas
-	struct vma_struct *vma  = mm->vm;
-	struct vma_struct *prev_vma = NULL;
-    while(vma) 
+	vma_struct *vma  = mm->vm;
+	vma_struct *prev_vma = NULL;
+
+  
+	while(vma) 
 	{
 
-        prev_vma = vma; //need ref to the last vma in the list
+        //prev_vma = vma; //need ref to the last vma in the list
         vma = vma->next;
     }
 
@@ -299,20 +304,23 @@ void replace_task(struct task_struct *task, struct task_struct *new_task)
         free_vma_struct = mm->vm;
     }
 
+	if (!new_task->mm)
+		panic("new process mm struct is NULL\n");
 
-	//load new pagetable to clean the exisitng tables
+	//load new page table; could clean the prev page table to reclaim mem mehhh...
 	cr3_w(new_task->mm->pml4);
+	
 
 	//empty the mm_struct	
 	mm->vm = NULL;
-
 	
-	//empty the task
-	memset((void*)task->kstack, 0, KSTACK_SIZE);
-	memset((void*)task->fdarr, 0, 8 * MAX_FD);
+	//empty the task and reclaim some memory haha
+	memsetw(task->kstack, 0, KSTACK_SIZE);
+	memsetw(task->fdarr, 0, sizeof((struct task_struct *)0)->fdarr);
 	task->parent = NULL;
 	task->prev = NULL;
 	task->next = NULL;
 
+	
 }
 
