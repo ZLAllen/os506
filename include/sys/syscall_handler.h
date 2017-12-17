@@ -11,7 +11,7 @@
 // syscall functions
 int64_t sys_test(uint64_t testArg);
 int64_t sys_sleep(uint64_t ms);
-int64_t sys_fork();
+int64_t sys_fork(uint64_t addr);
 int64_t sys_exit();
 int64_t sys_yield();
 int64_t sys_test3(uint64_t arg1, uint64_t arg2, uint64_t arg3);

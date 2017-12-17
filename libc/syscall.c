@@ -229,14 +229,19 @@ uint64_t test(uint64_t arg) {
 
 pid_t fork() {
     uint64_t num = SYS_fork;
+    uint64_t addr = 0;
     pid_t ret;
 
-    syscallArg0(num);
 
-    __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+    __asm__ volatile ("movq 0(%%rsp), %0;" :"=r"(addr));
+
+    
+    __asm("int $0x80"
+         :"=a"(ret)
+         :"0"(num), "D"(addr)
+		 :"cc", "rcx", "r11", "memory"
+        );
+
     return ret;
 }
 

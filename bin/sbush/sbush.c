@@ -20,13 +20,22 @@ int main(int argc, char *argv[], char *envp[])
 
   uint64_t pid = fork();
   if (pid == 0) {
-      write(1, "Child", 5);
+      write(1, "Child\n", 5);
       yield();
+      write(1, "print child\n", 12);
   } else {
-      write(1, "Parent", 6);
+      write(1, "Parent\n", 6);
       yield();
+
+    char* msg = "usr/next_hello";  
+    int fd = open(msg, 0);
+    if(fd < 0)
+    {
+      write(1, "a", 1);
+      while(1);
+    }
   }
-  printf("Moo");
+  //printf("Moo");
   yield();
   while(1);
   

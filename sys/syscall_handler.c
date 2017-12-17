@@ -49,19 +49,22 @@ int64_t sys_sleep(uint64_t msec) {
  *
  * Do NOT use this directly. Use fork() in syscall.h!
  */
-int64_t sys_fork() {
+int64_t sys_fork(uint64_t parent_rip) {
 
-    uint64_t parent_rip;
 
     // create child process
     task_struct *child = fork_process(current);
 
     // get current process RIP based on stack
     // assumes fork() from syscall.h was called
-    __asm__ __volatile__("mov 160(%%rsp), %0":"=r"(parent_rip));
+   // __asm__ __volatile__("movq 104(%%rsp), %0":"=r"(parent_rip));
+
+
+    kprintf("parent_rip: %p\n", parent_rip);
 
     // schedule new process like any other
     schedule(child, parent_rip);
+
 
     // return value of child should be 0
     // parent would return pid

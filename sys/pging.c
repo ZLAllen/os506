@@ -76,8 +76,9 @@ void init_pging(uint64_t physfree)
 
     cr3_w((uint64_t)pml4);
 
-    set_kern_temp_addr((void*)(KERN + physfree));
-    set_kern_free_addr((void*)(KERN + physfree + PGSIZE));
+    uint64_t temp = ALIGN_UP((KERN + physfree)) + PGSIZE;
+    set_kern_temp_addr((void*)temp);
+    set_kern_free_addr((void*)(temp + PGSIZE));
 
 
     map_page(0xb8000, VIDEO, (uint64_t)0|PAGE_P|PAGE_RW);

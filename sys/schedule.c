@@ -66,11 +66,10 @@ void switch_to(
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
     */
-    if (next->userp) {
+    if (next->userp && next->first_run) {
         //switch_to_user_mode(next);
         set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
-
-
+        next->first_run = 0;
         __asm__ volatile("cli");
         __asm__ __volatile__(
                 "movq $0x23, %%rax;"
@@ -148,28 +147,15 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
         //for kernel process, this is top of k_stack, it is set when process is
         //created
         new_task->kstack[SP_REG] = new_task->mm->start_stack;
-<<<<<<< HEAD
-        new_task->rsp = e_entry;
-    }else
-    {
-      new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
-=======
         new_task->rsp = (uint64_t)e_entry;
+        new_task->first_run = 1;
     } else {
         new_task->kstack[IP_REG] = (uint64_t)e_entry;
         new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
->>>>>>> 1ab2d75e6f20cfb99fe683701d569e976ed3ace8
     }
 
     new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
 
-    // let this be the place where they return to
-    new_task->kstack[IP_REG] = (uint64_t)e_entry;
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 1ab2d75e6f20cfb99fe683701d569e976ed3ace8
     new_task->rax = new_task->pid;
 
     kprintf("e_entry: %x\n", e_entry);
@@ -321,6 +307,7 @@ task_struct *fork_process(task_struct *parent) {
 
     child->kstack = kmalloc();
     child->runnable = true;
+    child->userp = true;
     child->mm = get_mm_struct();
 
     // copy parent's mm struct
@@ -377,13 +364,14 @@ task_struct *fork_process(task_struct *parent) {
     //page
 
 
+    int count = 0;
     vma_struct* vma = child->mm->vm;
     while(vma) {
       uint64_t vaddr = 0;
-      uint64_t temp = (uint64_t)get_kern_temp_addr;
+      uint64_t temp = (uint64_t)get_kern_temp_addr();
       if(vma->type == STACK)
       {
-        vaddr = ALIGN_DOWN(vma->vm_end);  //stack grows down, so we have to copy from the top
+        vaddr = ALIGN_DOWN(vma->vm_end) - PGSIZE;  //stack grows down, so we have to copy from the top
         while (vaddr >= vma->vm_start) {
           uint64_t* pte = getPhys(vaddr);
           if(!IS_PRESENT(*pte))
@@ -391,10 +379,13 @@ task_struct *fork_process(task_struct *parent) {
             break; //end of stack
           }
 
+          kprintf("fork: vaddr %p, paddr %p\n", vaddr, *pte);
+
           uint64_t paddr = (uint64_t)get_free_page();
           zero_page(paddr);
 
           map_page(paddr, temp, (uint64_t)0|RW_USER);
+          
 
           memmove((void*)vaddr, (void*)temp, PGSIZE);
 
@@ -407,6 +398,7 @@ task_struct *fork_process(task_struct *parent) {
           free_temp(); // clean up temp address for another page copies
 
           vaddr -= PGSIZE; // here we assume that vm_end and vm_start are PGSIZE aligned
+          ++count;
         } 
       }else{
         vaddr = ALIGN_DOWN(vma->vm_start);
@@ -419,7 +411,7 @@ task_struct *fork_process(task_struct *parent) {
               if(IS_RW(paddr))
               {  
                 paddr &= ~(PAGE_RW); //clear read
-                paddr |= ~(PAGE_COW); //set cow
+                paddr |= PAGE_COW; //set cow
                 *pte = paddr;
               }
               uint64_t pg_flag = paddr & (PGSIZE-1);

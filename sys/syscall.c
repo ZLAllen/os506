@@ -61,6 +61,7 @@ pid_t fork() {
     uint64_t num = SYS_fork;
     pid_t ret;
 
+
     syscallArg0(num);
 
     __asm__ volatile ("int $0x80"
