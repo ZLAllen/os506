@@ -333,6 +333,8 @@ task_struct *fork_process(task_struct *parent) {
             child->mm->vm = new_vma;
             child_cursor = child->mm->vm;
         }
+
+        parent_cursor = parent_cursor->next;
     }
 
     // copy parent's kernel stack
