@@ -92,7 +92,7 @@ int pipe(int pipefd[]) {
 
 	__asm__ volatile("int $0x80"
 			:"=r"(ret)
-			:: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+			:: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
 			);
 
 	return ret;
@@ -122,7 +122,7 @@ void *brk(void* addr){
 
     __asm volatile("int $0x80"
             :"=r"(ret)
-            ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ::"%r8", "%rcx", "%rdx", "%rsi", "%rdi"
             );
 
     return ret;
@@ -138,7 +138,7 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
     __asm volatile("int $0x80"
             :"=r"(ret)
-            ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi" 
+            ::"%r8", "%rcx", "%rdx", "%rsi", "%rdi" 
             );
 
     return ret;
@@ -147,7 +147,7 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 int open(const char *file, int flags) {
 
     uint64_t num = SYS_open;
-    uint64_t ret;
+    int ret;
 
     syscallArg2(num, (uint64_t)file, (uint64_t)flags);
 
@@ -190,6 +190,21 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
             ); 
 
     return ret;
+}
+
+int execve(char *path, char *argv[], char *envp[]){
+
+	uint64_t num = SYS_execve;
+	int ret;
+
+	syscallArg3(num, (uint64_t)path, (uint64_t)argv, (uint64_t)envp);
+
+	__asm__ volatile ("int $0x80"
+			:"=r" (ret)
+			:: "%r8", "%rcx", "%rdx", "%rsi", "%rdi"
+			);
+
+	return ret;
 }
 
 

@@ -21,6 +21,8 @@ int64_t sys_open(char *name, int flags);
 int64_t sys_brk(void *addr);
 
 
+int64_t sys_execve(char *file, char *argv[], char *envp[]);
+
 // syscall handler
 void syscall_handler(void);
 uint64_t get_sys_return();

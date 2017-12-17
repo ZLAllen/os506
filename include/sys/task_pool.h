@@ -82,6 +82,6 @@ extern task_struct *current;
 
 int get_free_fd();
 
-uint64_t sysbrk(struct mm_struct *mm, uint64_t nbrk);	 
+void replace_task(struct task_struct *old_task, struct task_struct *new_task);
 
 #endif

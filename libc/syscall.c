@@ -35,12 +35,13 @@ ssize_t write(unsigned int fd, const char* buf, size_t size){
 
 int open(const char *file, int flags) {
 
-	uint64_t ret;
+	int ret;
 
-
-	__asm__ volatile ("int $0x80"
-		:"=r" (ret)
-    : "0"(SYS_open), "D"(file), "S"(flags)
+	__asm
+		("int $0x80"
+		:"=a" (ret)
+    	: "0"(SYS_open), "D"(file), "S"(flags)
+		: "cc", "rcx", "r11"
 	);
 
 	return ret;
@@ -50,14 +51,13 @@ int open(const char *file, int flags) {
 
 int close(unsigned int fd){
 
-   uint64_t num = SYS_close;
    int ret;
 
-   syscallArg1(num, (uint64_t) fd);
-
-   __asm__ volatile("int $0x80"
-        : "=r"(ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+   __asm
+	   ("int $0x80"
+        : "=a"(ret)
+        : "0"(SYS_close), "D"(fd)
+		: "cc", "rcx", "r11"
        );
    return ret;
 }
@@ -66,7 +66,7 @@ int chdir(const char* path){
     int ret;
     __asm 
         (
-         "syscall"
+         "int $0x80"
          : "=a" (ret)
          : "0"(SYS_chdir), "D"(path)
          : "cc", "rcx", "r11"
@@ -77,14 +77,12 @@ int chdir(const char* path){
 
 int pipe(int pipefd[]) {
 
-	uint64_t num = SYS_pipe;
     int ret;
 
-	syscallArg1(num, (uint64_t)pipefd);
-
-    __asm__ volatile("int $0x80"
-         :"=r"(ret)
-         :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    __asm("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_pipe), "D"(pipefd)
+		 :"cc", "rcx", "r11"
         );
     return ret;
 
@@ -95,7 +93,7 @@ int dup2(int srcfd, int destfd) {
     int ret;
     
     __asm
-        ("syscall"
+        ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_dup2), "D"(srcfd), "S"(destfd)
          :"cc", "rcx", "r11"
@@ -106,14 +104,15 @@ int dup2(int srcfd, int destfd) {
 
 // TODO test if memory should be there
 int execve(char *path, char *argv[], char *envp[]){
-    int ret;
-    
-    __asm
-        ("syscall"
-         :"=a"(ret)
-         :"0"(SYS_execve), "D"(path), "S"(argv), "d"(envp)
-         :"cc", "rcx", "r11", "memory"
-        );
+
+    int ret; 
+
+    __asm("int $0x80"
+			:"=a" (ret)
+			:"0"(SYS_execve), "D"(path), "S"(argv), "d"(envp)
+			:"cc", "rcx", "r11", "memory"
+			);
+
     return ret;
 
 }
@@ -134,14 +133,13 @@ int fstat(int fd, struct stat *buf){
 
 int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
-	uint64_t num = SYS_getdents;
 	int ret;
 
-	syscallArg3(num, (uint64_t)fd,(uint64_t)d, (uint64_t)count);
-
-	__asm volatile("int $0x80"
-			:"=r"(ret)
-			::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+	__asm
+		("int $0x80"
+			:"=a"(ret)
+			:"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
+			:"cc", "rcx", "r11", "memory"
 			);
 
 	return ret;
@@ -151,14 +149,12 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
 void *brk(void* addr){
 
-	int num = SYS_brk;
     void *ret;
 
-	syscallArg1(num, (uint64_t)addr);
-
-    __asm volatile("int $0x80"
-         :"=r"(ret)
-         ::"%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+    __asm("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_brk), "D"(addr)
+		 :"cc", "rcx", "r11", "memory"
         );
 
     return ret;
@@ -169,7 +165,7 @@ int dup(int fd){
     int ret;
 
     __asm
-        ("syscall"
+        ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_dup), "D"(fd)
          :"cc", "rcx", "r11"
@@ -184,7 +180,7 @@ int wait4(pid_t upid, int* status, int options){
     int ret;
 
     __asm
-        ("syscall"
+        ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_wait4), "D"(upid), "S"(status),"d"(options)
          :"cc", "rcx", "r11"
@@ -198,7 +194,7 @@ char *getcwd(char *buf, size_t size){
     char* ret;
 
     __asm
-        ("syscall"
+        ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_getcwd), "D"(buf), "S"(size)
          :"cc", "rcx", "r11", "memory"
