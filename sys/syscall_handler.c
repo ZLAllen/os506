@@ -8,6 +8,7 @@
 #include <sys/kpipe.h>
 #include <sys/elf64.h>
 #include <sys/error.h>
+#include <sys/pmap.h>
 
 extern uint64_t ms;
 
@@ -106,7 +107,7 @@ int64_t sys_brk(void *addr)
 {	
 	uint64_t nbrk = (uint64_t)addr;	
 	
-	struct mm_struct *mm = current->mm;
+	mm_struct *mm = current->mm;
 	uint64_t curr_brk = mm->brk;
 	
 	if (!mm)
@@ -121,10 +122,33 @@ int64_t sys_brk(void *addr)
     else
     {
         if(nbrk > curr_brk)
-            mm->brk = nbrk;
+        {
+          mm->brk = nbrk;
+          vma_struct* vma = mm->vm;
+          if(!vma)  panic("vma_struct in sys brk is NULL\n");
 
+          while(vma)
+          {
+            if(vma->vm_start <= nbrk && nbrk <= vma->vm_end)
+            {
+              panic("sysbrk causes vmas overlap\n");
+            }
+            vma = vma->next;
+          }
+
+          while(vma)
+          {
+            if(vma->vm_start <= curr_brk && curr_brk <= vma->vm_end)
+            {
+              vma->vm_end = ALIGN_UP(nbrk);
+              break;
+            } 
+            vma = vma->next;
+          }
+
+        }
 		kprintf("sys brk sucessful. returning %x\n", nbrk);
-        return nbrk;
+        return curr_brk;
     }
 
 }
