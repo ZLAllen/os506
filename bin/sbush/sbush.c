@@ -17,7 +17,7 @@ int main(int argc, char *argv[], char *envp[])
 */
 
   //test cases
-
+/*
   uint64_t pid = fork();
   if (pid == 0) {
       write(1, "Child\n", 5);
@@ -59,6 +59,18 @@ int main(int argc, char *argv[], char *envp[])
 
 
   while(1);
+
+*/
+
+  char* a = malloc(64);
+
+  if(!a)
+  {
+    write(1, "nothing allocated\n", 20);
+  }
+
+  while(1);
+
 
 
 /*

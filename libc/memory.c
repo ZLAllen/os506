@@ -16,6 +16,9 @@ void* sbrk(size_t inc){
 
     prev = brk((void*)(-1));
 
+
+    printf("Hello\n");
+
     if(!inc)
         return prev;
 

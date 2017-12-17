@@ -167,8 +167,16 @@ ssize_t term_write(struct file* fp, char* buf, size_t count, off_t * offset)
     return -1; // same error as in read
   }
 
+  size_t num = 0;
+  char* ptr = buf;
+
+  while(num++ < count)
+  {
+    kputchar(*ptr);
+    ++ptr;
+  }
+
   //simply print to console, sorry didn't buffer it
-  kputs(buf);
 
   return count;
 }
