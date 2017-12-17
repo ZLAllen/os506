@@ -15,7 +15,7 @@ int close(unsigned int fd);
 int chdir(const char *path);
 int pipe(int pipefd[]);
 int dup2(int srcfd, int destfd);
-int execve(char *path, char *argv[], char *envp[]);
+int execvpe(char *path, char *argv[], char *envp[]);
 void *brk(void *addr);
 int dup(int fd);
 int wait(int *status);

@@ -102,8 +102,8 @@ int dup2(int srcfd, int destfd) {
 
 }
 
-// TODO test if memory should be there
-int execve(char *path, char *argv[], char *envp[]){
+
+int execvpe(char *path, char *argv[], char *envp[]){
 
     int ret; 
 
