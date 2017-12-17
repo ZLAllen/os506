@@ -148,12 +148,22 @@ int64_t sys_brk(void *addr)
 
           vma = mm->vm;
 */
+
+
+
           while(vma)
           {
-            if(vma->vm_start <= curr_brk && curr_brk <= vma->vm_end)
+            if(vma->type == HEAP)
             {
-
-              vma->vm_end = ALIGN_UP(nbrk);
+              if(nbrk > vma->vm_end )
+              {
+                if(nbrk >= (USER_STACK_TOP - USER_STACK_SIZE))
+                {
+                  kprintf("heap colliding with stack\n");
+                  return -1;
+                }
+                vma->vm_end = ALIGN_UP(nbrk);
+              }
               break;
             } 
             vma = vma->next;

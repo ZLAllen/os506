@@ -78,6 +78,12 @@ int main(int argc, char *argv[], char *envp[])
 
   printf("allocate succeeds\n");
 
+  free(a);
+
+  free(b);
+
+  printf("free done\n");
+
   while(1);
 
 
