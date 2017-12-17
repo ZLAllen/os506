@@ -61,10 +61,10 @@ void switch_to(
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
     */
-    if (next->userp && next->first_run) {
+    if (next->userp) {
         //switch_to_user_mode(next);
-        userp_switch = true;
         set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
+        if(next->first_run){
         next->first_run = 0;
         __asm__ volatile("cli");
         __asm__ __volatile__(
@@ -102,9 +102,10 @@ void switch_to(
                 : "r"(next->mm->start_stack), "r"(next->rsp)
                 :"memory", "rax"
                     );
-    } else {
-
+        }
         // switch to next task
+    } 
+
         __asm__ __volatile__
             ("movq %0, %%rsp"
              : // no output registers
@@ -113,11 +114,10 @@ void switch_to(
             );
 
 
-    }
     
 
     // rax register for return values (used for fork)
-    __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
+    //__asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
 
     __asm__ volatile("retq");
 }
