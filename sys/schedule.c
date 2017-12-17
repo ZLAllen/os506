@@ -61,11 +61,7 @@ void switch_to(
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
     */
-<<<<<<< HEAD
     if (next->userp && next->first_run) {
-=======
-    if (next->userp && !userp_switch) {
->>>>>>> 136fa3c32c7aa320d60d93b38b251883fc32b5ad
         //switch_to_user_mode(next);
         userp_switch = true;
         set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);

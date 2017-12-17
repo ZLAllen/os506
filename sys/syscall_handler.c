@@ -211,11 +211,6 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
     sys_yield();
   } 
 
-<<<<<<< HEAD
-=======
-  kprintf("going back\n");
-  //while(1);
->>>>>>> 136fa3c32c7aa320d60d93b38b251883fc32b5ad
   return nread;
 }
 

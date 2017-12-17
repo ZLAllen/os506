@@ -21,8 +21,6 @@ int main(int argc, char *argv[], char *envp[])
   uint64_t pid = fork();
   if (pid == 0) {
       write(1, "Child\n", 5);
-      yield();
-      write(1, "print child\n", 12);
   } else {
       write(1, "Parent\n", 6);
       yield();
@@ -34,21 +32,14 @@ int main(int argc, char *argv[], char *envp[])
       write(1, "a", 1);
       while(1);
     }
+    yield();
+    write(1, "final parents", 15);
   }
   //printf("Moo");
   yield();
   while(1);
   
   
-  char* msg = "usr/next_hello";  
-/*
-  char* msg = "usr/next_hello";
-  int fd = open(msg, 0);
-  if(fd < 0)
-  {
-    write(1, "a", 1);
-    while(1);
-  }*/
 
 
   char* addr = (char*)brk((void*)-1);
@@ -59,7 +50,7 @@ int main(int argc, char *argv[], char *envp[])
 
   //testing failure cond
   //read(fd, naddr, 100);
-  read(fd, naddr, 100);
+  //read(fd, naddr, 100);
 
   write(1, naddr, 100);
  
@@ -70,7 +61,7 @@ int main(int argc, char *argv[], char *envp[])
   while(1);
 
 
-
+/*
   
   char a[10];
   if(read(fd, a, 10) < 0)
@@ -85,10 +76,11 @@ int main(int argc, char *argv[], char *envp[])
   }
   
   while(1);
+*/
+/*
   char *file = "hello";
   execve(file, NULL, NULL);
   } 
-
 
   	
   int *addr = (int *)0xF000000UL;
@@ -115,7 +107,7 @@ int main(int argc, char *argv[], char *envp[])
   if(ret < 0)
 	  while(1);
 
-
+*/
   //while(1)
   //char *args[] = {"/bin/ls", "-lR", NULL};
   //execve(args[0], args, NULL);
