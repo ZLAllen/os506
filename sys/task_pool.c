@@ -3,7 +3,7 @@
 #include <sys/error.h>
 #include <sys/system.h>
 #include <sys/kprintf.h>
-
+#include <sys/schedule.h>
 // consider each type of struct having their own pools
 
 // to implement: task_struct, mm_struct, vma_struct, file object
@@ -274,5 +274,45 @@ int get_free_fd()
 	}
 
 	return -1;//failure
+}
+
+
+void replace_task(struct task_struct *task, struct task_struct *new_task)
+{
+
+	struct mm_struct *mm = task->mm;
+
+	//empty the vmas
+	struct vma_struct *vma  = mm->vm;
+	struct vma_struct *prev_vma = NULL;
+    while(vma) 
+	{
+
+        prev_vma = vma; //need ref to the last vma in the list
+        vma = vma->next;
+    }
+
+    //add empty vmas to vma_free_list
+    if (prev_vma) 
+	{
+        prev_vma->next = free_vma_struct;
+        free_vma_struct = mm->vm;
+    }
+
+
+	//load new pagetable to clean the exisitng tables
+	cr3_w(new_task->mm->pml4);
+
+	//empty the mm_struct	
+	mm->vm = NULL;
+
+	
+	//empty the task
+	memset((void*)task->kstack, 0, KSTACK_SIZE);
+	memset((void*)task->fdarr, 0, 8 * MAX_FD);
+	task->parent = NULL;
+	task->prev = NULL;
+	task->next = NULL;
+
 }
 

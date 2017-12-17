@@ -25,6 +25,8 @@ int main(int argc, char *argv[], char *envp[])
     while(1);
   }
 */
+
+/*	
   char a[10];
   if(read(0, a, 10) < 0)
   {
@@ -35,22 +37,32 @@ int main(int argc, char *argv[], char *envp[])
   if(write(1, a, 10) < 0)
   {
   } 
-  
+*/  
 
-       
+  	
+  int *addr = (int *)0xF000000UL;
+
+  //testing sucess cond
+  brk(addr); 
+
+  //testing failure cond
+  addr = (int *) -1;
+  brk(addr);
+
+  //this should definitely give segfault
+  //*addr = 0x1234;
+
   //printf("WILL START TESTING\n");
   
   //struct dstream *dirp;
   //struct linux_dirent *drent;
   //char *path = "usr/next_hello";
-  //
-  
    
   
   //printf("start openddir\n");  
- // dirp = opendir(path); 
+  //opendir(path); 
   //printf("done opendir\n");
-
+  //while(1);	
     
   //printf("start readdir\n");
   /*  
@@ -87,10 +99,10 @@ int main(int argc, char *argv[], char *envp[])
 
 
   //while(1);
- // printf("just wanna test opendir\n");
+  //printf("just wanna test opendir\n");
   //opendir("/rootfs");
-  yield();
-  exit();
+  //yield();
+  //exit();
   while(1);
 
   return 0;
