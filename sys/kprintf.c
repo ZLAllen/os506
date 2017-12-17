@@ -206,6 +206,7 @@ int term_putchar(char a)
     }
 
     term_poplast();
+    term.backspace--;
     // check echo 
   }
 

@@ -121,7 +121,6 @@ int64_t sys_brk(void *addr)
 
     if(nbrk == -1)
 	  {
-		    kprintf("sys brk error. returning %x\n", curr_brk);
         return curr_brk;
 	  }
     else
@@ -131,20 +130,24 @@ int64_t sys_brk(void *addr)
         {
           mm->brk = nbrk;
           vma_struct* vma = mm->vm;
-          if(!vma)  panic("vma_struct in sys brk is NULL\n");
-
+          if(!vma)  {
+            kprintf("vma_struct in sys brk is NULL\n");
+            return -1;
+          }
+/*
           while(vma)
           {
 
             if(vma->vm_start <= nbrk && nbrk <= vma->vm_end)
             {
-              panic("sysbrk causes vmas overlap\n");
+              kprintf("sysbrk causes vmas overlap\n");
+              return -1;
             }
             vma = vma->next;
           }
 
-
           vma = mm->vm;
+*/
           while(vma)
           {
             if(vma->vm_start <= curr_brk && curr_brk <= vma->vm_end)
@@ -156,16 +159,17 @@ int64_t sys_brk(void *addr)
             vma = vma->next;
           }
 
-		    kprintf("sys brk sucessful. returning %x\n", curr_brk);
+		    //kprintf("sys brk sucessful. returning %x\n", curr_brk);
         
         }
         else
         {
-          panic("illegal new brk\n");
+          kprintf("illegal new brk\n");
+          return -1;
         }
     }
 
-        return curr_brk;
+        return 0;
 }
 
 

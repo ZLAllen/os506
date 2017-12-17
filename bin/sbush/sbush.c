@@ -66,8 +66,17 @@ int main(int argc, char *argv[], char *envp[])
 
   if(!a)
   {
-    write(1, "nothing allocated\n", 20);
+    printf("nothing allocated\n");
   }
+
+
+  char* b = malloc(128);
+  if(!b)
+  {
+    printf("b allocation failed");
+  }
+
+  printf("allocate succeeds\n");
 
   while(1);
 

@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <syscall.h>
 #include <stdio.h>
+
+#define MALIGN 64
+#define MALIGN_UP(x) (((x)&(~(MALIGN-1))) + MALIGN);
+
 struct meta {
     size_t size;
     struct meta* next;
@@ -17,15 +21,18 @@ void* sbrk(size_t inc){
     prev = brk((void*)(-1));
 
 
-    printf("Hello\n");
+    printf("prev is %p\n", prev);
 
     if(!inc)
         return prev;
 
     p = prev + inc;
-    if((char*)(brk((void*)p)) == prev)
+    p = (char*)MALIGN_UP((uint64_t)p);
+    //printf("new brk is %p\n", p);
+    if((char*)(brk((void*)p)) < 0)
         return (void*)(-1);
 
+    printf("new brk is %p\n", p);
     return prev;
 }
 
@@ -49,6 +56,8 @@ void* malloc(size_t size){
         head->size = size;
         head->next = 0;
         head->free = 0;
+
+
 
 
         //walk pass the meta block and yield allocated space to user

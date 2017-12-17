@@ -1,6 +1,13 @@
 #include <unistd.h>
 #include <stdarg.h>
+#include <stdio.h>
 
+
+static char Rep[] = "0123456789ABCDEF";
+
+static void convert(unsigned long i, int base);
+
+/*
 void handleInteger(int integer);
 
 int printf(const char *format, ...) {
@@ -68,7 +75,84 @@ void handleInteger(int integer) {
     }
 
 }
+*/
+
+int printf(const char *fmt, ...)
+{
+    const char* ptr;
+    unsigned int i;
+    char* s;
+    unsigned long p;
+    int num_char = 0;
 
 
+
+    va_list arg;
+    va_start(arg, fmt);
+
+    ptr = fmt;
+    while(*ptr)
+    {
+        // check for formatter
+        if(*ptr != '%') 
+        {
+            putchar(*ptr);
+        }
+        else
+        {
+            switch(*(++ptr))
+            {
+                case 'c':
+                    i = va_arg(arg, int);
+                    putchar((char)i);
+                    break;
+             
+                case 'd':
+                    i = va_arg(arg, int);
+                    convert(i, 10);
+                    break;
+
+                case 's':
+                    s = va_arg(arg, char*);
+                    puts(s);
+                    break;
+
+                case 'x':
+                    p = va_arg(arg, unsigned long);
+                    convert(p, 16);
+                    break;
+
+                case 'p':
+                    p = va_arg(arg, unsigned long);
+                    puts("0x");
+                    convert(p, 16);
+                    break;
+            }
+        }
+        ++ptr;
+    }
+
+    va_end(arg);
+
+    return num_char;
+
+}
+
+static void convert(unsigned long i, int base)
+{
+    char* ptr;
+    static char buf[50];
+
+    ptr = &buf[49];
+    *ptr = '\0';
+
+    do
+    {
+        *--ptr = Rep[i%base];
+        i /= base;
+    }while(i != 0);
+
+    puts(ptr);
+}
 
 
