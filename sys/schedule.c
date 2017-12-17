@@ -4,6 +4,8 @@
 #include <sys/pging.h>
 #include <sys/gdt.h>
 #include <sys/ktime.h>
+#include <sys/pmap.h>
+#include <sys/task_pool.h>
 
 task_struct *current;
 task_struct *idle;
@@ -307,7 +309,10 @@ task_struct *fork_process(task_struct *parent) {
     uint64_t pt = cr3_r();
 
     // set child's pml4 to the same
-    child->mm->pml4 = pt;
+    uint64_t child_pt = alloc_pml4();
+    child->mm->pml4 = child_pt;
+
+
 
     // to avoid unncessarily copying the entire page table
     // have child use the same one but set as read-only
@@ -316,20 +321,71 @@ task_struct *fork_process(task_struct *parent) {
 
     // traverse virtual addresses and translate that 
     // to corresponding page entry
-    if (child->mm->vm) {
-        uint64_t vaddr = child->mm->vm->vm_start;
-        while (vaddr < child->mm->vm->vm_end) {
+    
+    //perform some deep copy on parent stack only, up to the first non-present
+    //page
+
+
+    vma_struct* vma = child->mm->vm;
+    while(vma) {
+      uint64_t vaddr = 0;
+      uint64_t temp = (uint64_t)get_kern_temp_addr;
+      if(vma->type == STACK)
+      {
+        vaddr = ALIGN_DOWN(vma->vm_end);  //stack grows down, so we have to copy from the top
+        while (vaddr >= vma->vm_start) {
+          uint64_t* pte = getPhys(vaddr);
+          if(!IS_PRESENT(*pte))
+          {
+            break; //end of stack
+          }
+
+          uint64_t paddr = (uint64_t)get_free_page();
+          zero_page(paddr);
+
+          map_page(paddr, temp, (uint64_t)0|RW_USER);
+
+          memmove((void*)vaddr, (void*)temp, PGSIZE);
+
+          cr3_w(child_pt);
+
+          map_page(paddr, vaddr, (uint64_t)0|RW_USER);
+
+          cr3_w(pt); // load parent pt back
+
+          free_temp(); // clean up temp address for another page copies
+
+          vaddr -= PGSIZE; // here we assume that vm_end and vm_start are PGSIZE aligned
+        } 
+      }else{
+        vaddr = ALIGN_DOWN(vma->vm_start);
+        while (vaddr < vma->vm_end) {
             uint64_t *pte = getPhys(vaddr);
+            uint64_t paddr = *pte;
 
-            // set writable bit to 0
-            *pte &= ~PAGE_RW;
+            if(IS_PRESENT(paddr))
+            {
+              if(IS_RW(paddr))
+              {  
+                paddr &= ~(PAGE_RW); //clear read
+                paddr |= ~(PAGE_COW); //set cow
+                *pte = paddr;
+              }
+              uint64_t pg_flag = paddr & (PGSIZE-1);
 
-            // set copy on write bit to 1
-            *pte |= PAGE_COW;
+              //now map this to children too
+              cr3_w(child_pt);
+              map_page(paddr, vaddr, pg_flag);
+              
+              cr3_w(pt);
+              inc_map_count((void*)(paddr & (~(PGSIZE-1))));
+            }
 
             // move to next entry
             vaddr += PGSIZE;
         }
+      }
+      vma = vma->next;
     }
 
     child->pid = get_next_pid();
