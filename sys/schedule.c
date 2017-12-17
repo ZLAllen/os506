@@ -16,6 +16,9 @@ task_struct *available_tasks;
 /** sleeping tasks */
 task_struct *sleeping_tasks;
 
+/** waiting tasks */
+task_struct *waiting_tasks;
+
 /** first userp switch */
 bool userp_switch = false;
 
@@ -222,20 +225,42 @@ task_struct *get_next_task() {
         next_struct = next_struct->next;
 
     if (!next_struct) {
-        // no sleeping tasks to wake up so check available tasks
-        next_struct = available_tasks;
-
-        // only run runnable tasks
-        while (next_struct && (!next_struct->runnable || (cur_sleep_time = next_struct->sleep_time) > ms)) {
+        // no sleeping tasks to wake up, so check waiting tasks
+        next_struct = sleeping_tasks;
+        while (next_struct && next_struct->waiting)
             next_struct = next_struct->next;
-        }
 
         if (!next_struct) {
-            available_tasks = NULL;
-            return idle;
-        }
 
-        available_tasks = next_struct->next;
+            // no sleeping tasks to wake up so check available tasks
+            next_struct = available_tasks;
+
+            // only run runnable tasks
+            while (next_struct && (!next_struct->runnable || 
+                        (cur_sleep_time = next_struct->sleep_time) > ms || // ignore sleeping
+                        next_struct->waiting) // ignore waiting
+                    ) {
+                next_struct = next_struct->next;
+            }
+
+            if (!next_struct) {
+                available_tasks = NULL;
+                return idle;
+            }
+
+            available_tasks = next_struct->next;
+        } else {
+
+            // waiting task found
+            if (next_struct->prev)
+                next_struct->prev->next = next_struct->next;
+            if (next_struct->next)
+                next_struct->next->prev = next_struct->prev;
+
+            if (next_struct == waiting_tasks)
+                waiting_tasks = waiting_tasks->next;
+
+        }
 
     } else {
         // awoken task found
@@ -314,7 +339,7 @@ task_struct *fork_process(task_struct *parent) {
 
     child->kstack = kmalloc();
     child->runnable = true;
-    child->userp = true;
+    child->userp = parent->userp;
     child->mm = get_mm_struct();
 
     // copy parent's mm struct

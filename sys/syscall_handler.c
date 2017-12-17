@@ -42,6 +42,32 @@ int64_t sys_sleep(uint64_t msec) {
     return 0;
 }
 
+/**
+ * Wait for pid to return
+ * If pid is -1, then any child
+ *
+ * options is ignored right now
+ */
+int64_t sys_wait4(int pid, uint64_t status, int options) {
+
+    // status is supposd to be a pointer, but our syscall can't support that
+    int *status_ptr = (int *)status;
+
+    // if no children, return -1
+    if (current->num_children == 0) {
+        if (status_ptr)
+            *status_ptr = -1;
+        return -1;
+    }
+
+    current->waiting = true;
+    current->wait_pid = pid;
+     
+    if (status_ptr)
+        *status_ptr = 0;
+    return 0;
+}
+
 
 /**
  * Fork current process
@@ -81,6 +107,15 @@ int64_t sys_fork(uint64_t parent_rip) {
  */
 int64_t sys_exit() {
     current->runnable = false;
+    
+    // check if parent was waiting
+    if (current->parent) {
+        if (current->parent->waiting && 
+                (current->parent->wait_pid == current->pid ||  // waiting for this child
+                 current->parent->wait_pid == current->parent->pid)) // waiting for any child
+            current->parent->waiting = false;
+    }
+
     sys_yield();
     return 0;
 }
@@ -329,7 +364,8 @@ functionWithArg syscalls[] = {
     [SYS_write] {3, sys_write},
 	[SYS_brk] {1, sys_brk},//12
 	[SYS_pipe] {1, sys_pipe}, //22
-	[SYS_execve] {3, sys_execve}//59
+	[SYS_execve] {3, sys_execve},//59
+    [SYS_wait4] {3, sys_wait4} // 61
 };
 
 /**

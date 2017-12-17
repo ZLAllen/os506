@@ -24,7 +24,7 @@ void thread1()
     kprintf("Syscal SYS_test3 with arg 50, 60, 70 returns %d\n", sysReturn2);
     //kprintf("Thread 1 going to sleep for 6 seconds!\n");
     //sleep(6000);
-    kprintf("Back from sleep!\n");
+    //kprintf("Back from sleep!\n");
     uint64_t forkRet = fork();
     if (forkRet == 0) {
         kprintf("Child\n");
@@ -41,6 +41,8 @@ void thread1()
         //kprintf("Thread 1 going to sleep for 5 seconds!\n");
         //sleep(5000);
         x++;
+        kprintf("Thread 1 will now wait for its child\n");
+        wait(0);
         kprintf("Back in thread 1. Variable is %d.\n", x);
         yield();
         x++;
@@ -132,8 +134,8 @@ void thread6(){
 
 
 void init_thread() {
-    //task1 = create_new_task(false);
-    //task2 = create_new_task(false);
+    task1 = create_new_task(false);
+    task2 = create_new_task(false);
     /*
     task3 = create_new_task(false);
     task4 = create_new_task(false);
@@ -146,11 +148,11 @@ void init_thread() {
 
     kprintf("%p\n", *page_table);
     */
-   // schedule(task1, (uint64_t) thread1);
-   // schedule(task2,(uint64_t)thread2);
+   schedule(task1, (uint64_t) thread1);
+   schedule(task2,(uint64_t)thread2);
 
-    //run_next_task();
-    //while(1);
+    run_next_task();
+    while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
@@ -170,7 +172,7 @@ void init_thread() {
     //uint64_t* ret = 0;
     //schedule(new_task, (uint64_t) thread1);
     run_next_task();
-   while(1); 
+    while(1); 
         //set_tss_rsp((void*)&new_task->kstack[KSTACK_SIZE-1]);
        /* __asm__ __volatile__
                         ("movq $0x23, %%rax;"

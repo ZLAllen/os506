@@ -21,13 +21,17 @@ typedef struct task_struct {
     pid_t pid; // unique process ID, starting at 0
     bool userp; // is this a user process?
     bool runnable; // runnable process
+    bool waiting; // process waiting
     bool first_run;
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
     uint64_t rax; // rax register value (for fork)
     uint64_t sleep_time; // sleep time - clock ms that it is allowed to run
+    uint64_t num_children; // number of child processes
+    pid_t wait_pid; // waiting for pid, same as pid for any (-1)
     struct mm_struct *mm; // memory descriptor
+    struct task_struct *children; // children
     struct task_struct *next; // next task
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task

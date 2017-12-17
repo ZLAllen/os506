@@ -15,6 +15,7 @@ int64_t sys_fork(uint64_t addr);
 int64_t sys_exit();
 int64_t sys_yield();
 int64_t sys_test3(uint64_t arg1, uint64_t arg2, uint64_t arg3);
+int64_t sys_wait4(int pid, uint64_t status, int options);
 
 int64_t sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);//convert ars to uint64_t inside code
 int64_t sys_open(char *name, int flags);

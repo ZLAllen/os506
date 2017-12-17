@@ -19,7 +19,7 @@ int execvpe(char *path, char *argv[], char *envp[]);
 void *brk(void *addr);
 int dup(int fd);
 int wait(int *status);
-int wait4(pid_t upid, int *status, int options);
+int wait4(pid_t pid, int *status, int options);
 char *getcwd(char *buf, size_t size);
 
 void yield();

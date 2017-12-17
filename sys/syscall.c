@@ -29,6 +29,25 @@ void sleep(uint64_t ms) {
     yield();
 }
 
+int wait(int *status) {
+    return wait4(-1, status, 0);
+}
+
+int wait4(pid_t pid, int *status, int options) {
+
+    uint64_t num = SYS_wait4;
+    uint64_t ret;
+    syscallArg3(num, pid, (uint64_t)status, options);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    yield();
+    return ret;
+}
+
 uint64_t test(uint64_t arg) {
 
     uint64_t num = SYS_test;
