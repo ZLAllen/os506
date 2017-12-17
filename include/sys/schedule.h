@@ -22,6 +22,7 @@ void reschedule(task_struct *task);
 void schedule(task_struct *new_task, uint64_t e_entry);
 task_struct *create_new_task(bool userp);
 task_struct *get_next_task();
+void add_sleeping_task(task_struct *task);
 void run_next_task();
 pid_t get_next_pid();
 void switch_to_user_mode(task_struct *next);

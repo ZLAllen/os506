@@ -37,6 +37,7 @@ int64_t sys_test(uint64_t testArg) {
  */
 int64_t sys_sleep(uint64_t msec) {
     current->sleep_time = ms + msec;
+    add_sleeping_task(current);
     return 0;
 }
 
@@ -232,13 +233,13 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		replace_task(current, new_task);
 		
 
-		//enable interrupt??
-	 	__asm__ __volatile__ ("int $32");
+		//run next task
+		sys_yield();
 		
-		panic("sys execve failed.\n");
+		panic("sys execve failed.\n");//execve does not return on success
 	}
 
-	return -1;
+	return -1;//failure
 }
 
 

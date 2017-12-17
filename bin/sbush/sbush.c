@@ -16,7 +16,7 @@ int main(int argc, char *argv[], char *envp[])
 */
 
   //test cases
-  /*
+  
   char* msg = "usr/next_hello";
   int fd = open(msg, 0);
   if(fd < 0)
@@ -24,7 +24,7 @@ int main(int argc, char *argv[], char *envp[])
     write(1, "a", 1);
     while(1);
   }
-*/
+
 
 /*	
   char a[10];
@@ -48,6 +48,10 @@ int main(int argc, char *argv[], char *envp[])
   //testing failure cond
   addr = (int *) -1;
   brk(addr);
+
+  while(1);
+  char *file = "hello";
+  execve(file, NULL, NULL);
 
   //this should definitely give segfault
   //*addr = 0x1234;
@@ -101,8 +105,10 @@ int main(int argc, char *argv[], char *envp[])
   //while(1);
   //printf("just wanna test opendir\n");
   //opendir("/rootfs");
-  //yield();
-  //exit();
+  
+  yield();
+  exit();
+
   while(1);
 
   return 0;

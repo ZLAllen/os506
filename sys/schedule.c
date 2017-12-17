@@ -13,6 +13,9 @@ task_struct *idle;
 /** list of available tasks - schedule() orders this */
 task_struct *available_tasks;
 
+/** sleeping tasks */
+task_struct *sleeping_tasks;
+
 /** current clock ms */
 extern uint64_t ms;
 
@@ -45,7 +48,7 @@ void switch_to(
     __asm__ __volatile__(POPREGS);
 
     // schedule "me" prev task
-    if (me != NULL) {
+    if (me != NULL && me->sleep_time <= ms) {
         __asm__ __volatile__(PUSHREGS);
         reschedule(me);
         __asm__ __volatile__(POPREGS);
@@ -101,10 +104,11 @@ void switch_to(
                 "xorq %%r15, %%r15;"
                 "iretq;"
                 : /* No output */
-                : "r"(next->mm->start_stack), "r"(next->mm->entry)
+                : "r"(next->mm->start_stack), "r"(next->rsp)
                 :"memory", "rax"
                     );
     }
+    
 
     // rax register for return values (used for fork)
     __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
@@ -204,24 +208,40 @@ task_struct *create_new_task(bool userp) {
  * Removes it from the list of available tasks
  */
 task_struct *get_next_task() {
-    task_struct *next_struct = available_tasks;
+    task_struct *next_struct = sleeping_tasks;
     uint64_t cur_sleep_time = 0;
 
-    // only run runnable tasks
-    // TODO - this does not work well
-    while (next_struct && (!next_struct->runnable || (cur_sleep_time = next_struct->sleep_time) > ms)) {
-        if (next_struct->runnable && cur_sleep_time > ms)
-            reschedule(next_struct);
-
+    // check for sleeping tasks
+    while (next_struct && next_struct->sleep_time > ms)
         next_struct = next_struct->next;
-    }
 
     if (!next_struct) {
-        available_tasks = NULL;
-        return idle;
+        // no sleeping tasks to wake up so check available tasks
+        next_struct = available_tasks;
+
+        // only run runnable tasks
+        while (next_struct && (!next_struct->runnable || (cur_sleep_time = next_struct->sleep_time) > ms)) {
+            next_struct = next_struct->next;
+        }
+
+        if (!next_struct) {
+            available_tasks = NULL;
+            return idle;
+        }
+
+        available_tasks = next_struct->next;
+
+    } else {
+        // awoken task found
+        if (next_struct->prev)
+            next_struct->prev->next = next_struct->next;
+        if (next_struct->next)
+            next_struct->next->prev = next_struct->prev;
+
+        if (next_struct == sleeping_tasks)
+            sleeping_tasks = sleeping_tasks->next;
     }
 
-    available_tasks = next_struct->next;
     return next_struct;
 }
 
@@ -233,6 +253,22 @@ void run_next_task() {
     task_struct *prev = current;
     current = get_next_task();
     switch_to(prev, current);
+}
+
+void add_sleeping_task(task_struct *task) {
+    if (sleeping_tasks == NULL) {
+        sleeping_tasks = task;
+    } else {
+        // traverse to the end of the list
+        task_struct *cursor = sleeping_tasks;
+        while (cursor->next != NULL) {
+            cursor = cursor->next;
+        }
+
+        cursor->next = task;
+        task->prev = cursor;
+        task->next = NULL;
+    }
 }
 
 /**
