@@ -78,7 +78,18 @@ uint64_t test3(uint64_t arg1, uint64_t arg2, uint64_t arg3) {
 
 pid_t fork() {
     uint64_t num = SYS_fork;
+    uint64_t addr = 0;
     pid_t ret;
+
+    __asm__ volatile ("movq 0(%%rsp), %0;" :"=r"(addr));
+    
+    __asm("int $0x80"
+         :"=a"(ret)
+         :"0"(num), "D"(addr)
+		 :"cc", "rcx", "r11", "memory"
+        );
+
+    return ret;
 
 
     syscallArg0(num);
