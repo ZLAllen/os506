@@ -19,7 +19,8 @@
 #define PDPE_SIZE (1 << 30)  //1GB
 
 #define IS_PRESENT(pg) ((pg) & PAGE_P)
-
+#define IS_COW(pg) ((pg) & PAGE_COW)
+#define IS_RW(pg) ((pg) & PAGE_RW)
 
 #define PML4E(va) ((va >> 39) & ((1UL << 9) - 1))
 #define PDPE(va) ((va >> 30) & ((1UL << 9) -1))
