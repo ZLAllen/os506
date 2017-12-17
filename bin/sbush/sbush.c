@@ -50,8 +50,8 @@ int main(int argc, char *argv[], char *envp[])
   brk(addr);
 
   while(1);
-  char *file = "hello";
-  execve(file, NULL, NULL);
+  //char *file = "hello";
+  //execve(file, NULL, NULL);
 
   //this should definitely give segfault
   //*addr = 0x1234;

@@ -148,6 +148,9 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
         //for kernel process, this is top of k_stack, it is set when process is
         //created
         new_task->kstack[SP_REG] = new_task->mm->start_stack;
+        new_task->rsp = (uint64_t)e_entry;
+    } else {
+        new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
     }
 
     new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
@@ -155,7 +158,6 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
     // let this be the place where they return to
     new_task->kstack[IP_REG] = (uint64_t)e_entry;
 
-    new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
 
     new_task->rax = new_task->pid;
 
