@@ -174,6 +174,9 @@ int dup(int fd){
     return ret;
 }
 
+int wait(int *status) {
+    return wait4(-1, status, 0);
+}
 
 int wait4(pid_t upid, int* status, int options){
     // we ignore struct rusage for now
