@@ -172,7 +172,7 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
   } 
 
   kprintf("going back\n");
-  //while(1);
+  while(1);
   return nread;
 }
 

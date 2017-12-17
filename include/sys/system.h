@@ -25,13 +25,25 @@ static inline void cr3_w(uint64_t value)
     __asm__ volatile("movq %0, %%cr3" :: "r"(value): "memory");
 }
 
+static inline uint64_t cr2_r()
+{
+    uint64_t ret;
+    __asm__ volatile("movq %%cr2, %0" :"=r"(ret)::"memory");
+    return ret;
+}
+
+
+static inline void cr2_w(uint64_t value)
+{
+    __asm__ volatile("movq %0, %%cr2" :: "r"(value): "memory");
+}
+
 static inline uint64_t cr3_r()
 {
     uint64_t ret;
     __asm__ volatile("movq %%cr3, %0" :"=r"(ret)::"memory");
     return ret;
 }
-
 
 static inline void cr0_w(uint64_t value)
 {

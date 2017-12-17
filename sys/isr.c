@@ -3,6 +3,11 @@
 #include <sys/system.h>
 #include <sys/ktime.h>
 #include <sys/syscall_handler.h>
+#include <sys/pging.h>
+#include <sys/pmap.h>
+#include <sys/schedule.h>
+#include <sys/kmalloc.h>
+#include <sys/mm.h>
 
 // define ASCII for special keys
 #define SHIFT_UP 0xAA
@@ -189,7 +194,7 @@ void isr_handler(struct regs reg){
 
         if(num == 14)
         {
-          handle_pg_fault();
+          handle_pg_fault(err);
         }
 
     }else if(num < 48){
@@ -250,10 +255,59 @@ void update_kkbd(char key, int ctrl){
 }
 
 
-void handle_pg_fault()
+void handle_pg_fault(uint64_t err)
 {
-        kprintf("page fault");
-        while(1);
+  uint64_t fault_addr = cr2_r(); //get the fault address
+  int fault = 0;
 
+  if(fault_addr >= KERNBASE)
+  {
+    kprintf("fault occured in kernel\n");
+    while(1);          // should probably kill the process
+  }
+  else if(err & 0x01)
+  {
+    uint64_t* pte = getPhys(fault_addr);  // fault address page table entry
+    uint64_t paddr = *pte;
+    if(IS_COW(paddr) && !IS_RW(paddr)) 
+    {
+      // page is cow, need to make copy of it
+      uint64_t naddr = (uint64_t)get_free_page();
+      zero_page(naddr); //clear the page
+
+      uint64_t temp_vaddr = (uint64_t)get_kern_temp_addr();
+      map_page(naddr, temp_vaddr, PAGE_P|PAGE_U|PAGE_RW);
+      memmove((void*)(ALIGN_DOWN(fault_addr)),(void*)temp_vaddr, PGSIZE);
+      free_temp();
+
+      *pte = naddr|PAGE_U|PAGE_P|PAGE_RW;
+      release_page((void*)(paddr & (~(PGSIZE-1)))); // this is decrement the reference count
+    }else
+    {
+      fault = 1;
+    }  
+  }else{
+    vma_struct *vma = current->mm->vm;
+    while(!vma) 
+    {
+      if(fault_addr >= vma->vm_start && fault_addr < vma->vm_end)
+      {
+        kmmap(vma->vm_start, vma->vm_end - vma->vm_start, (uint64_t)0|PAGE_U|PAGE_P|PAGE_RW);
+        break;
+      }
+      vma = vma->next;
+    } 
+
+    if(!vma) // not found
+    {
+      fault = 1;
+    }
+  }
+
+  if(fault)
+  {
+    kprintf("Segmentation Fault %p(%p), process ends\n", fault_addr, err);
+    sys_exit();
+  }
 }
 
