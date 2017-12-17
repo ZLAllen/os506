@@ -16,6 +16,9 @@ task_struct *available_tasks;
 /** sleeping tasks */
 task_struct *sleeping_tasks;
 
+/** first userp switch */
+bool userp_switch = false;
+
 /** current clock ms */
 extern uint64_t ms;
 
@@ -54,20 +57,13 @@ void switch_to(
         __asm__ __volatile__(POPREGS);
     }
 
-    // switch to next task
-    __asm__ __volatile__
-        ("movq %0, %%rsp"
-         : // no output registers
-         :"m" (next->rsp) // replace stack pointer with next task
-         : // clobbered registers
-        );
-
     // check if kernel process or user process
     // switch to ring 3 if needed
     /* TODO - this is bad... still debugging
     */
-    if (next->userp) {
+    if (next->userp && !userp_switch) {
         //switch_to_user_mode(next);
+        userp_switch = true;
         set_tss_rsp((void*)&next->kstack[KSTACK_SIZE-1]);
 
 
@@ -107,6 +103,17 @@ void switch_to(
                 : "r"(next->mm->start_stack), "r"(next->rsp)
                 :"memory", "rax"
                     );
+    } else {
+
+        // switch to next task
+        __asm__ __volatile__
+            ("movq %0, %%rsp"
+             : // no output registers
+             :"m" (next->rsp) // replace stack pointer with next task
+             : // clobbered registers
+            );
+
+
     }
     
 
@@ -306,14 +313,14 @@ task_struct *fork_process(task_struct *parent) {
     task_struct *child = get_task_struct();
 
     // copy parent's task info into child
-    memcpy(parent, child, sizeof(task_struct));
+    memmove(parent, child, sizeof(task_struct));
 
     child->kstack = kmalloc();
     child->runnable = true;
     child->mm = get_mm_struct();
 
     // copy parent's mm struct
-    memcpy(parent->mm, child->mm, sizeof(mm_struct));
+    memmove(parent->mm, child->mm, sizeof(mm_struct));
 
     // copy vma_structs from parent (entire linked list)
     vma_struct *parent_cursor = parent->mm->vm;
@@ -323,7 +330,7 @@ task_struct *fork_process(task_struct *parent) {
         vma_struct *new_vma = get_vma_struct();
 
         // copy parent's vma
-        memcpy(parent_cursor, new_vma, sizeof(vma_struct));
+        memmove(parent_cursor, new_vma, sizeof(vma_struct));
 
         // first vma in list?
         if (child_cursor) {
@@ -333,10 +340,12 @@ task_struct *fork_process(task_struct *parent) {
             child->mm->vm = new_vma;
             child_cursor = child->mm->vm;
         }
+
+        parent_cursor = parent_cursor->next;
     }
 
     // copy parent's kernel stack
-    memcpy(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
+    memmove(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
 
     // child shares the same stack pointer
     child->rsp = (uint64_t)&(child->kstack[SP_REG]);

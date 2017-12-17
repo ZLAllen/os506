@@ -16,7 +16,21 @@ int main(int argc, char *argv[], char *envp[])
 */
 
   //test cases
-  /*  
+
+  /*uint64_t pid = fork();
+  if (pid == 0) {
+      write(1, "Child", 5);
+      yield();
+  } else {
+      write(1, "Parent", 6);
+      yield();
+  }
+  printf("Moo");
+  yield();
+  while(1);*/
+  
+  
+/*
   char* msg = "usr/next_hello";
   int fd = open(msg, 0);
   if(fd < 0)
@@ -55,16 +69,14 @@ int main(int argc, char *argv[], char *envp[])
   char *args1[] = {"hello", "arg1", "arg2", NULL};
   char *envs1[] = {"key=value", NULL};
   
-  execve(file1, args1, envs1);
-  /*if(ret < 0)
-	  while(1);*/
+  execve(file1, args1, envs1); //this passes
 
   
   char *file2 = "/bin/ls";
 
-  execve(file2, NULL, NULL);
-  /*if(ret < 0)
-	  while(1);*/
+  int ret = execve(file2, NULL, NULL); //this fails 
+  if(ret < 0)
+	  while(1);
 
 
   //while(1)
