@@ -255,8 +255,8 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		new_task->parent = current->parent;
 		new_task->pid  = current->pid;
 		memcpy((void*)current->fdarr, (void*)new_task->fdarr, sizeof((struct task_struct *)0)->fdarr);//Is this needed?
-		kprintf("new process points to current process parent %p\n", new_task);
 		
+
 		task_struct *prev = current->prev;
 		task_struct *next = current->next;
 		prev->next = new_task;
@@ -267,9 +267,8 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		replace_task(current, new_task);		
 		kprintf("replaced the original process\n");
 
-		while(1)
-
 		//run next task
+		kprintf("call yield and chill\n");
 		sys_yield();
 		
 		panic("sys execve failed.\n");//execve does not return on success
