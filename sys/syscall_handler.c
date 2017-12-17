@@ -343,7 +343,8 @@ void syscall_handler(void) {
             );
 
     __asm__ __volatile__(PUSHREGS);
-    kprintf("Performing syscall %d\n", num);
+    if (num != 4) // don't print for write
+        kprintf("Performing syscall %d\n", num);
     __asm__ __volatile__(POPREGS);
 
     // read arguments from registers
