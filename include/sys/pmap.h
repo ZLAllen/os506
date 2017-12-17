@@ -9,7 +9,7 @@ struct smap_t {
 }__attribute__((packed)) *smap;
 
 
-#define ALIGN_UP(x) ((x & ~(PGSIZE-1)) + PGSIZE)
+#define ALIGN_UP(x) (((x-1) & ~(PGSIZE-1)) + PGSIZE)
 
 #define ALIGN_DOWN(x) ((x & ~(PGSIZE-1)))
 

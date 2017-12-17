@@ -179,8 +179,7 @@ void isr_handler(struct regs reg){
     uint64_t num = reg.num;
     uint64_t err = reg.err;
    
-    
-  
+ 
 
     if(num < 32){
         if(num > 18){
@@ -260,6 +259,8 @@ void handle_pg_fault(uint64_t err)
   uint64_t fault_addr = cr2_r(); //get the fault address
   int fault = 0;
 
+    kprintf("fault address %p, error code %x\n", fault_addr, err);
+
   if(fault_addr >= KERNBASE)
   {
     kprintf("fault occured in kernel\n");
@@ -269,6 +270,7 @@ void handle_pg_fault(uint64_t err)
   {
     uint64_t* pte = getPhys(fault_addr);  // fault address page table entry
     uint64_t paddr = *pte;
+
     if(IS_COW(paddr) && !IS_RW(paddr)) 
     {
       // page is cow, need to make copy of it
@@ -288,8 +290,10 @@ void handle_pg_fault(uint64_t err)
     }  
   }else{
     vma_struct *vma = current->mm->vm;
-    while(!vma) 
+    while(vma) 
     {
+
+      kprintf("mmap %p, %p\n", vma->vm_start, vma->vm_end);
       if(fault_addr >= vma->vm_start && fault_addr < vma->vm_end)
       {
         kmmap(vma->vm_start, vma->vm_end - vma->vm_start, (uint64_t)0|PAGE_U|PAGE_P|PAGE_RW);
@@ -306,8 +310,10 @@ void handle_pg_fault(uint64_t err)
 
   if(fault)
   {
-    kprintf("Segmentation Fault %p(%p), process ends\n", fault_addr, err);
+    panic("Segmentation Fault, process ends\n");
     sys_exit();
   }
+  
+  invlpg(fault_addr);
 }
 

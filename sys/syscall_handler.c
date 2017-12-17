@@ -109,18 +109,20 @@ int64_t sys_brk(void *addr)
 	
 	mm_struct *mm = current->mm;
 	uint64_t curr_brk = mm->brk;
-	
+
+
+
 	if (!mm)
 		panic("mm struct in sys brk is NULL\n");
 
     if(nbrk == -1)
-	{
-		kprintf("sys brk error. returning %x\n", curr_brk);
+	  {
+		    kprintf("sys brk error. returning %x\n", curr_brk);
         return curr_brk;
-	}
-
+	  }
     else
     {
+
         if(nbrk > curr_brk)
         {
           mm->brk = nbrk;
@@ -129,6 +131,7 @@ int64_t sys_brk(void *addr)
 
           while(vma)
           {
+
             if(vma->vm_start <= nbrk && nbrk <= vma->vm_end)
             {
               panic("sysbrk causes vmas overlap\n");
@@ -136,21 +139,29 @@ int64_t sys_brk(void *addr)
             vma = vma->next;
           }
 
+
+          vma = mm->vm;
           while(vma)
           {
             if(vma->vm_start <= curr_brk && curr_brk <= vma->vm_end)
             {
+
               vma->vm_end = ALIGN_UP(nbrk);
               break;
             } 
             vma = vma->next;
           }
 
+		    kprintf("sys brk sucessful. returning %x\n", curr_brk);
+        
         }
-		kprintf("sys brk sucessful. returning %x\n", nbrk);
-        return curr_brk;
+        else
+        {
+          panic("illegal new brk\n");
+        }
     }
 
+        return curr_brk;
 }
 
 
@@ -196,8 +207,6 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
     sys_yield();
   } 
 
-  kprintf("going back\n");
-  while(1);
   return nread;
 }
 

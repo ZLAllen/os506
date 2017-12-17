@@ -149,8 +149,8 @@ void init_thread() {
     schedule(task1, (uint64_t) thread1);
     schedule(task2,(uint64_t)thread2);
 
-    run_next_task();
-    while(1);
+    //run_next_task();
+    //while(1);
     /*
     schedule(task3,(uint64_t)thread3);
     schedule(task4,(uint64_t)thread4);
@@ -169,8 +169,7 @@ void init_thread() {
     //uint64_t* ret = 0;
     //schedule(new_task, (uint64_t) thread1);
     run_next_task();
-    while(1);
-    
+   while(1); 
         //set_tss_rsp((void*)&new_task->kstack[KSTACK_SIZE-1]);
        /* __asm__ __volatile__
                         ("movq $0x23, %%rax;"

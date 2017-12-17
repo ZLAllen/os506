@@ -61,7 +61,7 @@ ISR_E 10
 ISR_E 11
 ISR_E 12
 ISR_E 13
-ISR_E 14
+#ISR_E 14
 
 
 
@@ -106,4 +106,29 @@ irq_common:
     popq %rdx
     popq %rcx
     popq %rbx
+    sti
+    iretq
+
+.global _isr14
+_isr14:
+    cli
+    pushq $14
+    pushq %rax
+    pushq %rbx
+    pushq %rcx
+    pushq %rdx
+    pushq %rsi
+    pushq %rdi
+    pushq %rbp
+    pushq %rsp             
+    call isr_handler
+    popq %rsp
+    popq %rbp
+    popq %rdi
+    popq %rsi
+    popq %rdx
+    popq %rcx
+    popq %rbx 
+    popq %rax
+    add $16, %rsp #pop the num byte and err code
     iretq

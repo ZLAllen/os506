@@ -228,7 +228,7 @@ uint64_t alloc_pml4(){
 
     set_kern_free_addr(vir_pml4+PGSIZE);
 
-    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW);
+    map_page(pml4, (uint64_t)vir_pml4,(uint64_t)0|PAGE_P|PAGE_RW|PAGE_U);
 
     vir_pml4[511] = init_pml4[511]; //kernel mapping is shared
 

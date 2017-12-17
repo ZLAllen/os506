@@ -109,7 +109,7 @@ ssize_t tfs_read(struct file *filep, char *buff, size_t count, off_t *offset)
 
 	size_t size  = filep->size - off;
 	size_t acount = count<size?count:size;
-	memcpy((char *) (hdr + 1) + off, buff, acount);
+  memmove((char *) (hdr + 1) + off, buff, acount);
 
   off += acount;
   filep->offset = (off_t*)off;
@@ -247,7 +247,7 @@ void set_dirent(struct linux_dirent *drent, struct posix_header_ustar *next_hdr,
 {
 	
 	//set the fields
-	memcpy(dname, drent->d_name, kstrlen(dname));	
+	memmove(dname, drent->d_name, kstrlen(dname));	
 
 	drent->d_off = 0;
 	drent->d_reclen = size;

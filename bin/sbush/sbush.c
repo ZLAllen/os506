@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 
+
 int main(int argc, char *argv[], char *envp[])
 {
   // __asm__ volatile ("movq $50, %rax");
@@ -17,7 +18,7 @@ int main(int argc, char *argv[], char *envp[])
 
   //test cases
   
-  char* msg = "usr/next_hello";
+  char* msg = "usr/next_hello";  
   int fd = open(msg, 0);
   if(fd < 0)
   {
@@ -26,9 +27,29 @@ int main(int argc, char *argv[], char *envp[])
   }
 
 
-/*	
+  char* addr = (char*)brk((void*)-1);
+
+  //testing sucess cond
+  char* naddr = brk((void*)(addr + 100)); 
+
+
+  //testing failure cond
+  //read(fd, naddr, 100);
+  read(fd, naddr, 100);
+
+  write(1, naddr, 100);
+ 
+
+  read(0, naddr, 100);
+
+
+  while(1);
+
+
+
+  
   char a[10];
-  if(read(0, a, 10) < 0)
+  if(read(fd, a, 10) < 0)
   {
     write(1, "b", 1);
     while(1);
@@ -36,19 +57,9 @@ int main(int argc, char *argv[], char *envp[])
 
   if(write(1, a, 10) < 0)
   {
-  } 
-*/  
 
-  	
-  int *addr = (int *)0xF000000UL;
-
-  //testing sucess cond
-  brk(addr); 
-
-  //testing failure cond
-  addr = (int *) -1;
-  brk(addr);
-
+  }
+  
   while(1);
   char *file = "hello";
   execve(file, NULL, NULL);

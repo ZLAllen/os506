@@ -82,7 +82,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			{
 				kprintf("TEXT section\n");
 				vma_type = TEXT;
-				vma_flag = RX_USER; //(uint64_t)0|PAGE_P|PAGE_U|PAGE_RW;
+				vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U|PAGE_RW;
 			}
 			else if (phdr->p_flags == 6)
 			{
