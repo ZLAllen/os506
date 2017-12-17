@@ -112,7 +112,7 @@ int64_t sys_exit() {
     if (current->parent) {
         if (current->parent->waiting && 
                 (current->parent->wait_pid == current->pid ||  // waiting for this child
-                 current->parent->wait_pid == current->parent->pid)) // waiting for any child
+                 current->parent->wait_pid == -1)) // waiting for any child
             current->parent->waiting = false;
     }
 
