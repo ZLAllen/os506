@@ -85,6 +85,7 @@ int64_t sys_exit() {
 
 int64_t sys_open(char *name, int flags)
 {
+
 	kprintf("sys open. file name %s and flags %x\n", name, flags);
 	uint64_t ret = sysopen(name, flags);
 	if (ret >= 0)
@@ -243,19 +244,30 @@ int64_t sys_pipe(int *pipefd)
 int64_t sys_execve(char *file, char *argv[], char *envp[])
 {
 	//create a new process
-	struct task_struct *new_task = create_elf_process(file, argv, envp);
+	task_struct *new_task = create_elf_process(file, argv, envp);
 
 	if(new_task)
 	{
-
-		//replace curr process with this new process
+		
+		kprintf("created a new task\n");
+		
+		//replace curr process with this new process CAUTION anything else??	
 		new_task->parent = current->parent;
 		new_task->pid  = current->pid;
-
-
-		//clean up the now original process and loads new pml4
-		replace_task(current, new_task);
+		memcpy((void*)current->fdarr, (void*)new_task->fdarr, sizeof((struct task_struct *)0)->fdarr);//Is this needed?
+		kprintf("new process points to current process parent %p\n", new_task);
 		
+		task_struct *prev = current->prev;
+		task_struct *next = current->next;
+		prev->next = new_task;
+		new_task->next = next;
+		kprintf("placed new process between prev and next\n");
+
+		//clean up the original process and loads new pml4
+		replace_task(current, new_task);		
+		kprintf("replaced the original process\n");
+
+		while(1)
 
 		//run next task
 		sys_yield();
