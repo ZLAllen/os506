@@ -233,7 +233,7 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		
 
 		//run next task
-		yield();
+		sys_yield();
 		
 		panic("sys execve failed.\n");//execve does not return on success
 	}
