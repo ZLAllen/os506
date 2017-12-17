@@ -232,13 +232,13 @@ int64_t sys_execve(char *file, char *argv[], char *envp[])
 		replace_task(current, new_task);
 		
 
-		//enable interrupt??
-	 	__asm__ __volatile__ ("int $32");
+		//run next task
+		yield();
 		
-		panic("sys execve failed.\n");
+		panic("sys execve failed.\n");//execve does not return on success
 	}
 
-	return -1;
+	return -1;//failure
 }
 
 
