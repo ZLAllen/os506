@@ -306,14 +306,14 @@ task_struct *fork_process(task_struct *parent) {
     task_struct *child = get_task_struct();
 
     // copy parent's task info into child
-    memcpy(parent, child, sizeof(task_struct));
+    memmove(parent, child, sizeof(task_struct));
 
     child->kstack = kmalloc();
     child->runnable = true;
     child->mm = get_mm_struct();
 
     // copy parent's mm struct
-    memcpy(parent->mm, child->mm, sizeof(mm_struct));
+    memmove(parent->mm, child->mm, sizeof(mm_struct));
 
     // copy vma_structs from parent (entire linked list)
     vma_struct *parent_cursor = parent->mm->vm;
@@ -323,7 +323,7 @@ task_struct *fork_process(task_struct *parent) {
         vma_struct *new_vma = get_vma_struct();
 
         // copy parent's vma
-        memcpy(parent_cursor, new_vma, sizeof(vma_struct));
+        memmove(parent_cursor, new_vma, sizeof(vma_struct));
 
         // first vma in list?
         if (child_cursor) {
@@ -338,7 +338,7 @@ task_struct *fork_process(task_struct *parent) {
     }
 
     // copy parent's kernel stack
-    memcpy(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
+    memmove(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
 
     // child shares the same stack pointer
     child->rsp = (uint64_t)&(child->kstack[SP_REG]);

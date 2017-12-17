@@ -16,6 +16,19 @@ int main(int argc, char *argv[], char *envp[])
 */
 
   //test cases
+
+  uint64_t pid = fork();
+  if (pid == 0) {
+      write(1, "Child", 5);
+      yield();
+  } else {
+      write(1, "Parent", 6);
+      yield();
+  }
+  printf("Moo");
+  yield();
+  while(1);
+  
   
   char* msg = "usr/next_hello";
   int fd = open(msg, 0);
