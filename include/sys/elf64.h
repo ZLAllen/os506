@@ -65,6 +65,6 @@ typedef struct elf64_shdr
 } Elf64_Shdr;
 
 
-struct task_struct *create_elf_process(char *fname, char *argv[]);//elf process
+struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[]);//elf process
 
 #endif

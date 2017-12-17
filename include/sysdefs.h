@@ -13,10 +13,10 @@
 #define SYS_open 0x05
 #define SYS_close 0x06
 #define SYS_chdir 0
-#define SYS_pipe 22
+#define SYS_pipe 0x2a
 #define SYS_dup 0
 #define SYS_getcwd 0
 #define SYS_dup2 0
 #define SYS_wait4 0
-#define SYS_brk 12
-#define SYS_execve 0
+#define SYS_brk 0x2d
+#define SYS_execve 0x0b

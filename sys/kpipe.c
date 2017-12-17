@@ -184,7 +184,7 @@ int syspipe(int pipefd[])
 	current->fdarr[rfd] = rhead;
 	current->fdarr[wfd] = whead;
 
-    //point to the same buffer??
+    //point to the same buffer
     rhead->data = whead->data = buf;
 
     current->fdarr[rfd] = rhead;

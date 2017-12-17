@@ -6,6 +6,8 @@
 #include <sys/kfs.h>
 #include <sys/ktime.h>
 #include <sys/kpipe.h>
+#include <sys/elf64.h>
+#include <sys/error.h>
 
 extern uint64_t ms;
 
@@ -99,13 +101,32 @@ int64_t sys_close(int fd)
 	return ret;
 }
 
+//addr on success else current one 
 int64_t sys_brk(void *addr)
-{
+{	
+	uint64_t nbrk = (uint64_t)addr;	
+	
+	struct mm_struct *mm = current->mm;
+	uint64_t curr_brk = mm->brk;
+	
+	if (!mm)
+		panic("mm struct in sys brk is NULL\n");
 
-	kprintf("sys brk. addr is %x\n", addr);
-	uint64_t ret = sysbrk(current->mm, (uint64_t)addr);//addr on success else current one 
-	kprintf("sys brk. returned %x\n", ret);
-	return ret;
+    if(nbrk == -1)
+	{
+		kprintf("sys brk error. returning %x\n", curr_brk);
+        return curr_brk;
+	}
+
+    else
+    {
+        if(nbrk > curr_brk)
+            mm->brk = nbrk;
+
+		kprintf("sys brk sucessful. returning %x\n", nbrk);
+        return nbrk;
+    }
+
 }
 
 
@@ -152,7 +173,7 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
   } 
 
   kprintf("going back\n");
-  //while(1);
+  while(1);
   return nread;
 }
 
@@ -195,6 +216,33 @@ int64_t sys_pipe(int *pipefd)
 }
 
 
+int64_t sys_execve(char *file, char *argv[], char *envp[])
+{
+	//create a new process
+	struct task_struct *new_task = create_elf_process(file, argv, envp);
+
+	if(new_task)
+	{
+
+		//replace curr process with this new process
+		new_task->parent = current->parent;
+		new_task->pid  = current->pid;
+
+
+		//clean up the now original process and loads new pml4
+		replace_task(current, new_task);
+		
+
+		//run next task
+		sys_yield();
+		
+		panic("sys execve failed.\n");//execve does not return on success
+	}
+
+	return -1;//failure
+}
+
+
 /**
  * Supported syscalls
  * Functions defined above
@@ -213,7 +261,8 @@ functionWithArg syscalls[] = {
     [SYS_read] {3, sys_read},
     [SYS_write] {3, sys_write},
 	[SYS_brk] {1, sys_brk},//12
-	[SYS_pipe] {1, sys_pipe} //22
+	[SYS_pipe] {1, sys_pipe}, //22
+	[SYS_execve] {3, sys_execve}
 };
 
 /**
