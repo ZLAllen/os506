@@ -20,6 +20,8 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
+    sys_yield();
+    kprintf("thead 1 again\n");
     uint64_t sysReturn2 = 0; //test3(50, 60, 70);
     kprintf("Syscal SYS_test3 with arg 50, 60, 70 returns %d\n", sysReturn2);
     //kprintf("Thread 1 going to sleep for 6 seconds!\n");

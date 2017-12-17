@@ -7,6 +7,51 @@
 
 int main(int argc, char *argv[], char *envp[])
 {
+
+
+
+  printf("user A\n");
+
+  yield();
+
+  printf("user B\n");
+
+  yield();
+
+
+  printf("user C\n");
+
+
+  char a[10];
+
+  read(0, a, 10);
+
+  printf("user c %s\n", a);
+
+  uint64_t pid = fork();
+  if (pid == 0) {
+      printf("Child\n");
+      yield();
+      printf("child again\n");
+      exit();
+  } else {
+      printf("Parent\n");
+      yield();
+    char* msg = "usr/next_hello";  
+    int fd = open(msg, 0);
+    if(fd < 0)
+    {
+      write(1, "a", 1);
+      while(1);
+    }
+    yield();
+    printf("final parents\n");
+  }
+
+
+  exit();
+
+
   // __asm__ volatile ("movq $50, %rax");
   // __asm__ volatile ("movq $60, %rbx");
 
@@ -61,7 +106,7 @@ int main(int argc, char *argv[], char *envp[])
   while(1);
 
 */
-
+/*
   char* a = malloc(64);
 
   if(!a)
@@ -85,6 +130,8 @@ int main(int argc, char *argv[], char *envp[])
   printf("free done\n");
 
   while(1);
+*/
+
 
 
 
@@ -192,9 +239,6 @@ int main(int argc, char *argv[], char *envp[])
   //printf("just wanna test opendir\n");
   //opendir("/rootfs");
   
-  yield();
-  exit();
-
   while(1);
 
   return 0;

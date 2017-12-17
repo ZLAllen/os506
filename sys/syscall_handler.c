@@ -257,7 +257,8 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count)
   ssize_t nread;
   while((nread = filep->fop->read(filep, buf, count, filep->offset)) < 0)
   {
-    sys_yield();
+    __asm__ volatile ("sti; hlt;");
+
   } 
 
   return nread;
