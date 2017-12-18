@@ -237,6 +237,7 @@ void update_kkbd(char key, int ctrl){
 	}
 
         */
+
         if(ctrl){
             *ptr++ = BLACK|0x5E;
             if(key > 96 && key < 126)

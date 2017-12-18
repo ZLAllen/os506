@@ -416,16 +416,16 @@ int main(int argc, char *argv[], char *envp[]) {
     char buf[100];
     char* ptr;
    // static char pwd[100];
-  //  struct cmd* command;
+    struct cmd* command;
    // char* spam;
-   // int status;
+    int status;
     int fd = 0;
    // extern char* dPath;
   //  char* pw, *rs;
     int ret;
   //  char* script = 0, *nsc = 0;
 
-   // pid_t  pid;
+    pid_t  pid;
 
 
     //try to get scripts
@@ -509,13 +509,16 @@ int main(int argc, char *argv[], char *envp[]) {
 
 
         if (pid == 0) {         // child process executes the command
+          /*
             if(script){
                 ptr = malloc(strlen(script)+strlen(buf));
                 strncpy(ptr, script, strlen(script));
                 strncpy(ptr+strlen(script), buf, strlen(buf));
             }
+            */
             command = parsecmd(buf);
             runcmd(command);
+            exit();
         }
         else if (pid < 0) {     //fork a child process
             printf("ERROR: forking failed\n");
@@ -524,9 +527,11 @@ int main(int argc, char *argv[], char *envp[]) {
         else {              //parent waits on the child for completion
             wait(&status);
 
+            /*
             if(!ret){
                 break;
             }
+            */
         } 
     }
 
