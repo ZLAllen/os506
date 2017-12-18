@@ -29,11 +29,11 @@ void sleep(uint64_t ms) {
     yield();
 }
 
-int wait(int *status) {
-    return wait4(-1, status, 0);
+pid_t wait(int *status) {
+    return waitpid(-1, status);
 }
 
-int wait4(pid_t pid, int *status, int options) {
+pid_t waitpid(pid_t pid, int *status) {
 
     uint64_t num = SYS_wait4;
     uint64_t ret;
@@ -43,8 +43,7 @@ int wait4(pid_t pid, int *status, int options) {
     __asm__ __volatile__
         ("movq %0, %%rdi;" 
          "movq %1, %%rsi;"
-         "movq %2, %%rdx;"
-         ::"r" ((int64_t)pid), "r" ((uint64_t)status), "r" ((uint64_t)options)
+         ::"r" ((int64_t)pid), "r" ((uint64_t)status)
          : "%rbx", "%rcx", "%rdx", "%rsi", "%rdi", "%rax"
          
         );
