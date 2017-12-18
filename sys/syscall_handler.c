@@ -260,7 +260,7 @@ int64_t sys_open(char *name, int flags)
 
 
 /*
- *
+ *closes a file object pointed by process fdarr at fd index
  * */
 int64_t sys_close(int fd)
 {
@@ -340,6 +340,10 @@ int64_t sys_brk(void *addr)
 	return 0;
 }
 
+
+/*
+ *gets current working directory for the process
+ * */
 int64_t getcwd(char* buf)
 {
   if(!buf)
@@ -347,7 +351,7 @@ int64_t getcwd(char* buf)
 
   kstrcpy(current->cwd,buf);
 
- return 0; 
+  return 0; 
 }
 
 
@@ -378,7 +382,9 @@ int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int co
 }
 
 
-
+/*
+ *
+ * */
 int64_t sys_read(unsigned int fd, char *buf, size_t count)
 {
 
@@ -446,7 +452,10 @@ int64_t sys_write(unsigned int fd, char *buf, size_t count)
 	return nwrite;
 }
 
-
+/*
+ *creates a pipe, a unidirectional data channel that can be used
+ *for interprocess communication.  0 success, -1 error
+ * */
 int64_t sys_pipe(int *pipefd)
 {
 	kprintf("sys pipe.\n");
@@ -457,6 +466,9 @@ int64_t sys_pipe(int *pipefd)
 }
 
 
+/*
+ *executes the program pointed to by filename. argv are argument. envp are env settings
+ * */
 int64_t sys_execve(char *file, char **argv, char **envp)
 {
 	kprintf("sys execvpe. file %s\n", file);	
