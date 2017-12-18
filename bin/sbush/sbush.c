@@ -1,5 +1,4 @@
 #include <stdio.h>
-<<<<<<< Updated upstream
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -405,7 +404,7 @@ void  execute_cmd(char **argv, char **envp)
 }
 #endif
 
-<<<<<<< Updated upstream
+
 void welcome_message(){
     printf("\n*****************************\n");
     printf("       SBU Shell\n");
@@ -432,7 +431,6 @@ int main(int argc, char *argv[], char *envp[]) {
 
    // pid_t  pid;
 
-<<<<<<< Updated upstream
 
     //try to get scripts
     if(argc > 1){

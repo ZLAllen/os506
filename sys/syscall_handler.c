@@ -258,17 +258,6 @@ int64_t getcwd(char* buf)
 }
 
 
-int64_t sys_chdir(char* path)
-{
-  if(!path)
-    return -1;
-
-  if(memcmp(path, ".", 1) == 0)
-    return 0;
-
- return 0; 
-}
-
 
 int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
@@ -428,6 +417,9 @@ int64_t sys_chdir(char *path)
 		kprintf("given path is null\n");
 		return -1;
 	}
+
+  	if(memcmp(path, ".", 1) == 0)
+		return 0;
 
 	char *abs_path;//contains the abs path
 
