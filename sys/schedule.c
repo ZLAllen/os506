@@ -231,7 +231,7 @@ task_struct *get_next_task() {
 
     if (!next_struct) {
         // no sleeping tasks to wake up, so check waiting tasks
-        next_struct = sleeping_tasks;
+        next_struct = waiting_tasks;
         while (next_struct && next_struct->waiting)
             next_struct = next_struct->next;
 
