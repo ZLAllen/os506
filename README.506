@@ -2,6 +2,15 @@ This README containes all the functionalities tha we have added to our shell wit
 
 
 
+##############################################################################
+Issues with the code
+
+-- Fork is not working since we are not able to locate child's stack pointer.This makes complete testing of the OS problematic.
+
+
+
+
+##############################################################################
 ELF Binary Loader- elf64.c and tarfs.c
 -- Create abstract file objects for the USTAR FS
 -- Maps the text, data, bss, heap, and stack into memory
@@ -43,7 +52,6 @@ Shell: sbush.c
 -- cat to read a file and output to standard library
 -- grep word (no quotation mark)[files...] 
 -- shell exit message, simple message for graceful exit
-
 -- execute script, a testscript example is provided
 
 
