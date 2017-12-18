@@ -180,6 +180,8 @@ void init_thread() {
 	char buf[1024];
 	ps(buf);
 	kprintf("PS:\n%s\n", buf);
+
+	kstrcpy("/", new_task->cwd);//setting cwd to root
     //cr3_w(new_task->mm->pml4);
 
     //uint64_t* ret = 0;

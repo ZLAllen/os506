@@ -9,6 +9,7 @@
 #include <sys/error.h>
 #include <sys/pmap.h>
 #include <sys/kstring.h>
+#include <sys/kmalloc.h>
 
 extern uint64_t ms;
 
@@ -222,6 +223,12 @@ int64_t sys_ps(char *buf) {
 }
 
 
+/*
+ *opens the file using name and flags
+ *returns a valid file descriptor on success
+ *puts the pointer to the file object in fd array at fd index
+ -1 on failure
+ * */
 int64_t sys_open(char *name, int flags)
 {
 	//kprintf("sys open. file name %s and flags %x\n", name, flags);
@@ -252,6 +259,9 @@ int64_t sys_open(char *name, int flags)
 }
 
 
+/*
+ *
+ * */
 int64_t sys_close(int fd)
 {
 	kprintf("sys close. fd %d\n", fd);	
@@ -298,23 +308,7 @@ int64_t sys_brk(void *addr)
 				kprintf("vma_struct in sys brk is NULL\n");
 				return -1;
 			}
-			/*
-			   while(vma)
-			   {
-
-			   if(vma->vm_start <= nbrk && nbrk <= vma->vm_end)
-			   {
-			   kprintf("sysbrk causes vmas overlap\n");
-			   return -1;
-			   }
-			   vma = vma->next;
-			   }
-
-			   vma = mm->vm;
-			   */
-
-
-
+	
 			while(vma)
 			{
 				if(vma->type == HEAP)
@@ -356,17 +350,6 @@ int64_t getcwd(char* buf)
  return 0; 
 }
 
-
-int64_t sys_chdir(char* path)
-{
-  if(!path)
-    return -1;
-
-  if(memcmp(path, ".", 1) == 0)
-    return 0;
-
- return 0; 
-}
 
 
 int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
@@ -515,6 +498,47 @@ int64_t sys_execve(char *file, char **argv, char **envp)
 }
 
 
+/*
+*changes the CWD of the calling process to path
+*osuccess 0, error -1
+**/
+
+int64_t sys_chdir(char *path)
+{
+	if (!path)
+	{
+		kprintf("given path is null\n");
+		return -1;
+	}
+
+  	if(memcmp(path, ".", 1) == 0)
+		return 0;
+
+	char *abs_path;//contains the abs path
+
+	abs_path = path;//TODO need to resolve this
+
+	int length = kstrlen(abs_path);//without null
+	if (length > MAX_PATH_LEN)
+	{
+		kprintf("path length exceeds max allowed len\n");
+		return -1;
+	}
+
+	int isdir = check_tfs_dir(abs_path);
+	if(isdir < 0)
+	{
+		kprintf("invalid path\n");
+		return -1;
+	}
+	
+	kstrcpy(abs_path, current->cwd);//copy it into the current process cwd
+
+	kfree(abs_path);
+	return 0;
+}
+
+
 /**
  * Supported syscalls
  * Functions defined above
@@ -536,7 +560,8 @@ functionWithArg syscalls[] = {
 	[SYS_pipe] {1, sys_pipe}, //22
 	[SYS_execve] {3, sys_execve},//59
     [SYS_wait4] {3, sys_wait4}, // 61
-    [SYS_ps] {1, sys_ps}
+    [SYS_ps] {1, sys_ps},
+	[SYS_chdir] {1, sys_chdir}
 };
 
 /**

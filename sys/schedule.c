@@ -7,6 +7,8 @@
 #include <sys/pmap.h>
 #include <sys/task_pool.h>
 #include <syscall.h>
+#include <sys/kstring.h>
+
 
 task_struct *current;
 task_struct *idle;
@@ -365,6 +367,7 @@ task_struct *fork_process(task_struct *parent) {
     child->runnable = true;
     child->userp = parent->userp;
     child->mm = get_mm_struct();
+	kstrcpy(parent->cwd, child->cwd); //child created via fork inherits cwd
 
     parent->num_children++;
 

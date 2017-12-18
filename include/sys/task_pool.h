@@ -11,10 +11,11 @@ enum vma_perm{X, RW};
 
 #define PROC_NAME_LEN 16
 
+#define MAX_PATH_LEN 49
 
 #include <sys/defs.h>
 #include <sys/files.h>
-#include <dirent.h> //??is it right
+#include <dirent.h> 
 
 
 
@@ -39,9 +40,9 @@ typedef struct task_struct {
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct
-    char cwd[50];
     char name[PROC_NAME_LEN]; // process name
-    struct file *fdarr[MAX_FD];//keeps track of files for this process	
+    struct file *fdarr[MAX_FD];//keeps track of files for this process
+	char cwd[MAX_PATH_LEN + 1];	//1 for the null
 } task_struct;
 
 typedef struct vma_struct{

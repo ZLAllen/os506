@@ -200,14 +200,21 @@ int term_putchar(char a)
   if(a == '\b')
   {
     // now we implement backspace, first look at how much we can backspace
-    if(term.backspace == 0)
+    if(term.backspace <= 0)
     {
       return -1;
+    }else{ 
+       term_poplast();
+       if(term.backspace > 0){
+         term.backspace -= 1;
+       } else
+         term.backspace = 0;
     }
-
-    term_poplast();
-    term.backspace--;
-    // check echo 
+    // check echo
+    //
+    if(term.echo)
+    kputchar(a);
+    return 0; 
   }
 
   // reject inputs upon full

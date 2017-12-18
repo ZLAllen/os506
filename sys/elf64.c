@@ -10,7 +10,6 @@
 #include <sys/pging.h>
 #include <sys/kstring.h>
 #include <fcntl.h>
-#include <sys/system.h>
 
 
 Elf64_Ehdr* get_ehdr(struct file *filep); 
@@ -37,13 +36,13 @@ static char env_buf[MAX_ENV][MAX_ENV_LEN];
 struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
 {
     struct file *filep = tfs_open(fname, O_RDONLY);
-
+    
     if(!filep)
     {
         kprintf("file object could not be created\n");
         return NULL;
     }
-
+    
     Elf64_Ehdr *ehdr = get_ehdr(filep);
     int valid = validate_ehdr(ehdr);
     if (valid != 0)
@@ -51,16 +50,17 @@ struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
         kprintf("\nfile object not valid\n");
         return NULL;
     }
+	char *part, *name;
+	part = strtok(fname, "/");
+	name = part;
+	while (part != NULL) {
+		name = part;
+		part = strtok(NULL, "/");
+	}
+	//kprintf("calling elf loader\n");
+	struct task_struct *newtask = load_elf(ehdr, argv, envp, name);
 
-    char *part, *name;
-    part = strtok(fname, "/");
-    name = part;
-    while (part != NULL) {
-        name = part;
-        part = strtok(NULL, "/");
-    }
-    //kprintf("calling elf loader\n");
-    struct task_struct *newtask = load_elf(ehdr, argv, envp, name);
+	//kprintf("calling elf loader\n");
     //kprintf("task scheduled\n");
     return newtask;
 }
@@ -235,8 +235,8 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
         while(argv[nargs])
         {
 
-            kstrcpy(argv[nargs], arg_buf[nargs]);	
-            nargs++;
+            kstrcpy(argv[nargs], arg_buf[nargs]);    
+      nargs++;
         }
 
     }
@@ -302,7 +302,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
 
     mm->start_stack = (uint64_t)ss;
     kprintf("finally stack top at %x\n", mm->start_stack);
-
+    
     cr3_w(pt);
 
     //schedule process
@@ -353,7 +353,7 @@ int validate_ehdr(Elf64_Ehdr *ehdr)
     {
         //kprintf("\nnot an exec file\n");
         return -1;
-    }	
+    }    
     //kprintf("file type %d phdr offset %s shdr offset %s flags %d\n", ehdr->e_type, ehdr->e_phoff, ehdr->e_shoff, ehdr->e_flags);//we want executable files = 2
     return 0;
 }
@@ -402,14 +402,14 @@ int get_shdr_info(Elf64_Ehdr *ehdr)
 
 Elf64_Phdr* get_phdr(Elf64_Ehdr *ehdr)
 {
-    Elf64_Phdr * phdr = (Elf64_Phdr*)((void*)ehdr + ehdr->e_phoff);	
+    Elf64_Phdr * phdr = (Elf64_Phdr*)((void*)ehdr + ehdr->e_phoff);    
     return phdr;
 }
 
 
 Elf64_Ehdr* get_ehdr(struct file *filep)
 {
-    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)(((char *)filep->data) + sizeof(struct posix_header_ustar));	
+    Elf64_Ehdr *ehdr = (Elf64_Ehdr *)(((char *)filep->data) + sizeof(struct posix_header_ustar));    
     return ehdr;
 }
 
