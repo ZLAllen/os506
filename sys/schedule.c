@@ -134,6 +134,10 @@ void switch_to(
  */
 void reschedule(task_struct *task) {
 
+    // do not reschedule if sleeping or waiting
+    if (task->waiting || task->sleep_time > ms)
+        return;
+
     if (available_tasks == NULL) {
         available_tasks = task;
     } else {
@@ -227,7 +231,7 @@ task_struct *get_next_task() {
 
     if (!next_struct) {
         // no sleeping tasks to wake up, so check waiting tasks
-        next_struct = sleeping_tasks;
+        next_struct = waiting_tasks;
         while (next_struct && next_struct->waiting)
             next_struct = next_struct->next;
 
