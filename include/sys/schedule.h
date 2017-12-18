@@ -20,7 +20,7 @@ extern task_struct *idle;
 void switch_to(task_struct *me, task_struct *next);
 void reschedule(task_struct *task);
 void schedule(task_struct *new_task, uint64_t e_entry);
-task_struct *create_new_task(bool userp);
+task_struct *create_new_task(bool userp, char *name);
 task_struct *get_next_task();
 void add_waiting_task(task_struct *task);
 void add_sleeping_task(task_struct *task);

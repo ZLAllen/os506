@@ -188,8 +188,10 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
  * Create a new task
  * This does not schedule the task.
  */
-task_struct *create_new_task(bool userp) {
+task_struct *create_new_task(bool userp, char *name) {
     task_struct *new_task = get_task_struct();
+    memmove(name, new_task->name, PROC_NAME_LEN);
+    new_task->start_ms = ms;
     new_task->kstack = kmalloc();
 
     new_task->runnable = true;
@@ -502,7 +504,7 @@ task_struct *fork_process(task_struct *parent) {
  */
 void create_idle_task() {
     if (!idle) {
-        idle = create_new_task(false);
+        idle = create_new_task(false, "idle_task");
         idle->runnable = false;
         schedule(idle, (uint64_t)idle_task);
         idle->rax = -1;

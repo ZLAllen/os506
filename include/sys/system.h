@@ -3,6 +3,9 @@
 
 #include <sys/defs.h>
 
+char *int_to_str(char *buf, int i, int base);
+char *strcat(char *dest, const char *src);
+char *strtok(char *str, const char *delimiters);
 //I/O ports
 
 

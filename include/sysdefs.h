@@ -5,6 +5,9 @@
 #define SYS_fork 57
 #define SYS_exit 60
 #define SYS_getdents 78
+
+#define SYS_ps 0x63
+
 #define SYS_read 0x03
 #define SYS_write 0x04
 #define SYS_open 0x05
