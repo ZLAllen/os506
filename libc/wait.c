@@ -4,7 +4,7 @@
 int wait(int *status){
     int ret;
 
-    ret = wait4(-1, status, 0);
+    ret = waitpid(-1, status);
 
     return ret;
 

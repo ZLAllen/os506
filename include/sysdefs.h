@@ -17,6 +17,6 @@
 #define SYS_dup 0
 #define SYS_getcwd 0
 #define SYS_dup2 0
-#define SYS_wait4 0
+#define SYS_wait4 0x3d
 #define SYS_brk 0x2d
 #define SYS_execve 59

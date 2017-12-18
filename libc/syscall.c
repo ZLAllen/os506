@@ -174,18 +174,17 @@ int dup(int fd){
     return ret;
 }
 
-int wait(int *status) {
-    return wait4(-1, status, 0);
+pid_t wait(int *status) {
+    return waitpid(-1, status);
 }
 
-int wait4(pid_t upid, int* status, int options){
-    // we ignore struct rusage for now
+pid_t waitpid(pid_t upid, int* status){
     int ret;
 
     __asm
         ("int $0x80"
          :"=a"(ret)
-         :"0"(SYS_wait4), "D"(upid), "S"(status),"d"(options)
+         :"0"(SYS_wait4), "D"(upid), "S"(status)
          :"cc", "rcx", "r11"
         );
     
