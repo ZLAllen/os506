@@ -106,6 +106,7 @@ int main(int argc, char *argv[], char *envp[])
   while(1);
 
 */
+
 /*
   char* a = malloc(64);
 
@@ -118,8 +119,17 @@ int main(int argc, char *argv[], char *envp[])
   char* b = malloc(128);
   if(!b)
   {
-    printf("b allocation failed");
+    printf("b allocation failed\n");
   }
+
+  struct dstream *dirp;
+  dirp = malloc(sizeof(*dirp));
+  if(!dirp)
+  {
+	  printf("dirp allocation failed\n");
+  }
+
+  dirp->size = 0;
 
   printf("allocate succeeds\n");
 
@@ -127,7 +137,10 @@ int main(int argc, char *argv[], char *envp[])
 
   free(b);
 
+  free(dirp);
+
   printf("free done\n");
+
 
   while(1);
 */
@@ -188,32 +201,39 @@ int main(int argc, char *argv[], char *envp[])
 
   //this should definitely give segfault
   //*addr = 0x1234;
-
-  //printf("WILL START TESTING\n");
+ 
   
-  //struct dstream *dirp;
-  //struct linux_dirent *drent;
-  //char *path = "usr/next_hello";
    
-  
-  //printf("start openddir\n");  
-  //opendir(path); 
-  //printf("done opendir\n");
-  //while(1);	
-    
-  //printf("start readdir\n");
-  /*  
-  int num = 0;
-  while((drent = readdir(dirp)) != NULL) 
+  char *path_arr[] = {"usr/", "/", NULL};
+
+  int n = 0;
+  while(path_arr[n])
+{
+  char *path = path_arr[n];
+
+  struct dstream *dir;
+  printf("start openddir for \"%s\"\n", path); 
+  dir = opendir(path); 
+  if(!dir)
   {
-	//printf("reading file: %s\n", drent->d_name);
-	num ++;
+	 printf("opendir failed\n");
   }
-  //printf("done readdir\n");
-  */
-  //printf("start closedir");
- // closedir(dirp);
-  //printf("done closedir");
+    
+  printf("start readdir\n");
+    
+  struct linux_dirent *drent;
+  while((drent = readdir(dir)) != NULL) 
+  {
+	printf("\nreading file: %s\n", drent->d_name);
+  }
+  printf("done readdir\n");
+  
+  printf("start closedir\n");
+  closedir(dir);
+  printf("done closedir\n");
+  n++;
+}
+
 
   /*
   printf("start open");
@@ -239,6 +259,7 @@ int main(int argc, char *argv[], char *envp[])
   //printf("just wanna test opendir\n");
   //opendir("/rootfs");
   
+
   while(1);
 
   return 0;
