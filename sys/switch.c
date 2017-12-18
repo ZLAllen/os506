@@ -161,11 +161,10 @@ void init_thread() {
     kprintf("\nelf process\n");
     char *fname = "bin/sbush";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
-    char *argv[] = {0};
+    char *argv[] = {"hello", "world", "switch", "dot", "c", "file", '\0'};
 	char *envp[] = {0};
     task_struct *new_task = create_elf_process(fname, argv, envp);
-    
-
+   
     //cr3_w(new_task->mm->pml4);
 
     //uint64_t* ret = 0;
