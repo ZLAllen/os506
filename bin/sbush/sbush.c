@@ -33,9 +33,16 @@ int main(int argc, char *argv[], char *envp[])
       printf("Child\n");
       yield();
       printf("child again\n");
+      yield();
+      printf("child done\n");
       exit();
   } else {
       printf("Parent\n");
+      
+    printf("Parent will now wait for its child\n");
+    int waitStatus = 9000;
+    int waitRet = wait(&waitStatus);
+    printf("Waiting done. Return %d. Status %d\n", waitRet, waitStatus);
       yield();
     char* msg = "usr/next_hello";  
     int fd = open(msg, 0);
