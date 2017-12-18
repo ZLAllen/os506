@@ -412,6 +412,11 @@ void welcome_message(){
 int main(int argc, char *argv[], char *envp[]) {
 
     welcome_message();
+/*
+	char ps_buf[1024];
+	ps(ps_buf);
+	printf("PS:\n%s\n", ps_buf);
+*/
 
     char buf[100];
     char* ptr;

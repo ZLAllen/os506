@@ -9,6 +9,8 @@ enum vma_perm{X, RW};
 #define STACK_SIZE_USR 0x10000 
 #define MAX_FD 50
 
+#define PROC_NAME_LEN 16
+
 
 #include <sys/defs.h>
 #include <sys/files.h>
@@ -23,6 +25,7 @@ typedef struct task_struct {
     bool runnable; // runnable process
     bool waiting; // process waiting
     bool first_run;
+    uint64_t start_ms; // start time in ms
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register
     uint64_t rsp; // location of rsp register
@@ -37,6 +40,7 @@ typedef struct task_struct {
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct
     char cwd[50];
+    char name[PROC_NAME_LEN]; // process name
     struct file *fdarr[MAX_FD];//keeps track of files for this process	
 } task_struct;
 

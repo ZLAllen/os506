@@ -23,11 +23,14 @@ void thread1()
     kprintf("thead 1 again\n");
     uint64_t sysReturn2 = 0; //test3(50, 60, 70);
     kprintf("Syscal SYS_test3 with arg 50, 60, 70 returns %d\n", sysReturn2);
-    //kprintf("Thread 1 going to sleep for 6 seconds!\n");
-    //sleep(6000);
-    //kprintf("Back from sleep!\n");
+    kprintf("Thread 1 going to sleep for 6 seconds!\n");
+    sleep(6000);
+    kprintf("Back from sleep!\n");
     uint64_t forkRet = fork();
     if (forkRet == 0) {
+        char buf[1024];
+        ps(buf);
+        kprintf("PS:\n%s\n", buf);
         kprintf("Child\n");
         x++;
         kprintf("Back in thread 1's child. Variable is %d.\n", x);
@@ -67,6 +70,9 @@ void thread2()
     x++;
 	kprintf("Thread 2. Variable is %d. \n", x);
     yield();
+    char buf[1024];
+    ps(buf);
+    kprintf("PS:\n%s\n", buf);
     x++;
     kprintf("Back in thread 2. Variable is %d. \n", x);
     yield();
@@ -139,8 +145,8 @@ void thread6(){
 
 
 void init_thread() {
-    task1 = create_new_task(false);
-    task2 = create_new_task(false);
+    task1 = create_new_task(false, "task1");
+    task2 = create_new_task(false, "task2");
     /*
     task3 = create_new_task(false);
     task4 = create_new_task(false);
@@ -171,6 +177,9 @@ void init_thread() {
 	char *envp[] = {0};
     task_struct *new_task = create_elf_process(fname, argv, envp);
    
+	char buf[1024];
+	ps(buf);
+	kprintf("PS:\n%s\n", buf);
     //cr3_w(new_task->mm->pml4);
 
     //uint64_t* ret = 0;

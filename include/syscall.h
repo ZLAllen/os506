@@ -28,6 +28,7 @@ void sleep(uint64_t ms);
 pid_t fork();
 void exit();
 
+void ps(char *buf);
 
 int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
 // utility functions to set arguments for syscall

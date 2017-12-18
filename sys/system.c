@@ -3,7 +3,84 @@
 
 
 
+/******************* String ******************/
 
+static char Rep[] = "0123456789ABCDEF";
+
+// a very dumbed down version of sprintf
+// returns pointer to null terminated string version of int
+// buf must be 50 or greater
+char *int_to_str(char *buf, int i, int base) {
+
+    char* ptr;
+
+    ptr = &buf[49];
+    *ptr = '\0';
+
+    do {
+        *--ptr = Rep[i%base];
+        i /= base;
+    } while(i != 0);
+    return ptr;
+}
+
+// concatenate two strings
+char *strcat(char *dest, const char *src) {
+    // hold original dest to return
+    char *cursor = dest;
+
+    // move cursor to the end of dest
+	while (*cursor)
+		cursor++;
+
+    // add each char of src to cursor
+	while (*src) {
+        *cursor = *src;
+        cursor++;
+        src++;
+    }
+	return dest;
+
+}
+char *strtok(char *str, const char *delimiters) {
+
+    static char *position;
+
+    // if str is NULL, use saved position
+    if (str)
+        position = str;
+    
+    int index = 0;
+    char *currentDelimiter = (char *)delimiters;
+
+    while (position[index]) {
+        while (*currentDelimiter) {
+            if (position[index] == *currentDelimiter) {
+                position[index] = '\0';
+
+                // save previous position before updating
+                char *temp = position;
+
+                // move position to index after delimiter
+                position = position + index + 1;
+
+                return temp;
+            }
+            currentDelimiter++;
+        }
+        currentDelimiter = (char *)delimiters;
+        index++;
+    }
+
+    if (position[0]) {
+        // reached end of string, move position and return start of final token
+        char *temp = position;
+        position += index;
+        return temp;
+    } else {
+        return 0;
+    }
+}
 
 
 

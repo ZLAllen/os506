@@ -20,6 +20,9 @@ extern uint64_t ms;
 
 /** current process (sys/schedule.c) */
 extern task_struct *current;
+extern task_struct *waiting_tasks;
+extern task_struct *available_tasks;
+extern task_struct *sleeping_tasks;
 
 int64_t sys_yield() {
 	run_next_task();
@@ -125,6 +128,96 @@ int64_t sys_exit() {
     }
 
     sys_yield();
+    return 0;
+}
+
+/*
+ * Get list of processes
+ * ps command output into buf
+ */
+int64_t sys_ps(char *buf) {
+
+    char ps_buf[1024];
+    char int_buf[50];
+    char *int_start;
+
+    // header
+    strcat(ps_buf, "PID    Name    Running Time\n");
+
+    if (current) {
+        // pid
+        int_start = int_to_str(int_buf, current->pid, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "     ");
+
+        strcat(ps_buf, current->name);
+        strcat(ps_buf, "     ");
+
+        // running time
+        int_start = int_to_str(int_buf, ms - current->start_ms, 10);
+        strcat(ps_buf, int_start);
+
+        strcat(ps_buf, "\n");
+    }
+
+    task_struct *cursor = available_tasks;
+    while (cursor) {
+        // pid
+        int_start = int_to_str(int_buf, cursor->pid, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "     ");
+
+        // process name
+        strcat(ps_buf, cursor->name);
+        strcat(ps_buf, "     ");
+
+        // running time
+        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "\n");
+        cursor = cursor->next;
+    }
+
+    cursor = waiting_tasks;
+    while (cursor) {
+        // pid
+        int_start = int_to_str(int_buf, cursor->pid, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "     ");
+
+        // process name
+        strcat(ps_buf, cursor->name);
+        strcat(ps_buf, "     ");
+
+        // running time
+        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "\n");
+        cursor = cursor->next;
+    }
+
+    cursor = sleeping_tasks;
+    while (cursor) {
+        // pid
+        int_start = int_to_str(int_buf, cursor->pid, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "     ");
+
+        // process name
+        strcat(ps_buf, cursor->name);
+        strcat(ps_buf, "     ");
+
+        // running time
+        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
+        strcat(ps_buf, int_start);
+        strcat(ps_buf, "\n");
+        cursor = cursor->next;
+    }
+
+    strcat(ps_buf, "\0");
+
+    memmove(ps_buf, buf, 1024);
+
     return 0;
 }
 
@@ -442,7 +535,8 @@ functionWithArg syscalls[] = {
 	[SYS_brk] {1, sys_brk},//12
 	[SYS_pipe] {1, sys_pipe}, //22
 	[SYS_execve] {3, sys_execve},//59
-    [SYS_wait4] {3, sys_wait4} // 61
+    [SYS_wait4] {3, sys_wait4}, // 61
+    [SYS_ps] {1, sys_ps}
 };
 
 /**

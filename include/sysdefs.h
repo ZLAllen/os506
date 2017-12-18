@@ -7,6 +7,8 @@
 
 #define SYS_getdents 78
 
+#define SYS_ps 0x63
+
 // TODO
 #define SYS_read 0x03
 #define SYS_write 0x04
