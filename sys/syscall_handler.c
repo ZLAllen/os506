@@ -418,6 +418,9 @@ int64_t sys_chdir(char *path)
 		return -1;
 	}
 
+  	if(memcmp(path, ".", 1) == 0)
+		return 0;
+
 	char *abs_path;//contains the abs path
 
 	abs_path = path;//TODO need to resolve this
