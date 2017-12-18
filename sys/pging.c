@@ -83,60 +83,6 @@ void init_pging(uint64_t physfree)
 
     map_page(0xb8000, VIDEO, (uint64_t)0|PAGE_P|PAGE_RW);
 
-    // set a top virtual address
-
-
-    // test for kmalloc
-    /*
-    char* test_addr = kmalloc();
-
-    uint64_t* phy = getPhys((uint64_t)test_addr);
-   
-    kprintf("%p, %p\n", phy, *phy);
-
-
-    memmove("Hello World", test_addr, 11);
-
-    kprintf("%s\n", test_addr);
-
-    kfree(test_addr);
-
-
-    test_addr = kmalloc();
-
-     phy = getPhys((uint64_t)test_addr);
-   
-    kprintf("%p, %p\n", phy, *phy);
-
-
-    memmove("Hello World", test_addr, 11);
-
-    kprintf("%s\n", test_addr);
-    
-
-    test_addr = kmalloc();
-
-     phy = getPhys((uint64_t)test_addr);
-   
-    kprintf("%p, %p\n", phy, *phy);
-
-
-    memmove("Hello World", test_addr, 11);
-
-    kprintf("%s\n", test_addr);
-*/
-
-
-
-/*
-    kprintf("%x, %x\n", PML4E(KERN), PDPE(KERN));
-    kprintf("%x, %x, %x, %x\n", pml4, pdpt, pdt, pt);
-    kprintf("%x, %x\n", pdt[511], pt[512]);
-
-
-    kprintf("cr0: %x, cr3: %x\n", cr0_r(), cr3_r());
-
-*/
 }
 
 void* getPhys(uint64_t vaddr)

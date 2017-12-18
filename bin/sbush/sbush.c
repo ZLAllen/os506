@@ -62,6 +62,8 @@ int getcmd(char* buf, int max, int fd)
 
     nread = read(fd, buf, max);
 
+    buf[nread] = '\0';
+
     return nread;
 
     /*
@@ -250,6 +252,7 @@ void runcmd(struct cmd* cmd){
     //printf("command type %c\n", cmd->type);
     switch (cmd->type){
         case 'e':
+          while(1);
             esub = (struct ecmd*) cmd; 
             // printf("command %s running\n", esub->argv[0]);
             // printf("with arguements:\n");
@@ -424,16 +427,16 @@ int main(int argc, char *argv[], char *envp[]) {
     char buf[100];
     char* ptr;
    // static char pwd[100];
-    struct cmd* command;
+  //  struct cmd* command;
    // char* spam;
-    int status;
+   // int status;
     int fd = 0;
    // extern char* dPath;
   //  char* pw, *rs;
-    int ret;
+     int ret;
   //  char* script = 0, *nsc = 0;
 
-    pid_t  pid;
+  //  pid_t  pid;
 
 
     //try to get scripts
@@ -478,7 +481,7 @@ int main(int argc, char *argv[], char *envp[]) {
         }
 
 
-        //printf("command is %s\n", buf);;
+        printf("command is %s\n", buf);
         /*
         if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
@@ -509,21 +512,22 @@ int main(int argc, char *argv[], char *envp[]) {
         // exit operation 
         char *exit_cmd = "exit";
         if(strncmp(ptr, exit_cmd, 4) == 0){
-           //printf("exiting the shell\n");
+           printf("exiting the shell\n");
            exit();
         }
-
+/*
         pid = fork();
 
 
         if (pid == 0) {         // child process executes the command
-          /*
             if(script){
                 ptr = malloc(strlen(script)+strlen(buf));
                 strncpy(ptr, script, strlen(script));
                 strncpy(ptr+strlen(script), buf, strlen(buf));
             }
-            */
+
+            printf("buf: %s\n", buf);
+            while(1);
             command = parsecmd(buf);
             runcmd(command);
             exit();
@@ -533,14 +537,10 @@ int main(int argc, char *argv[], char *envp[]) {
             exit();
         }
         else {              //parent waits on the child for completion
-            wait(&status);
+          wait(&status);
 
-            /*
-            if(!ret){
-                break;
-            }
-            */
         } 
+        */
     }
 
     /* changes end here */

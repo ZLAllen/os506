@@ -147,7 +147,6 @@ uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree
     // switch to virtual address
     list_arr = (struct freelist_entry*)VADDR(list_arr);
 
-    kprintf("entry count %d, free: %d\n", entry_count, free_pg_count);
 
 
 /*
