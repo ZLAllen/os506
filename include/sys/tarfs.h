@@ -61,4 +61,6 @@ ssize_t tfs_write(struct file *filep, char *buff, size_t count, off_t *offset);
 
 void test_tarfs();
 
+int check_tfs_dir(char *path);
+
 #endif

@@ -4,10 +4,7 @@
 #define SYS_test3 51
 #define SYS_fork 57
 #define SYS_exit 60
-
 #define SYS_getdents 78
-
-// TODO
 #define SYS_read 0x03
 #define SYS_write 0x04
 #define SYS_open 0x05

@@ -170,7 +170,12 @@ void init_thread() {
     char *argv[] = {'\0'};
 	char *envp[] = {0};
     task_struct *new_task = create_elf_process(fname, argv, envp);
+<<<<<<< Updated upstream
    
+=======
+
+	kstrcpy("/", new_task->cwd);//setting cwd to root
+>>>>>>> Stashed changes
     //cr3_w(new_task->mm->pml4);
 
     //uint64_t* ret = 0;
