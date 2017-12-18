@@ -35,8 +35,6 @@ void thread1()
         x++;
         kprintf("Back again in thread 1's child. Variable is %d.\n", x);
         yield();
-        kprintf("Meep\n");
-        yield();
         kprintf("Thread 1 child likes to hog up resources\n");
         yield();
         kprintf("Thread 1's child exiting!!\n");
@@ -47,8 +45,10 @@ void thread1()
         //sleep(5000);
         x++;
         kprintf("Thread 1 will now wait for its child\n");
-        wait(0);
-        kprintf("Waiting DONE. Back in thread 1. Variable is %d.\n", x);
+        int waitStatus = 9000;
+        uint64_t waitRet = wait(&waitStatus);
+        kprintf("Waiting done. Return %d. Status %d\n", waitRet, waitStatus);
+        kprintf("Back in thread 1. Variable is %d.\n", x);
         yield();
         x++;
         kprintf("Back again in thread 1. Variable is %d.\n", x);

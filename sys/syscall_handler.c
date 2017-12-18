@@ -117,7 +117,7 @@ int64_t sys_exit() {
             current->parent->waiting = false;
 
             // wait() is supposed to return the child's pid
-            current->rax = current->pid;
+            current->parent->rax = current->pid;
         }
         current->parent->num_children--;
     }
