@@ -471,7 +471,7 @@ void syscall_handler(void) {
 
   /*
 	__asm__ __volatile__(PUSHREGS);
-	if (num != 4) // don't print for write
+	if (num != 4 && num != SYS_yield) // don't print for write
 		kprintf("Performing syscall %d\n", num);
 	__asm__ __volatile__(POPREGS);
   */

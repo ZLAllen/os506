@@ -46,7 +46,7 @@ void thread1()
         x++;
         kprintf("Thread 1 will now wait for its child\n");
         int waitStatus = 9000;
-        uint64_t waitRet = wait(&waitStatus);
+        uint64_t waitRet = waitpid(forkRet, &waitStatus);
         kprintf("Waiting done. Return %d. Status %d\n", waitRet, waitStatus);
         kprintf("Back in thread 1. Variable is %d.\n", x);
         yield();
@@ -139,7 +139,7 @@ void thread6(){
 
 
 void init_thread() {
-    //task1 = create_new_task(false);
+    task1 = create_new_task(false);
     task2 = create_new_task(false);
     /*
     task3 = create_new_task(false);
@@ -154,7 +154,7 @@ void init_thread() {
     kprintf("%p\n", *page_table);
     */
    //schedule(task1, (uint64_t) thread1);
-   schedule(task2,(uint64_t)thread2);
+   //schedule(task2,(uint64_t)thread2);
 
     //run_next_task();
     //while(1);

@@ -45,8 +45,9 @@ int main(int argc, char *argv[], char *envp[])
       
     printf("Parent will now wait for its child\n");
     int waitStatus = 9000;
-    int waitRet = wait(&waitStatus);
+    int waitRet = waitpid(pid,&waitStatus);
     printf("Waiting done. Return %d. Status %d\n", waitRet, waitStatus);
+    printf("Waiting done\n");
       yield();
     char* msg = "usr/next_hello";  
     int fd = open(msg, 0);
