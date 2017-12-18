@@ -351,7 +351,9 @@ int64_t getcwd(char* buf)
 }
 
 
-
+/*
+ *success num bytes read, eod 0, error -1
+ * */
 int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
 	//kprintf("sys getdents. fd is %d dirp %x,  %d", fd, dirp, count);
