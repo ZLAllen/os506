@@ -60,6 +60,7 @@ int64_t sys_wait4(int pid, uint64_t status, int options) {
         return -1;
     }
 
+    add_waiting_task(current);
     current->waiting = true;
     current->wait_pid = pid;
      
@@ -114,6 +115,7 @@ int64_t sys_exit() {
                 (current->parent->wait_pid == current->pid ||  // waiting for this child
                  current->parent->wait_pid == -1)) // waiting for any child
             current->parent->waiting = false;
+        current->parent->num_children--;
     }
 
     sys_yield();

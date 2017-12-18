@@ -37,7 +37,17 @@ int wait4(pid_t pid, int *status, int options) {
 
     uint64_t num = SYS_wait4;
     uint64_t ret;
-    syscallArg3(num, pid, (uint64_t)status, options);
+
+    __asm__ __volatile__
+        ("movq %0, %%rax" :: "r" (num));
+    __asm__ __volatile__
+        ("movq %0, %%rdi;" 
+         "movq %1, %%rsi;"
+         "movq %2, %%rdx;"
+         ::"r" ((int64_t)pid), "r" ((uint64_t)status), "r" ((uint64_t)options)
+         : "%rbx", "%rcx", "%rdx", "%rsi", "%rdi", "%rax"
+         
+        );
 
     __asm__ volatile ("int $0x80"
             :"=r" (ret)

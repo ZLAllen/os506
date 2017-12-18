@@ -20,7 +20,6 @@ void thread1()
 
     uint64_t sysReturn = test(77);
     kprintf("Syscal SYS_test with arg 77 returns %d\n", sysReturn);
-    sys_yield();
     kprintf("thead 1 again\n");
     uint64_t sysReturn2 = 0; //test3(50, 60, 70);
     kprintf("Syscal SYS_test3 with arg 50, 60, 70 returns %d\n", sysReturn2);
@@ -36,6 +35,10 @@ void thread1()
         x++;
         kprintf("Back again in thread 1's child. Variable is %d.\n", x);
         yield();
+        kprintf("Meep\n");
+        yield();
+        kprintf("Thread 1 child likes to hog up resources\n");
+        yield();
         kprintf("Thread 1's child exiting!!\n");
         exit();
     } else {
@@ -45,7 +48,7 @@ void thread1()
         x++;
         kprintf("Thread 1 will now wait for its child\n");
         wait(0);
-        kprintf("Back in thread 1. Variable is %d.\n", x);
+        kprintf("Waiting DONE. Back in thread 1. Variable is %d.\n", x);
         yield();
         x++;
         kprintf("Back again in thread 1. Variable is %d.\n", x);

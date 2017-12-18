@@ -120,7 +120,8 @@ void switch_to(
     
 
     // rax register for return values (used for fork)
-    //__asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
+    if (!next->userp)
+        __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
 
     __asm__ volatile("retq");
 }
@@ -286,6 +287,22 @@ void run_next_task() {
     switch_to(prev, current);
 }
 
+void add_waiting_task(task_struct *task) {
+    if (waiting_tasks == NULL) {
+        waiting_tasks = task;
+    } else {
+        // traverse to the end of the list
+        task_struct *cursor = waiting_tasks;
+        while (cursor->next != NULL) {
+            cursor = cursor->next;
+        }
+
+        cursor->next = task;
+        task->prev = cursor;
+        task->next = NULL;
+    }
+}
+
 void add_sleeping_task(task_struct *task) {
     if (sleeping_tasks == NULL) {
         sleeping_tasks = task;
@@ -341,6 +358,8 @@ task_struct *fork_process(task_struct *parent) {
     child->runnable = true;
     child->userp = parent->userp;
     child->mm = get_mm_struct();
+
+    parent->num_children++;
 
     // copy parent's mm struct
     memmove(parent->mm, child->mm, sizeof(mm_struct));
