@@ -1,11 +1,41 @@
 This README containes all the functionalities tha we have added to our shell with brief explanation.
 
-
-
 ##############################################################################
 Issues with the code
 
--- Fork is not working since we are not able to locate child's stack pointer.This makes complete testing of the OS problematic.
+-- Fork is not working in user space since we are not able to locate child's stack pointer.This makes complete testing of the OS problematic.
+    -- Fork should be working in kernel space.
+
+##############################################################################
+
+Memory management: pmap.c
+-- Divides the entire physical memory into contiguous 4kb pages
+-- Linked together via one linked list with the head being the next free page
+    -- Get next free page 
+-- Initialized from sys/main.c via pmap_init
+-- Restore linked list of physical page struct inside kernel and return the new physfree to sys/main
+
+######################
+
+Paging - pging.c
+-- Initialized from sys/main.c via init_pging
+-- Allocate new physical page as pml4
+-- Map kernel from KERNBASE + physbase to physfree
+-- Map video memory starting from 0xFFFFFFFF800B8000UL
+-- Load to cr3 register to enable paging
+-- Page table levels accessed via self-referential technique
+
+######################
+
+Schedule - schedule.c
+-- schedule new tasks via an available_tasks linked list, round robin technique
+-- separate lists for waiting and sleeping tasks
+-- upon yield, an newly awoken task is searched for, followed by a task done waiting, and finally runnable available tasks  
+    -- idle task runs if no runnable task is available
+-- switch_to handles switching to user mode
+    -- push user stack segment, code segment to stack
+    -- call iretq to return to user mode
+-- fork process by creating a copy of the current process and setting the copy-on-write bit of the parent's page table entries
 
 
 
@@ -38,6 +68,25 @@ int64_t sys_write(unsigned int fd, char *buf, size_t count)
 int64_t sys_pipe(int *pipefd)
 int64_t sys_execvpe(char *file, char **argv, char **envp)
 int64_t sys_chdir(char *path)
+
+
+Syscall library functions
+ssize_t read(unsigned int fd, char *buf, size_t size);
+ssize_t write(unsigned int fd, const char *buf, size_t size);
+int open(const char *file, int flag);
+int close(unsigned int fd);
+int chdir(const char *path);
+int pipe(int pipefd[]);
+int dup2(int srcfd, int destfd);
+int execvpe(char *path, char *argv[], char *envp[]);
+void *brk(void *addr);
+pid_t wait(int *status);
+pid_t waitpid(pid_t pid, int *status);
+char *getcwd(char *buf, size_t size);
+void yield();
+void sleep(uint64_t ms);
+pid_t fork();
+void exit();
 
 ##############################################################################
 
