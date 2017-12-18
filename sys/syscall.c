@@ -53,7 +53,6 @@ pid_t waitpid(pid_t pid, int *status) {
             :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
             ); 
 
-    yield();
     return ret;
 }
 

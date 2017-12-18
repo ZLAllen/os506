@@ -66,7 +66,8 @@ int64_t sys_wait4(int pid, uint64_t status, int options) {
      
     if (status_ptr)
         *status_ptr = 0;
-    return 0;
+    sys_yield();
+    return current->rax;
 }
 
 
