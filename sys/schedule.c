@@ -134,6 +134,10 @@ void switch_to(
  */
 void reschedule(task_struct *task) {
 
+    // do not reschedule if sleeping or waiting
+    if (task->waiting || task->sleep_time > ms)
+        return;
+
     if (available_tasks == NULL) {
         available_tasks = task;
     } else {
