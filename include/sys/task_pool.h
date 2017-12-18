@@ -36,6 +36,7 @@ typedef struct task_struct {
     struct task_struct *prev; // previous task 
     struct task_struct *parent; // parent task
     struct task_struct *free; //next free task_struct
+    char cwd[50];
     struct file *fdarr[MAX_FD];//keeps track of files for this process	
 } task_struct;
 

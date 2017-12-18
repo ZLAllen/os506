@@ -28,7 +28,6 @@ void sleep(uint64_t ms) {
 
     yield();
 }
-
 pid_t wait(int *status) {
     return waitpid(-1, status);
 }

@@ -6,7 +6,6 @@
 /**
  * Syscall utility functions
  */
-
 ssize_t read(unsigned int fd, char *buf, size_t size);
 ssize_t write(unsigned int fd, const char *buf, size_t size);
 int open(const char *file, int flag);
@@ -31,7 +30,6 @@ void exit();
 
 
 int getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
-
 // utility functions to set arguments for syscall
 void syscallArg0(uint64_t num);
 void syscallArg1(uint64_t num, uint64_t arg0);

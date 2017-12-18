@@ -12,10 +12,10 @@
 #define SYS_write 0x04
 #define SYS_open 0x05
 #define SYS_close 0x06
-#define SYS_chdir 0
+#define SYS_chdir 0x0c
 #define SYS_pipe 0x2a
 #define SYS_dup 0
-#define SYS_getcwd 0
+#define SYS_getcwd 0xb7
 #define SYS_dup2 0
 #define SYS_wait4 0x3d
 #define SYS_brk 0x2d

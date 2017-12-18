@@ -8,6 +8,7 @@
 #include <sys/elf64.h>
 #include <sys/error.h>
 #include <sys/pmap.h>
+#include <sys/kstring.h>
 
 extern uint64_t ms;
 
@@ -252,6 +253,27 @@ int64_t sys_brk(void *addr)
 	return 0;
 }
 
+int64_t getcwd(char* buf)
+{
+  if(!buf)
+    return -1;
+
+  kstrcpy(current->cwd,buf);
+
+ return 0; 
+}
+
+
+int64_t sys_chdir(char* path)
+{
+  if(!path)
+    return -1;
+
+  if(memcmp(path, ".", 1) == 0)
+    return 0;
+
+ return 0; 
+}
 
 
 int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
@@ -447,10 +469,12 @@ void syscall_handler(void) {
 			::"%r8", "%rcx", "%rdx", "%rsi", "%rdi" // these registers must not change
 			);
 
+  /*
 	__asm__ __volatile__(PUSHREGS);
 	if (num != 4) // don't print for write
 		kprintf("Performing syscall %d\n", num);
 	__asm__ __volatile__(POPREGS);
+  */
 
 	// read arguments from registers
 	__asm__ __volatile__(

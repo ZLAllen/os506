@@ -20,6 +20,8 @@ int64_t sys_wait4(int pid, uint64_t status, int options);
 int64_t sys_getdents(unsigned int fd, struct linux_dirent* dirp, unsigned int count);//convert ars to uint64_t inside code
 int64_t sys_open(char *name, int flags);
 int64_t sys_brk(void *addr);
+int64_t sys_getcwd(char* buf);
+int64_t sys_chdir(char* path);
 
 
 int64_t sys_execve(char *file, char *argv[], char *envp[]);

@@ -22,6 +22,8 @@ unsigned int sleep(unsigned int seconds);
 pid_t getpid(void);
 pid_t getppid(void);
 
+void exit();
+
 // OPTIONAL: implement for ``on-disk r/w file system (+10 pts)''
 off_t lseek(int fd, off_t offset, int whence);
 int mkdir(const char *pathname, mode_t mode);
