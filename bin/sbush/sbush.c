@@ -62,6 +62,8 @@ int getcmd(char* buf, int max, int fd)
 
     nread = read(fd, buf, max);
 
+    buf[nread] = '\0';
+
     return nread;
 
     /*
@@ -206,13 +208,17 @@ struct cmd* parsecmd(char* buf){
     char* src, *dst;
     struct cmd* command;
 
+    printf("%x\n", buf);
+    while(1);
     //get the head and tail of the line
     src = buf;
     dst = src + strlen(buf);
 
+    while(1);
     //create a pipe command
     command = getpipe(&src, dst);
 
+    while(1);
 
     if(src == dst){ 
         // printf("reach the end\n");
@@ -250,6 +256,7 @@ void runcmd(struct cmd* cmd){
     //printf("command type %c\n", cmd->type);
     switch (cmd->type){
         case 'e':
+          while(1);
             esub = (struct ecmd*) cmd; 
             // printf("command %s running\n", esub->argv[0]);
             // printf("with arguements:\n");
@@ -473,7 +480,7 @@ int main(int argc, char *argv[], char *envp[]) {
         }
 
 
-        //printf("command is %s\n", buf);;
+        printf("command is %s\n", buf);;
         /*
         if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
@@ -504,7 +511,7 @@ int main(int argc, char *argv[], char *envp[]) {
         // exit operation 
         char *exit_cmd = "exit";
         if(strncmp(ptr, exit_cmd, 4) == 0){
-           //printf("exiting the shell\n");
+           printf("exiting the shell\n");
            exit();
         }
 
@@ -519,6 +526,8 @@ int main(int argc, char *argv[], char *envp[]) {
                 strncpy(ptr+strlen(script), buf, strlen(buf));
             }
             */
+
+            while(1);
             command = parsecmd(buf);
             runcmd(command);
             exit();
@@ -528,7 +537,7 @@ int main(int argc, char *argv[], char *envp[]) {
             exit();
         }
         else {              //parent waits on the child for completion
-            wait(&status);
+          wait(&status);
 
             /*
             if(!ret){

@@ -272,11 +272,14 @@ void handle_pg_fault(uint64_t err)
     uint64_t* pte = getPhys(fault_addr);  // fault address page table entry
     uint64_t paddr = *pte;
 
+      kprintf("pte: %p\n", *pte);
     if(IS_COW(paddr) && !IS_RW(paddr)) 
     {
       // page is cow, need to make copy of it
       uint64_t naddr = (uint64_t)get_free_page();
+      
       zero_page(naddr); //clear the page
+      kprintf("naddr: %p\n", naddr);
 
       uint64_t temp_vaddr = (uint64_t)get_kern_temp_addr();
       map_page(naddr, temp_vaddr, PAGE_P|PAGE_U|PAGE_RW);

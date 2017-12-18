@@ -108,7 +108,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 
 
 			// allocate a new vma and add to mm_struct
-			struct vma_struct *tdb_vma = set_vma(s_vaddr, e_vaddr, phdr->p_type, X);
+			struct vma_struct *tdb_vma = set_vma(s_vaddr, e_vaddr, vma_type, X);
 			mm->vma_count++;
 			mm->total_vm += size; 
 			if(mm->vm)
