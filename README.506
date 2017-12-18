@@ -1,5 +1,36 @@
 This README containes all the functionalities tha we have added to our shell with brief explanation.
 
+Memory management: pmap.c
+-- Divides the entire physical memory into contiguous 4kb pages
+-- Linked together via one linked list with the head being the next free page
+    -- Get next free page 
+-- Initialized from sys/main.c via pmap_init
+-- Restore linked list of physical page struct inside kernel and return the new physfree to sys/main
+
+######################
+
+Paging - pging.c
+-- Initialized from sys/main.c via init_pging
+-- Allocate new physical page as pml4
+-- Map kernel from KERNBASE + physbase to physfree
+-- Map video memory starting from 0xFFFFFFFF800B8000UL
+-- Load to cr3 register to enable paging
+-- Page table levels accessed via self-referential technique
+
+######################
+
+Schedule - schedule.c
+-- schedule new tasks via an available_tasks linked list, round robin technique
+-- separate lists for waiting and sleeping tasks
+-- upon yield, an newly awoken task is searched for, followed by a task done waiting, and finally runnable available tasks  
+    -- idle task runs if no runnable task is available
+-- switch_to handles switching to user mode
+    -- push user stack segment, code segment to stack
+    -- call iretq to return to user mode
+-- fork process by creating a copy of the current process and setting the copy-on-write bit of the parent's page table entries
+
+######################
+
 Shell: sbush.c
 
 -- shell welcome message, greeting
