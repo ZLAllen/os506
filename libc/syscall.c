@@ -255,8 +255,6 @@ void exit() {
     __asm__ volatile ("int $0x80"
         ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
     ); 
-
-    yield();
 }
 
 void syscallArg0(uint64_t num) {

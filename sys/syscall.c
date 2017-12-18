@@ -118,7 +118,6 @@ void exit() {
             ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
             ); 
 
-    yield();
 }
 
 

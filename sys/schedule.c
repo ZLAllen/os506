@@ -6,6 +6,7 @@
 #include <sys/ktime.h>
 #include <sys/pmap.h>
 #include <sys/task_pool.h>
+#include <syscall.h>
 
 task_struct *current;
 task_struct *idle;
@@ -510,7 +511,7 @@ void create_idle_task() {
 void idle_task() {
 
     while(1) {
-        run_next_task(); // not calling yield to avoid flooding with syscall debug prints
+        yield(); // not calling yield to avoid flooding with syscall debug prints
         //kprintf("Idle! See bottom of sys/schedule.c to remove this msg.\n");
     }
 }
