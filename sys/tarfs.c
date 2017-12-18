@@ -28,6 +28,7 @@ open: tfs_open,
 // initialize a root node here
 struct posix_header_ustar root_hdr = {{0}};
 
+
 ssize_t tfs_write(struct file *filep, char *buff, size_t count, off_t *offset)
 {
 	kprintf("file write not available\n");
@@ -65,6 +66,7 @@ int check_tfs_dir(char *path)
 //open a tarfs file/directory
 struct file *tfs_open(const char *fpath, int flags) 
 {
+	
 	kprintf("tarfs open\n");
 	struct file *filep;
 	if (!fpath)
@@ -88,6 +90,8 @@ struct file *tfs_open(const char *fpath, int flags)
 	{
 		hdr = &root_hdr;
 		//memmove((char *)fpath, hdr->name, sizeof(fpath));//no need
+		kstrcpy("/", hdr->name);
+		kstrcpy("5", hdr->typeflag);
 	}
 	else
 		hdr = get_tfs_first();
@@ -95,10 +99,10 @@ struct file *tfs_open(const char *fpath, int flags)
 	while(hdr != NULL)
 	{      
 		kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
-		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 || root) //fle name matches or root
+		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 ) //|| root   fle name matches or root
 		{
 
-			if((hdr->typeflag[0] != TFS_DIR && flags & O_DIRECTORY) && !root)//root wont go through this
+			if((hdr->typeflag[0] != TFS_DIR && flags & O_DIRECTORY))//  && !root root wont go through this
 			{
 				kprintf("hdr is a file but flags say directory\n");
 				return NULL;
@@ -201,7 +205,7 @@ int print_tfs(struct posix_header_ustar *hdr)
  * return number of bytes read 
  * may return files or directory, as requested b * ls most of the time
  * */
-// define a root node with a name "/"
+//TODO doesnt iterate on root to how all subdirs!!!
 
 
 int tfs_readdir(struct file *filep, void *buff, unsigned int count)
