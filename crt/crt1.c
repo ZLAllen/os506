@@ -1,30 +1,31 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <syscall.h>
 
 void _start(void) {
-  /*
     char** argv, **envp;
     int* argc;
-    int ret;
     extern char** environ;
-    __asm("movq %%rsp, %%rax\n"
-          "addq $24, %%rax"
+    
+
+    __asm__ volatile("movq %%rsp, %%rax\n"
             :"=a"(argc)
          );
 
-    argv = (char**)((char*)argc + 8);
+    argv = (char**)((char*)argc + 24);
+    argc = argc + 6;
 
      envp = &(argv[*argc + 1]);
      environ = envp;
 
-     if(!environ){
-         puts("no environment variables\n");
+     if(!*environ){
+         printf("no environment variables\n");
      }
 
     // call main() and exit() here
-    // */
-   // ret = main(*argc,argv,envp);
-   main(0, 0, 0);
-    while(1);
-    //    exit(ret);
+     main(*argc,argv,envp);
+    
+     printf("main returned\n");
+
+      exit();
 }

@@ -68,8 +68,8 @@ struct file *tfs_open(const char *fpath, int flags)
 	
 	while(hdr != NULL)
 	{      
-		kprintf("path %s vs hdr name %s, size: %d, equal: %d\n", fpath, hdr->name, sizeof(fpath), memcmp(fpath, hdr->name, sizeof(hdr->name))); 
-		if(memcmp(fpath, hdr->name, sizeof(fpath)) == 0 || root) //fle name matches or root
+		kprintf("path %s vs hdr name %s, length: %d, equal: %d\n", fpath, hdr->name, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
+		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 || root) //fle name matches or root
 		{
 
 			if((hdr->typeflag[0] != TFS_DIR && flags & O_DIRECTORY) && !root)//root wont go through this

@@ -8,6 +8,10 @@
 int main(int argc, char *argv[], char *envp[])
 {
 
+  printf("argc: %x\n", argc);
+
+
+  printf("argv[0]: %s\n", argv[1]);
 
 
   printf("user A\n");

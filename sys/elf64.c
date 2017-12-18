@@ -217,6 +217,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 			nenvp++;
 		}
 	}
+
 	kprintf("nenvp %d\n", nenvp);
 
 	int nargs = 0; //num args; filename at the beginning and null terminated
@@ -224,8 +225,9 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[])
 	{
 		while(argv[nargs])
 		{
-			kstrcpy(argv[nargs], arg_buf[nargs]);
-			nargs++;
+
+			kstrcpy(argv[nargs], arg_buf[nargs]);	
+      nargs++;
 		}
 
 	}
