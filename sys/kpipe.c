@@ -65,6 +65,7 @@ ssize_t rhead_read(struct file* filep, char* buf, size_t count, off_t* offset)
         nread ++;
         *buf++ = pipe->buf[pipe->start]; //read into the buffer
         pipe->start = (pipe->start + 1) % PIPEBUF_SIZE; //move cursor to the next pos, wrap around if needed
+		pipe->full = 0;
     }
 
     return nread;
@@ -119,6 +120,7 @@ ssize_t whead_write(struct file* filep, char* buf, size_t count, off_t* offset)
         nwrite ++;
         pipe->buf[pipe->end] = *buf++;
         pipe->end = (pipe->end + 1) % PIPEBUF_SIZE;//move and wrap around if needed
+		pipe->full = (pipe->end == pipe->start);
     }
 
     return nwrite;

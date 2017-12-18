@@ -1,5 +1,13 @@
 This README containes all the functionalities tha we have added to our shell with brief explanation.
 
+##############################################################################
+Issues with the code
+
+-- Fork is not working in user space since we are not able to locate child's stack pointer.This makes complete testing of the OS problematic.
+    -- Fork should be working in kernel space.
+
+##############################################################################
+
 Memory management: pmap.c
 -- Divides the entire physical memory into contiguous 4kb pages
 -- Linked together via one linked list with the head being the next free page
@@ -29,7 +37,58 @@ Schedule - schedule.c
     -- call iretq to return to user mode
 -- fork process by creating a copy of the current process and setting the copy-on-write bit of the parent's page table entries
 
-######################
+
+
+
+##############################################################################
+ELF Binary Loader- elf64.c and tarfs.c
+-- Create abstract file objects for the USTAR FS
+-- Maps the text, data, bss, heap, and stack into memory
+-- Creates tasks and schedules it for running 
+
+
+
+
+##############################################################################
+SYSCALLS implemented with signature
+
+int64_t sys_yield()
+int64_t sys_sleep(uint64_t msec)
+int64_t sys_wait4(int pid, uint64_t status, int options)
+int64_t sys_fork(uint64_t parent_rip)
+int64_t sys_exit()
+int64_t sys_ps(char *buf)
+int64_t sys_open(char *name, int flags)
+int64_t sys_close(int fd)
+int64_t sys_brk(void *addr)
+int64_t getcwd(char* buf)
+int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count)
+int64_t sys_read(unsigned int fd, char *buf, size_t count)
+int64_t sys_write(unsigned int fd, char *buf, size_t count)
+int64_t sys_pipe(int *pipefd)
+int64_t sys_execvpe(char *file, char **argv, char **envp)
+int64_t sys_chdir(char *path)
+
+
+Syscall library functions
+ssize_t read(unsigned int fd, char *buf, size_t size);
+ssize_t write(unsigned int fd, const char *buf, size_t size);
+int open(const char *file, int flag);
+int close(unsigned int fd);
+int chdir(const char *path);
+int pipe(int pipefd[]);
+int dup2(int srcfd, int destfd);
+int execvpe(char *path, char *argv[], char *envp[]);
+void *brk(void *addr);
+pid_t wait(int *status);
+pid_t waitpid(pid_t pid, int *status);
+char *getcwd(char *buf, size_t size);
+void yield();
+void sleep(uint64_t ms);
+pid_t fork();
+void exit();
+
+##############################################################################
 
 Shell: sbush.c
 
@@ -42,10 +101,10 @@ Shell: sbush.c
 -- cat to read a file and output to standard library
 -- grep word (no quotation mark)[files...] 
 -- shell exit message, simple message for graceful exit
-
 -- execute script, a testscript example is provided
 
 
+##############################################################################
 Standard Library: .c files under libc
 
 -- string library functionalities in string.c
@@ -62,6 +121,7 @@ Complement to include folder:
 fcntl.c defines a linux_direct struct and some open system call flags
 
 
+##############################################################################
 Note:
 Contributing source: this project incoporates knowledge that we learn online, including
 
