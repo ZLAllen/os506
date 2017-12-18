@@ -69,7 +69,7 @@ uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree
     for(i = 0; i < num; ++i)
     {
         smap = (struct smap_t*)smap_arr[i];
-        size = smap->length/PGSIZE;
+        size = (smap->length)/PGSIZE-1;
         entry_count += size;
     }
 
@@ -110,7 +110,7 @@ uint64_t pmap_init(uint32_t *modulep, const void *physbase, const void *physfree
     {
         smap = (struct smap_t*)smap_arr[i];
         base = smap->base;
-        size = smap->length/PGSIZE;
+        size = (smap->length)/PGSIZE - 1;
 
         for(j = cnt; j-cnt < size; ++j)
         {

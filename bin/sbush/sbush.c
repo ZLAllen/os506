@@ -470,7 +470,7 @@ int main(int argc, char *argv[], char *envp[]) {
         }
 
 
-        printf("command is %s\n", buf);;
+        //printf("command is %s\n", buf);;
         /*
         if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
@@ -496,7 +496,7 @@ int main(int argc, char *argv[], char *envp[]) {
             strncpy(script, " ", 1);
             continue;
         }
-
+*/
 
         // exit operation 
         char *exit_cmd = "exit";
@@ -528,8 +528,6 @@ int main(int argc, char *argv[], char *envp[]) {
                 break;
             }
         } 
-*/
-
     }
 
     /* changes end here */
