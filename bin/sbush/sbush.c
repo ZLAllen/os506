@@ -19,6 +19,7 @@ void execute_cmd(char **argv, char **envp);
 
 extern char** environ;
 
+
 // for read: should cover it with gets
 
 struct cmd 
@@ -102,6 +103,7 @@ struct cmd* formEcmd(){
 
     return (struct cmd*)cmd;
 }
+
 
 struct cmd* formPcmd(struct cmd* left, struct cmd* right){
     struct pcmd* cmd;
@@ -408,6 +410,7 @@ void welcome_message(){
     printf("*******************************\n");
     printf("\n\n");
 }
+
 
 int main(int argc, char *argv[], char *envp[]) {
 

@@ -10,7 +10,6 @@ ssize_t read(unsigned int fd, char *buf, size_t size);
 ssize_t write(unsigned int fd, const char *buf, size_t size);
 int open(const char *file, int flag);
 int close(unsigned int fd);
-
 int chdir(const char *path);
 int pipe(int pipefd[]);
 int dup2(int srcfd, int destfd);
@@ -20,7 +19,6 @@ int dup(int fd);
 pid_t wait(int *status);
 pid_t waitpid(pid_t pid, int *status);
 char *getcwd(char *buf, size_t size);
-
 void yield();
 uint64_t test(uint64_t arg);
 uint64_t test3(uint64_t arg1, uint64_t arg2, uint64_t arg3);

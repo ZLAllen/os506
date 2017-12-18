@@ -245,6 +245,24 @@ int execve(char *path, char **argv, char **envp){
 }
 
 
+
+int chdir(const char *path) {
+
+    uint64_t num = SYS_chdir;
+    int ret;
+
+    syscallArg1(num, (uint64_t) path);
+
+    __asm__ volatile ("int $0x80"
+            :"=r" (ret)
+            :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
+            ); 
+
+    return ret;
+}
+
+
+
 void syscallArg0(uint64_t num) {
     __asm__ __volatile__
         ("movq %0, %%rax" :: "r" (num));

@@ -34,6 +34,32 @@ ssize_t tfs_write(struct file *filep, char *buff, size_t count, off_t *offset)
 	return -1;
 }
 
+//checks if path is a dir
+int check_tfs_dir(char *path)
+{
+	if(!path)
+		return -1;
+
+	if(path[0] == '/' && path[1] == '\0')//check root
+		return 0;
+
+	struct posix_header_ustar *hdr = get_tfs_first();
+	while(hdr)
+	{
+		if(memcmp(path, hdr->name, kstrlen(path)) == 0)//matches
+		{
+			if(hdr->typeflag[0] == TFS_DIR)
+			{
+				return 0;
+			}
+			else
+				return -1;
+		}
+
+		hdr = get_tfs_next(hdr);
+	}
+	return -1;
+}
 
 
 //open a tarfs file/directory
@@ -68,7 +94,7 @@ struct file *tfs_open(const char *fpath, int flags)
 	
 	while(hdr != NULL)
 	{      
-		kprintf("path %s vs hdr name %s, length: %d, equal: %d\n", fpath, hdr->name, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
+		kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 || root) //fle name matches or root
 		{
 
