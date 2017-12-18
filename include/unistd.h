@@ -2,6 +2,7 @@
 #define _UNISTD_H
 
 #include <sys/defs.h>
+#include <dirent.h>
 
 int open(const char *pathname, int flags);
 int close(int fd);
@@ -26,6 +27,9 @@ pid_t getppid(void);
 void ps(char *buf);
 
 void exit();
+
+
+int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count);
 
 // OPTIONAL: implement for ``on-disk r/w file system (+10 pts)''
 off_t lseek(int fd, off_t offset, int whence);
