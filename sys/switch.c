@@ -171,6 +171,7 @@ void init_thread() {
     //schedule(task5);
 
     kprintf("\nelf process\n");
+    //char *fname = "bin/forktest";
     char *fname = "bin/sbush";
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {'\0'};

@@ -25,6 +25,7 @@ pid_t getppid(void);
 
 // from syscall.h
 int ps(char *buf);
+void yield();
 
 void exit();
 

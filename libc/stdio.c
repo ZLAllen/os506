@@ -141,7 +141,7 @@ int printf(const char *fmt, ...)
 static void convert(unsigned long i, int base)
 {
     char* ptr;
-    static char buf[50];
+    char buf[50];
 
     ptr = &buf[49];
     *ptr = '\0';

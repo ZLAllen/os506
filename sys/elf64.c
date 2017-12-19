@@ -51,11 +51,11 @@ struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
         return NULL;
     }
 	char *part, *name;
-	part = strtok(fname, "/");
+	part = kstrtok(fname, "/");
 	name = part;
 	while (part != NULL) {
 		name = part;
-		part = strtok(NULL, "/");
+		part = kstrtok(NULL, "/");
 	}
 	//kprintf("calling elf loader\n");
 	struct task_struct *newtask = load_elf(ehdr, argv, envp, name);

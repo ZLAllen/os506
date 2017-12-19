@@ -10,7 +10,7 @@ static char Rep[] = "0123456789ABCDEF";
 // a very dumbed down version of sprintf
 // returns pointer to null terminated string version of int
 // buf must be 50 or greater
-char *int_to_str(char *buf, int i, int base) {
+char *kint_to_str(char *buf, int i, int base) {
 
     char* ptr;
 
@@ -25,7 +25,7 @@ char *int_to_str(char *buf, int i, int base) {
 }
 
 // concatenate two strings
-char *strcat(char *dest, const char *src) {
+char *kstrcat(char *dest, const char *src) {
     // hold original dest to return
     char *cursor = dest;
 
@@ -42,7 +42,7 @@ char *strcat(char *dest, const char *src) {
 	return dest;
 
 }
-char *strtok(char *str, const char *delimiters) {
+char *kstrtok(char *str, const char *delimiters) {
 
     static char *position;
 
