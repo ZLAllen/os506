@@ -257,7 +257,7 @@ int64_t sys_open(char *name, int flags)
 	}
 
 	current->fdarr[fd] = filep;//success [add it to the list of open files by the process]
-	kprintf("sys open success\n");
+	
 	return (uint64_t) fd;
 }
 
@@ -267,7 +267,7 @@ int64_t sys_open(char *name, int flags)
  * */
 int64_t sys_close(int fd)
 {
-	kprintf("sys close. fd %d\n", fd);	
+	//kprintf("sys close. fd %d\n", fd);	
 
 	struct file *filep = current->fdarr[fd];
 
@@ -363,8 +363,6 @@ int64_t getcwd(char* buf)
  * */
 int64_t sys_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) 
 {
-	//kprintf("sys getdents. fd is %d dirp %x,  %d", fd, dirp, count);
-
 	if (!dirp || count <= 0)
 		return -1; 
 
@@ -474,7 +472,7 @@ int64_t sys_pipe(int *pipefd)
  * */
 int64_t sys_execve(char *file, char **argv, char **envp)
 {
-	kprintf("sys execvpe. file %s\n", file);	
+	//kprintf("sys execvpe bin/script: %s\n", file);	
 
 	struct task_struct *new_task;
 
@@ -495,17 +493,19 @@ int64_t sys_execve(char *file, char **argv, char **envp)
 
 		task_struct *prev = current->prev;
 		task_struct *next = current->next;
-		prev->next = new_task;
-		new_task->next = next;
-		kprintf("placed new process between prev and next\n");
+		if(prev)
+			prev->next = new_task;
+		if(next)
+			new_task->next = next;
+		//kprintf("placed new process between prev and next\n");
 
 
 		//clean up the original process and loads new pml4
 		replace_task(current, new_task);		
-		kprintf("replaced the original process\n");
+		//kprintf("replaced the original process\n");
 
-		//run next task
-		kprintf("call yield and chill\n");
+
+		//kprintf("call yield and chill\n");
 		sys_yield();
 
 		panic("sys execve failed.\n");//execve does not return on success

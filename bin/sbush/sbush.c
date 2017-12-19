@@ -420,9 +420,10 @@ void welcome_message(){
 
 
 int main(int argc, char *argv[], char *envp[]) {
+	
 	welcome_message();
 
-	char buf[50];
+	/*char buf[50];
 	char* ptr;
 	// static char pwd[100];
 	struct cmd* command;
@@ -444,9 +445,7 @@ int main(int argc, char *argv[], char *envp[]) {
 			exit();
 		}
 	}
-    //int childvar = 53;
-    //int parentvar = 63;
-    //int pid2 = fork();
+
     //if (pid2 == 0) {
     //    printf("Child\n");
     //    printf("Child printing - %d\n", childvar);
@@ -464,16 +463,30 @@ int main(int argc, char *argv[], char *envp[]) {
     //    printf("Back in parent %d\n", parentvar);
     //}
 
-	//char* buff = malloc(1024);
 
 
-	//printf("buff: %p\n", buff);
 
-	//ps(buff);
+	//TEST FOR PS
+	
+    char* buff = malloc(1024);
+    printf("buff: %p\n", buff);
+    ps(buff);
+    printf("%s\n", buff);*/
 
 
-	//printf("%s\n", buff);
-	//while(1);
+	//must remove trailing "/" from bin/ls else tarfs cannot be found but keep in the next
+	/*char *args[] = {"bin/ls", "bin/usr/", NULL};
+	execvpe(args[0], args, NULL);*/
+	    
+	
+	struct dstream *dirp = opendir("bin/");
+	struct linux_dirent *dirent;
+	while((dirent = readdir(dirp)))
+	{
+		printf("dirent namr: %s", dirent->d_name);
+	}
+	while(1);
+
 	/*
 	   if(argc < 2){
 	   pw = getenv("PWD");
@@ -494,7 +507,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	   dPath = malloc(strlen(argv[0]));
 	   strncpy(dPath, argv[0], strlen(argv[0])-5);
 	   }
-	   */
+	   
 
 	while((ret = getcmd(buf, 50, fd)) >= 0) {
 		//  fprintf(stdout,"command is %s\n", buf);
@@ -509,7 +522,7 @@ int main(int argc, char *argv[], char *envp[]) {
 
 
 		printf("command is %s\n", buf);
-		/*
+		
 		   if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
 		   if(chdir(buf+3) < 0){
@@ -534,7 +547,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		strncpy(script, " ", 1);
 		continue;
 		}
-		*/
+		
 
 		// exit operation 
 		char *exit_cmd = "exit";
@@ -549,13 +562,13 @@ int main(int argc, char *argv[], char *envp[]) {
 
 
 		if (pid == 0) {         // child process executes the command
-			/*
+			
 			   if(script){
 			   ptr = malloc(strlen(script)+strlen(buf));
 			   strncpy(ptr, script, strlen(script));
 			   strncpy(ptr+strlen(script), buf, strlen(buf));
 			   }
-			   */
+			   
 
 			//while(1);
 			command = parsecmd(buf);
@@ -571,13 +584,13 @@ int main(int argc, char *argv[], char *envp[]) {
 			wait(&status);
 			while(1);
 
-			/*
+			
 			   if(!ret){
 			   break;
 			   }
-			   */
+			   
 		} 
-	}
+	}*/
 
 	/* changes end here */
 	//puts("sbush> ");

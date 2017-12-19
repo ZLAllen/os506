@@ -176,7 +176,7 @@ void schedule(task_struct *new_task, uint64_t e_entry) {
 
     new_task->rax = new_task->pid;
 
-    kprintf("e_entry: %x\n", e_entry);
+    //kprintf("e_entry: %x\n", e_entry);
 
     // idle tasks shouldn't get added
     if (new_task->runnable)
@@ -218,7 +218,7 @@ task_struct *create_new_task(bool userp, char *name) {
     new_task->pid = get_next_pid();
     new_task->userp = userp;
 
-    kprintf("Process PID %d created\n", new_task->pid);
+    //kprintf("Process PID %d created\n", new_task->pid);
 
     return new_task;
 }

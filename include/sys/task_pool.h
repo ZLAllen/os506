@@ -45,6 +45,8 @@ typedef struct task_struct {
 	char cwd[MAX_PATH_LEN + 1];	//1 for the null
 } task_struct;
 
+
+//vma struct
 typedef struct vma_struct{
     uint64_t vm_start;
     uint64_t vm_end;
@@ -55,6 +57,7 @@ typedef struct vma_struct{
 }vma_struct;
 
 
+//mm struct
 typedef struct mm_struct{
     vma_struct* vm;
     int vma_count;

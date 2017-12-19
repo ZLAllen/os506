@@ -3,29 +3,40 @@
 #include <syscall.h>
 
 void _start(void) {
+
     char** argv, **envp;
     int* argc;
-    extern char** environ;
+    
+	extern char** environ;
     
 
     __asm__ volatile("movq %%rsp, %%rax\n"
             :"=a"(argc)
          );
 
-    argv = (char**)((char*)argc + 24);
+	argv = (char**)((char*)argc + 24);
+	
     argc = argc + 6;
 
-     envp = &(argv[*argc + 1]);
-     environ = envp;
+	//printf("argc from: %x, value: %d\n", argc, *argc);
+	//printf("argv from: %x but currently from: %x\n", argc+8, argv);
 
-     if(!*environ){
+    envp = &(argv[*argc + 1]);
+
+	//printf("envp from: %x, value: %d\n", argc+8, *envp);
+    
+	environ = envp;
+    if(!*environ){
          printf("no environment variables\n");
      }
 
     // call main() and exit() here
-     main(*argc,argv,envp);
-    
-     printf("main returned\n");
+	printf("argc: %d, argv: %s, envp: %s\n", *argc, argv, envp);
 
-      exit();
+
+    main(*argc, argv, envp);
+    
+    printf("main returned\n");
+
+    exit();
 }

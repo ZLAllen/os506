@@ -67,7 +67,7 @@ int check_tfs_dir(char *path)
 struct file *tfs_open(const char *fpath, int flags) 
 {
 	
-	kprintf("tarfs open\n");
+	//kprintf("tarfs open\n");
 	struct file *filep;
 	if (!fpath)
 		return NULL;
@@ -98,7 +98,7 @@ struct file *tfs_open(const char *fpath, int flags)
 	
 	while(hdr != NULL)
 	{      
-		kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
+		//kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 ) //|| root   fle name matches or root
 		{
 
@@ -108,7 +108,7 @@ struct file *tfs_open(const char *fpath, int flags)
 				return NULL;
 			}
 
-			kprintf("found the matching file\n");
+			//kprintf("found the matching file: %s\n", fpath);
 			filep = kmalloc();
 			filep->data = hdr;
 			filep->flags = flags;
@@ -125,12 +125,12 @@ struct file *tfs_open(const char *fpath, int flags)
 
 			filep->count = 1;
 			filep->size = oct_to_bin(hdr->size, sizeof(hdr->size));
-			kprintf("tfs open success\n");
+			
 			return filep;
 		}	
 		hdr = get_tfs_next(hdr);
 	}
-
+	kprintf("tfs failed\n");
 	return NULL;
 }
 
@@ -218,7 +218,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 	// first of all we fetch the header
 	struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->data;
 	char * name = hdr->name;
-	kprintf("first hdr name: %s\n", name);
+	//kprintf("first hdr name: %s\n", name);
 
 	// my inituition: files under one directory share the fhdr
 	// check fhdr for possible end of directory
@@ -232,13 +232,13 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 
 	while(next_hdr != NULL) //desired dirent struct
 	{
-		kprintf("next hdr name: %s\n", next_hdr->name);
+		//kprintf("next hdr name: %s\n", next_hdr->name);
 
 		if(!is_root && memcmp(hdr->name, next_hdr->name, kstrlen(hdr->name)) != 0)//check if no more
 			break;
 
 
-		// 3. how to find the right hdr for the dirent fields
+		
 		char *dname = kstrlen(name) +  next_hdr->name;
 		kprintf("dirent name: %s\n", dname);
 
@@ -262,7 +262,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 		next_hdr = get_tfs_next(next_hdr);
 		return size;
 	}	
-
+	//filep->offset = 0;
 	return 0;
 
 
@@ -272,7 +272,7 @@ int tfs_closedir(struct file *filep)
 {
 	struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->data;
 
-	if (hdr->typeflag[0] != '5')
+	if (hdr->typeflag[0] != TFS_DIR)
 	{
 		kprintf("not a dir, wont call closedir");
 		return -1;
@@ -291,7 +291,7 @@ void set_dirent(struct linux_dirent *drent, struct posix_header_ustar *next_hdr,
 	drent->d_off = 0;
 	drent->d_reclen = size;
 	char typeflag = next_hdr->typeflag[0];
-	if (typeflag == '5')
+	if (typeflag == TFS_DIR)
 		drent->d_type = DT_DIR;	
 	else if (typeflag == '0' || typeflag == '\0')
 		drent->d_type = DT_REG;

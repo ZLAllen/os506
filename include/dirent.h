@@ -5,7 +5,7 @@
 #include <sys/defs.h>
 
 #define MAX_NAME 256
-#define BUFF_SIZE 2048
+#define BUFF_SIZE 1024
 
 //dirent types
 #define DT_DIR 4
@@ -36,8 +36,8 @@ struct linux_dirent
 
 //dir related libc functions
 struct dstream *opendir(const char *name);
-struct linux_dirent *readdir(struct dstream *dirp);
-int closedir(struct dstream *dirp);
+struct linux_dirent *readdir(void *dirp);
+int closedir(void *dirp);
 
 
 

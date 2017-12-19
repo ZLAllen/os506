@@ -46,7 +46,8 @@ void* kmalloc()
 
    uint64_t* pte = getPhys((uint64_t)vaddr);
 
-   kprintf("pte: %p, vaddr: %p\n", *pte, vaddr);
+   if (0)
+   	kprintf("pte: %p, vaddr: %p\n", *pte, vaddr);
 
    kern_free_addr += PGSIZE;
 

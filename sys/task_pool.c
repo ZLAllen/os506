@@ -317,10 +317,10 @@ void replace_task(struct task_struct *task, struct task_struct *new_task)
 	//empty the task and reclaim some memory haha
 	memset((void *)task->kstack, 0, KSTACK_SIZE);
 	memset((void *)task->fdarr, 0, sizeof((struct task_struct *)0)->fdarr);
-	task->parent = NULL;
-	task->prev = NULL;
-	task->next = NULL;
-
 	
+	task->parent = NULL;
+	//task->prev = NULL;
+	//task->next = NULL;
+
 }
 

@@ -50,15 +50,16 @@ struct task_struct *create_elf_process(char *fname, char *argv[], char *envp[])
         kprintf("\nfile object not valid\n");
         return NULL;
     }
-	char *part, *name;
+	//remvoving it as I need abs path like /bin/ls rather than just ls
+	/*char *part, *name;
 	part = kstrtok(fname, "/");
 	name = part;
 	while (part != NULL) {
 		name = part;
 		part = kstrtok(NULL, "/");
-	}
+	}*/
 	//kprintf("calling elf loader\n");
-	struct task_struct *newtask = load_elf(ehdr, argv, envp, name);
+	struct task_struct *newtask = load_elf(ehdr, argv, envp, fname);
 
 	//kprintf("calling elf loader\n");
     //kprintf("task scheduled\n");
@@ -74,7 +75,8 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
     uint64_t pt = cr3_r();
 
     uint64_t s_vaddr, e_vaddr, top_vaddr = 0;//addresses
-    uint64_t vma_type, vma_flag;//vm type and flag
+    uint64_t vma_type;
+	uint64_t vma_flag;//vm type and flag
 
     Elf64_Phdr* phdr = (Elf64_Phdr*) ((void*)ehdr + ehdr->e_phoff);
     int  size;
@@ -113,7 +115,8 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
                 vma_type = NO_TYPE;
                 vma_flag = RW_USER; //(uint64_t)0|PAGE_P|PAGE_U;
             }
-            kprintf("vma type %d and flag %d set\n", vma_type, vma_flag);
+            if (0)
+				kprintf("vma type %d and flag %d set\n", vma_type, vma_flag);
 
 
             // allocate a new vma and add to mm_struct
@@ -227,7 +230,6 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
         }
     }
 
-    kprintf("nenvp %d\n", nenvp);
 
     int nargs = 0; //num args; filename at the beginning and null terminated
     if (argv)
@@ -236,11 +238,10 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
         {
 
             kstrcpy(argv[nargs], arg_buf[nargs]);    
-      nargs++;
+      		nargs++;
         }
 
-    }
-    kprintf("nargs %d\n", nargs);
+    } 
 
 
     cr3_w(mm->pml4);
@@ -248,7 +249,7 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
     uint64_t *envp_ptr[nenvp];
     uint64_t *args_ptr[nargs], *ss; 
 
-    kprintf("initially stack top at %x\n", mm->start_stack);
+    //kprintf("initially stack top at %x\n", mm->start_stack);
     ss = (uint64_t*) mm->start_stack; 
 
     //stores envp
@@ -258,10 +259,11 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
         ss = (uint64_t *)((void *)ss - length);
         memmove(env_buf[n], (char *)ss, length);
         envp_ptr[n] = ss;
-        kprintf("envp_ptr[%d] contains %x\n", n, ss);
+        //kprintf("envp_ptr[%d] contains %x\n", n, ss);
+		kprintf("stored %s at %x\n", env_buf[n], ss);
     }
 
-    kprintf("after envp copy ss is at %x\n", ss);
+    //kprintf("after envp copy ss is at %x\n", ss);
 
     //stores args
     for (int n = nargs-1; n >= 0; n--)
@@ -270,45 +272,49 @@ struct task_struct *load_elf(Elf64_Ehdr *ehdr, char *argv[], char *envp[], char 
         ss =  (uint64_t*)((void*)ss - length);
         memmove(arg_buf[n], (char*)ss, length);
         args_ptr[n] = ss;
-        kprintf("args_ptr[%d] contains %x\n", n, ss);
+        //kprintf("args_ptr[%d] contains %x\n", n, ss);
+		kprintf("stored %s at %x\n", arg_buf[n], ss);
     }
 
-    kprintf("after args copy ss is at %x\n", ss);
+    //kprintf("after args copy ss is at %x\n", ss);
 
     //stores env vector
     for(int n= nenvp-1; n >= 0; n--)
     {
         ss--;
         *ss = (uint64_t)envp_ptr[n];
-        kprintf("env value at %x is %x\n", ss, *ss);
+        kprintf("at %x ptr to env %x\n", ss, *ss);
     }
 
-    //CAUTION: adding a NULL between arg vector and env vector. will this screw up something?
+    //CAUTION: adding null between arg vector and env vector. will this screw up something?
     ss--;
-    *ss = (uint64_t)NULL;
-    kprintf("NULL copied at %x\n", ss);
+    *ss = (uint64_t)'\0';
+    kprintf("null copied at %x\n", ss);
 
     // stores arg vector
     for (int n = nargs-1; n >= 0; n--)
     {
         ss--;
         *ss = (uint64_t)args_ptr[n];
-        kprintf("arg value at %x is %x\n", ss, *ss);
+        kprintf("at %x ptr to arg %x\n", ss, *ss);
     }
 
     ss--;
     *ss =  (uint64_t)nargs;//stores argc
     kprintf("nargs at %x\n", ss);
 
+	//kprintf("nargs: %d, args: %s\n", nargs, arg_buf);
+    //kprintf("nenvp: %d, envp: %s\n", nenvp, env_buf);
+
     mm->start_stack = (uint64_t)ss;
-    kprintf("finally stack top at %x\n", mm->start_stack);
+    //kprintf("stack top at: %x\n", mm->start_stack);
     
     cr3_w(pt);
 
-    //schedule process
-    kprintf("schedule the new task\n");
+    //schedule process 
     new_task->first_run = 1;
     schedule(new_task,(uint64_t)(ehdr->e_entry));
+
     return new_task;
 }
 

@@ -37,18 +37,18 @@ struct dstream *opendir(const char *name)
 
 
 //TODO this code can be made better
-struct linux_dirent *readdir(struct dstream *open_dirp)
+struct linux_dirent *readdir(void *open_dirp)
 {
     if(!open_dirp)
         return NULL;
 
     struct dstream *dirp = open_dirp;	
-    int  size;
+	struct linux_dirent *drent = NULL; 
 
     if(dirp->size <= dirp->offset) 
     {
 
-        size = getdents((unsigned int) dirp->fd, (struct linux_dirent*) dirp->buff, (unsigned int) sizeof(dirp->buff));//bytes read on success
+        int size = getdents((unsigned int) dirp->fd, (struct linux_dirent*) dirp->buff, (unsigned int) sizeof(dirp->buff));//bytes read on success
 
         if (size <= 0) 
             return NULL;
@@ -57,7 +57,7 @@ struct linux_dirent *readdir(struct dstream *open_dirp)
         dirp->offset = 0; 
     }
 
-    struct linux_dirent *drent =  (struct linux_dirent*)(dirp->buff + dirp->offset);//buff holds the dirent
+    drent =  (struct linux_dirent*)(dirp->buff + dirp->offset);//buff holds the dirent
 
     dirp->offset += drent->d_reclen;//incr by length of this dirent
 
@@ -66,9 +66,10 @@ struct linux_dirent *readdir(struct dstream *open_dirp)
 }
 
 
-int closedir(struct dstream *dirp)
+int closedir(void *open_dirp)
 {
-
+	
+	struct dstream *dirp = open_dirp;
     if(!dirp)
         return -1;
 
