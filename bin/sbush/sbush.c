@@ -422,7 +422,7 @@ void welcome_message(){
 int main(int argc, char *argv[], char *envp[]) {
 	welcome_message();
 
-	char buf[100];
+	char buf[50];
 	char* ptr;
 	// static char pwd[100];
 	struct cmd* command;
@@ -444,17 +444,36 @@ int main(int argc, char *argv[], char *envp[]) {
 			exit();
 		}
 	}
+    //int childvar = 53;
+    //int parentvar = 63;
+    //int pid2 = fork();
+    //if (pid2 == 0) {
+    //    printf("Child\n");
+    //    printf("Child printing - %d\n", childvar);
+    //    yield();
+    //    printf("Child again\n");
+    //    yield();
+    //    exit();
+    //} else {
+    //    printf("Parent printing -  %d\n", parentvar);
+    //    yield();
+    //    parentvar = 70;
+    //    int newparentvar = 78;
+    //    printf("Parent printing again -  %d %d\n", parentvar, newparentvar);
+    //    yield();
+    //    printf("Back in parent %d\n", parentvar);
+    //}
 
-	char* buff = malloc(1024);
+	//char* buff = malloc(1024);
 
 
-	printf("buff: %p\n", buff);
+	//printf("buff: %p\n", buff);
 
-	ps(buff);
+	//ps(buff);
 
 
 	//printf("%s\n", buff);
-	while(1);
+	//while(1);
 	/*
 	   if(argc < 2){
 	   pw = getenv("PWD");
@@ -489,7 +508,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		}
 
 
-		printf("command is %s\n", buf);;
+		printf("command is %s\n", buf);
 		/*
 		   if(ptr[0] == 'c' && ptr[1] == 'd' && ptr[2] == ' '){
 
@@ -523,8 +542,10 @@ int main(int argc, char *argv[], char *envp[]) {
 			printf("exiting the shell\n");
 			exit();
 		}
+		printf("2command is %s\n", buf);
 
 		pid = fork();
+		printf("3command is %s\n", buf);
 
 
 		if (pid == 0) {         // child process executes the command
