@@ -215,14 +215,18 @@ void yield() {
     ); 
 }
 
-void ps(char *buf) {
+int ps(char *buf) {
 
     uint64_t num = SYS_ps;
-    syscallArg1(num, (uint64_t)buf);
+    int ret;
 
     __asm__ volatile ("int $0x80"
-            ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-            ); 
+            :"=a"(ret)
+            :"0"(num), "D"(buf)
+            :"cc", "rcx", "r11", "memory"
+            );
+
+   return ret; 
 }
 
 uint64_t test(uint64_t arg) {

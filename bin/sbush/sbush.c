@@ -447,6 +447,18 @@ int main(int argc, char *argv[], char *envp[]) {
         }
     }
 
+
+    char* buff = malloc(1024);
+
+
+    printf("buff: %p\n", buff);
+
+    ps(buff);
+
+
+    printf("%s\n", buff);
+    while(1);
+
     /*
        if(argc < 2){
        pw = getenv("PWD");

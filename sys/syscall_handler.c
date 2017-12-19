@@ -179,6 +179,7 @@ int64_t sys_ps(char *buf) {
         cursor = cursor->next;
     }
 
+
     cursor = waiting_tasks;
     while (cursor) {
         // pid
@@ -196,6 +197,7 @@ int64_t sys_ps(char *buf) {
         strcat(ps_buf, "\n");
         cursor = cursor->next;
     }
+
 
     cursor = sleeping_tasks;
     while (cursor) {
@@ -218,6 +220,7 @@ int64_t sys_ps(char *buf) {
     strcat(ps_buf, "\0");
 
     memmove(ps_buf, buf, 1024);
+
 
     return 0;
 }
