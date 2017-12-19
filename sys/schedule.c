@@ -89,7 +89,7 @@ void switch_to(
                 "pushq $0x2B;"         /* ring3 cs, should be _USER64_CS|RPL = 0x2B */
                 "pushq %1;"            /* ring3 rip change back to %1 after */ 
                 "xorq %%rax, %%rax;"   /* zero the user registers */
-                "xorq %%rbx, %%rbx;"
+				"xorq %%rbx, %%rbx;"
                 "xorq %%rcx, %%rcx;"
                 "xorq %%rdx, %%rdx;"
                 "xorq %%rbp, %%rbp;"

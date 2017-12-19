@@ -248,15 +248,19 @@ uint64_t test(uint64_t arg) {
 pid_t fork() {
     uint64_t num = SYS_fork;
     uint64_t addr = 0;
+    uint64_t rsp = 0;
     pid_t ret;
 
 
     __asm__ volatile ("movq 0(%%rsp), %0;" :"=r"(addr));
+    __asm__ volatile ("movq %%rsp, %0;" :"=r"(rsp));
+
+    rsp += 8;
 
     
     __asm__ __volatile__("int $0x80"
          :"=a"(ret)
-         :"0"(num), "D"(addr)
+         :"0"(num), "D"(addr), "S"(rsp)
 		 :"cc", "rcx", "r11", "memory"
         );
 
