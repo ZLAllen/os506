@@ -206,13 +206,15 @@ char *getcwd(char *buf, size_t size){
 }
 
 void yield() {
-    uint64_t num = SYS_yield;
 
-    syscallArg0(num);
+	int ret;
 
-    __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+    __asm
+        ("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_yield)
+         :"cc", "rcx", "r11", "memory"
+        );
 }
 
 int ps(char *buf) {
@@ -232,15 +234,15 @@ int ps(char *buf) {
 uint64_t test(uint64_t arg) {
 
     uint64_t num = SYS_test;
-    uint64_t ret;
-    syscallArg1(num, arg);
+    int ret;
 
     __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            :"=a"(ret)
+            :"0"(num), "D"(arg)
+            :"cc", "rcx", "r11", "memory"
+            );
 
-    return ret;
+   return ret; 
 }
 
 pid_t fork() {
@@ -262,50 +264,12 @@ pid_t fork() {
 }
 
 void exit() {
-    uint64_t num = SYS_exit;
-
-    syscallArg0(num);
-
-    __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
-}
-
-void syscallArg0(uint64_t num) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-}
-
-void syscallArg1(uint64_t num, uint64_t arg0) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0));
-}
-
-void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         ::"r" (arg0), "r" (arg1)
+	int ret;
+    __asm
+        ("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_exit)
+         :"cc", "rcx", "r11", "memory"
         );
-}
-
-void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         "movq %2, %%rdx;"
-         ::"r" (arg0), "r" (arg1), "r" (arg2)
-        );
-}
-
-void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-}
-void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
 }
 
