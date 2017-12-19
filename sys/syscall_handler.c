@@ -143,79 +143,79 @@ int64_t sys_ps(char *buf) {
     char *int_start;
 
     // header
-    strcat(ps_buf, "PID    Name    Running Time\n");
+    kstrcat(ps_buf, "PID    Name    Running Time\n");
 
     if (current) {
         // pid
-        int_start = int_to_str(int_buf, current->pid, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "     ");
+        int_start = kint_to_str(int_buf, current->pid, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "     ");
 
-        strcat(ps_buf, current->name);
-        strcat(ps_buf, "     ");
+        kstrcat(ps_buf, current->name);
+        kstrcat(ps_buf, "     ");
 
         // running time
-        int_start = int_to_str(int_buf, ms - current->start_ms, 10);
-        strcat(ps_buf, int_start);
+        int_start = kint_to_str(int_buf, ms - current->start_ms, 10);
+        kstrcat(ps_buf, int_start);
 
-        strcat(ps_buf, "\n");
+        kstrcat(ps_buf, "\n");
     }
 
     task_struct *cursor = available_tasks;
     while (cursor) {
         // pid
-        int_start = int_to_str(int_buf, cursor->pid, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "     ");
+        int_start = kint_to_str(int_buf, cursor->pid, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "     ");
 
         // process name
-        strcat(ps_buf, cursor->name);
-        strcat(ps_buf, "     ");
+        kstrcat(ps_buf, cursor->name);
+        kstrcat(ps_buf, "     ");
 
         // running time
-        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "\n");
+        int_start = kint_to_str(int_buf, ms - cursor->start_ms, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "\n");
         cursor = cursor->next;
     }
 
     cursor = waiting_tasks;
     while (cursor) {
         // pid
-        int_start = int_to_str(int_buf, cursor->pid, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "     ");
+        int_start = kint_to_str(int_buf, cursor->pid, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "     ");
 
         // process name
-        strcat(ps_buf, cursor->name);
-        strcat(ps_buf, "     ");
+        kstrcat(ps_buf, cursor->name);
+        kstrcat(ps_buf, "     ");
 
         // running time
-        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "\n");
+        int_start = kint_to_str(int_buf, ms - cursor->start_ms, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "\n");
         cursor = cursor->next;
     }
 
     cursor = sleeping_tasks;
     while (cursor) {
         // pid
-        int_start = int_to_str(int_buf, cursor->pid, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "     ");
+        int_start = kint_to_str(int_buf, cursor->pid, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "     ");
 
         // process name
-        strcat(ps_buf, cursor->name);
-        strcat(ps_buf, "     ");
+        kstrcat(ps_buf, cursor->name);
+        kstrcat(ps_buf, "     ");
 
         // running time
-        int_start = int_to_str(int_buf, ms - cursor->start_ms, 10);
-        strcat(ps_buf, int_start);
-        strcat(ps_buf, "\n");
+        int_start = kint_to_str(int_buf, ms - cursor->start_ms, 10);
+        kstrcat(ps_buf, int_start);
+        kstrcat(ps_buf, "\n");
         cursor = cursor->next;
     }
 
-    strcat(ps_buf, "\0");
+    kstrcat(ps_buf, "\0");
 
     memmove(ps_buf, buf, 1024);
 
