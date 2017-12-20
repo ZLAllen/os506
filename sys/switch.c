@@ -173,6 +173,8 @@ void init_thread() {
     kprintf("\nelf process\n");
     //char *fname = "bin/forktest";
     char *fname = "bin/sbush";
+    // char *fname = "bin/cat";
+    // char *argv[] = {"hello1", '\0'};
     //char *argv[] = {"hello", "arg1", "arg2", '\0'};    
     char *argv[] = {'\0'};
 	char *envp[] = {0};

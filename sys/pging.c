@@ -92,6 +92,25 @@ void* getPhys(uint64_t vaddr)
     return (void*)pte;
 }
 
+void* getPDT(uint64_t vaddr)
+{
+    uint64_t pde = ((vaddr << 16 >> 37 << 3) | PDE_REF);
+
+    return (void*)pde;
+}
+
+void* getPDPT(uint64_t vaddr)
+{
+    uint64_t pdpe = ((vaddr << 16 >> 46 << 3) | PDPE_REF);
+    return (void*)pdpe;
+}
+
+void* getPMLT(uint64_t vaddr)
+{
+    uint64_t pmle = ((vaddr << 16 >> 55 << 3) | PMLE_REF);
+    return (void*)pmle;
+}
+
 void zero_page(uint64_t paddr)
 {
     uint64_t* vaddr = get_kern_temp_addr();
@@ -121,11 +140,18 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
        }
        */
 
+    uint64_t high_flags = flags;
+    if(flags & PAGE_COW)
+    {
+      high_flags &= ~(PAGE_COW);
+      high_flags |= (PAGE_RW);
+    }
+
     if(!IS_PRESENT(*pmle))
     {
         addr = (uint64_t)get_free_page();
         zero_page(addr);
-        *pmle = addr|flags;
+        *pmle = addr|high_flags;
     }
 
 
@@ -134,7 +160,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
     {
         addr = (uint64_t)get_free_page(); 
         zero_page(addr);
-        *pdpe = addr|flags;
+        *pdpe = addr|high_flags;
     }
        
 
@@ -143,7 +169,7 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags)
 
         addr = (uint64_t)get_free_page();
         zero_page(addr);
-        *pde = addr|flags;
+        *pde = addr|high_flags;
 
     }
 

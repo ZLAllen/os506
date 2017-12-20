@@ -92,16 +92,21 @@ int64_t sys_fork(uint64_t parent_rip) {
 	// __asm__ __volatile__("movq 104(%%rsp), %0":"=r"(parent_rip));
 
 
-	kprintf("parent_rip: %p\n", parent_rip);
 
-	// schedule new process like any other
-	schedule(child, parent_rip);
+  uint64_t rsp;
+  __asm__ volatile ("movq %%rsp, %0;" :"=r"(rsp)::);
+
+  //kprintf("rsp: %p\n", rsp);
+  //kprintf("p1 %p, p2 %p\n", &current->kstack[KSTACK_SIZE-13],&current->kstack[KSTACK_SIZE-14]);
+	//while(1);
+  // schedule new process like any other
+	schedule(child, (uint64_t)current->kstack[KSTACK_SIZE-7]);
 
 
 	// return value of child should be 0
 	// parent would return pid
 	child->rax = 0;
-
+  child->first_run = 0;
 	// return child PID to the parent
 	return child->pid;
 }
@@ -247,6 +252,7 @@ int64_t sys_open(char *name, int flags)
 		return -1; //didn't get a valid fd
 	}
 
+  name[kstrlen(name)-1] = '\0';
 
 	struct file *filep = tfs_open(name, flags);
 
@@ -479,8 +485,15 @@ int64_t sys_execve(char *file, char **argv, char **envp)
 	struct task_struct *new_task;
 
 
+  int i = 1;
+  while(argv[i])
+  {
+    kstrcat(argv[i], "\0");
+    ++i;
+  }
+
 	//create a new process
-	new_task = create_elf_process(file, argv, envp);
+	new_task = create_elf_process(file, &argv[1], envp);
 
 	if(new_task)
 	{
@@ -490,13 +503,16 @@ int64_t sys_execve(char *file, char **argv, char **envp)
 		//replace curr process with this new process CAUTION anything else??	
 		new_task->parent = current->parent;
 		new_task->pid  = current->pid;
-		memcpy((void*)current->fdarr, (void*)new_task->fdarr, sizeof((struct task_struct *)0)->fdarr);//Is this needed?
+		//memcpy((void*)current->fdarr, (void*)new_task->fdarr, sizeof((struct task_struct *)0)->fdarr);//Is this needed?
 
 
 		task_struct *prev = current->prev;
 		task_struct *next = current->next;
-		prev->next = new_task;
-		new_task->next = next;
+    //kprintf("prev: %p, next: %p\n", prev, next);
+		if(prev)
+      prev->next = new_task;
+		
+    new_task->next = next;
 		kprintf("placed new process between prev and next\n");
 
 

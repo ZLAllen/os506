@@ -98,6 +98,8 @@ int getcmd(char* buf, int max, int fd)
 // form an exectuable command, but return it as a general command
 struct cmd* formEcmd(){
 	struct ecmd* cmd;
+
+  printf("%p\n", brk((void*)-1));
 	cmd = malloc(sizeof(struct ecmd));
 	// printf("the allocated space is %ld\n", sizeof(struct ecmd));
 
@@ -208,17 +210,13 @@ struct cmd* parsecmd(char* buf){
 	char* src, *dst;
 	struct cmd* command;
 
-	printf("%x\n", buf);
-	while(1);
 	//get the head and tail of the line
 	src = buf;
 	dst = src + strlen(buf);
 
-	while(1);
 	//create a pipe command
 	command = getpipe(&src, dst);
 
-	while(1);
 
 	if(src == dst){ 
 		// printf("reach the end\n");
@@ -256,11 +254,11 @@ void runcmd(struct cmd* cmd){
 	//printf("command type %c\n", cmd->type);
 	switch (cmd->type){
 		case 'e':
-			while(1);
 			esub = (struct ecmd*) cmd; 
 			// printf("command %s running\n", esub->argv[0]);
 			// printf("with arguements:\n");
 			// for(i = 0; esub->argv[i]; i++)
+
 			if ((ret = execvpe(esub->argv[0], esub->argv, environ)) < 0) {  
 				printf("error code: %d\n", ret);
 				printf("failed to execute %s\n", esub->argv[0]);
@@ -418,6 +416,12 @@ void welcome_message(){
 	printf("\n\n");
 }
 
+void test1(char* buf){
+
+  while(1);
+  printf("%s\n", buf);
+}
+
 
 int main(int argc, char *argv[], char *envp[]) {
 	welcome_message();
@@ -445,16 +449,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		}
 	}
 
-    char* buff = malloc(1024);
 
-
-    printf("buff: %p\n", buff);
-
-    ps(buff);
-
-
-    printf("%s\n", buff);
-    while(1);
 	/*
 	   if(argc < 2){
 	   pw = getenv("PWD");
@@ -536,7 +531,10 @@ int main(int argc, char *argv[], char *envp[]) {
 			   }
 			   */
 
-			//while(1);
+		//	while(1);
+
+     // while(1);
+      //while(1);
 			command = parsecmd(buf);
 			runcmd(command);
 			exit();

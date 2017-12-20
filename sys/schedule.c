@@ -8,7 +8,7 @@
 #include <sys/task_pool.h>
 #include <syscall.h>
 #include <sys/kstring.h>
-
+#include <sys/isr.h>
 
 task_struct *current;
 task_struct *idle;
@@ -105,7 +105,7 @@ void switch_to(
                 "xorq %%r15, %%r15;"
                 "iretq;"
                 : /* No output */
-                : "r"(next->mm->start_stack), "r"(next->rsp)
+                : "r"(next->mm->start_stack), "r"(next->entry)
                 :"memory", "rax"
                     );
         }
@@ -123,9 +123,7 @@ void switch_to(
     
 
     // rax register for return values (used for fork)
-    if (!next->userp)
         __asm__ __volatile__("movq %0, %%rax;"::"r" (next->rax));
-
     __asm__ volatile("retq");
 }
 
@@ -159,20 +157,20 @@ void reschedule(task_struct *task) {
 void schedule(task_struct *new_task, uint64_t e_entry) {
 
     if(new_task->userp) {
-        new_task->kstack[SS_REG] = 0x23; // set SS
-        new_task->kstack[CS_REG] = 0x1b; // set CS
+       // new_task->kstack[SS_REG] = 0x23; // set SS
+       // new_task->kstack[CS_REG] = 0x1b; // set CS
 
         //for kernel process, this is top of k_stack, it is set when process is
         //created
-        new_task->kstack[SP_REG] = new_task->mm->start_stack;
-        new_task->rsp = (uint64_t)e_entry;
+      //  new_task->kstack[SP_REG] = new_task->mm->start_stack;
+        new_task->entry = (uint64_t)e_entry;
         new_task->first_run = 1;
     } else {
         new_task->kstack[IP_REG] = (uint64_t)e_entry;
         new_task->rsp = (uint64_t)&new_task->kstack[IP_REG];
     }
 
-    new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
+   // new_task->kstack[FLAGS_REG] = 0x200202UL; // set RFLAGS
 
     new_task->rax = new_task->pid;
 
@@ -398,10 +396,16 @@ task_struct *fork_process(task_struct *parent) {
     }
 
     // copy parent's kernel stack
-    memmove(parent->kstack, child->kstack, sizeof(KSTACK_SIZE));
+    memmove(parent->kstack, child->kstack, KSTACK_SIZE*8);
 
     // child shares the same stack pointer
-    child->rsp = (uint64_t)&(child->kstack[SP_REG]);
+    child->mm->start_stack = (uint64_t)(parent->kstack[KSTACK_SIZE-4]);
+    child->kstack[KSTACK_SIZE-14] = (uint64_t) _fork_ret;
+    child->rsp = (uint64_t)&child->kstack[KSTACK_SIZE-14]; 
+    kprintf("fork child rsp: %p\n", child->mm->start_stack);
+    kprintf("fork child rip: %p\n", child->kstack[KSTACK_SIZE-13]);
+
+    //while(1);
 
     child->parent = parent;
 

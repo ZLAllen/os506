@@ -48,7 +48,7 @@ extern void _isr31();
 extern void _isr32();
 extern void _isr33();
 extern void _isr128();
-
+extern void _fork_ret();
 
 #endif
 

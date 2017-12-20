@@ -34,6 +34,12 @@ void map_page(uint64_t paddr, uint64_t vaddr, uint64_t flags);
 
 void* getPhys(uint64_t vaddr);
 
+void* getPDT(uint64_t vaddr);
+
+void* getPDPT(uint64_t vaddr);
+
+void* getPMLT(uint64_t vaddr);
+
 uint64_t alloc_pml4();
 
 void zero_page(uint64_t paddr);

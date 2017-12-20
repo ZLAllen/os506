@@ -12,7 +12,7 @@ void _start(void) {
             :"=a"(argc)
          );
 
-    argv = (char**)((char*)argc + 24);
+    argv = (char**)((char*)argc + 32);
     argc = argc + 6;
 
      envp = &(argv[*argc + 1]);

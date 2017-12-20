@@ -95,10 +95,17 @@ struct file *tfs_open(const char *fpath, int flags)
 	}
 	else
 		hdr = get_tfs_first();
-	
+
+  while(*fpath == ' ')
+  {
+    ++fpath;
+  } 
+
 	while(hdr != NULL)
 	{      
-		kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
+  kprintf("fpath:%s,\n", fpath);
+  kprintf("fpath:%s,\n", hdr->name);
+	//	kprintf("path %s vs hdr name %s, hdr prefix: %s, length: %d, equal: %d\n", fpath, hdr->name, hdr->prefix, kstrlen(fpath), memcmp(fpath, hdr->name, kstrlen(fpath))); 
 		if(memcmp(fpath, hdr->name, kstrlen(fpath)) == 0 ) //|| root   fle name matches or root
 		{
 
@@ -152,7 +159,7 @@ ssize_t tfs_read(struct file *filep, char *buff, size_t count, off_t *offset)
 
 	off += acount;
 	filep->offset = (off_t*)off;
-	return 0;
+	return acount;
 }
 
 //closes a tarfs file

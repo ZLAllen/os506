@@ -26,6 +26,7 @@ typedef struct task_struct {
     bool runnable; // runnable process
     bool waiting; // process waiting
     bool first_run;
+    uint64_t entry;
     uint64_t start_ms; // start time in ms
     uint64_t *kstack; // bottom of kernel stack
 	//uint64_t rip; // location of rip register

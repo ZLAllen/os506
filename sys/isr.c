@@ -271,7 +271,19 @@ void handle_pg_fault(uint64_t err)
   {
     uint64_t* pte = getPhys(fault_addr);  // fault address page table entry
     uint64_t paddr = *pte;
+    uint64_t* pde = getPDT(fault_addr);
+    uint64_t* pdpe = getPDPT(fault_addr);
+    uint64_t* pmle = getPMLT(fault_addr);
 
+
+    kprintf("pde: %p, pdpe: %p, pmle: %p\n", *pde, *pdpe, *pmle);  
+    vma_struct *vma = current->mm->vm;
+    while(vma) 
+    {
+
+      kprintf("mmap %p, %p\n", vma->vm_start, vma->vm_end);
+      vma = vma->next;
+    }
       kprintf("pte: %p\n", *pte);
     if(IS_COW(paddr) && !IS_RW(paddr)) 
     {

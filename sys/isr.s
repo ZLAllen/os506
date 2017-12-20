@@ -97,9 +97,7 @@ irq_common:
     pushq %rsi
     pushq %rdi
     pushq %rbp
-    pushq %rsp
     call syscall_handler
-    popq %rsp
     popq %rbp
     popq %rdi
     popq %rsi
@@ -131,4 +129,16 @@ _isr14:
     popq %rbx 
     popq %rax
     add $16, %rsp #pop the num byte and err code
+    iretq
+
+
+.global _fork_ret
+_fork_ret:
+    popq %rbp
+    popq %rdi
+    popq %rsi
+    popq %rdx
+    popq %rcx
+    popq %rbx
+    sti
     iretq
