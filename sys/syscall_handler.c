@@ -484,7 +484,7 @@ int64_t sys_pipe(int *pipefd)
  * */
 int64_t sys_execve(char *file, char **argv, char **envp)
 {
-	kprintf("sys execvpe. file %s\n", file);	
+	kprintf("sys execvpe. file %s, argv: , envp: \n", file, argv, envp);	
 
 	struct task_struct *new_task;
 

@@ -225,7 +225,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 	// first of all we fetch the header
 	struct posix_header_ustar *hdr = (struct posix_header_ustar *)filep->data;
 	char * name = hdr->name;
-	kprintf("first hdr name: %s\n", name);
+	//kprintf("first hdr name: %s\n", name);
 
 	// my inituition: files under one directory share the fhdr
 	// check fhdr for possible end of directory
@@ -239,7 +239,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 
 	while(next_hdr != NULL) //desired dirent struct
 	{
-		kprintf("next hdr name: %s\n", next_hdr->name);
+		//kprintf("next hdr name: %s\n", next_hdr->name);
 
 		if(!is_root && memcmp(hdr->name, next_hdr->name, kstrlen(hdr->name)) != 0)//check if no more
 			break;
@@ -247,17 +247,18 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 
 		// 3. how to find the right hdr for the dirent fields
 		char *dname = kstrlen(name) +  next_hdr->name;
-		kprintf("dirent name: %s\n", dname);
+		//kprintf("dirent name: %s\n", dname);
 
 		if(memchr(dname, '/', kstrlen(dname)))//check if need to skip to the next one
 			continue;
 
 		//TODO check if this is right		   
 		unsigned int size = (unsigned int) ((size_t)&(((struct linux_dirent *)0)->d_name) + kstrlen(dname));
-		if(size < count)
+		if(size < count && size < 0)
 		{
 			filep->offset = (off_t*) next_hdr;//no more
-			return -1;
+			kprintf("fails here\n");
+			return -5;
 		}
 
 
@@ -269,7 +270,7 @@ int tfs_readdir(struct file *filep, void *buff, unsigned int count)
 		next_hdr = get_tfs_next(next_hdr);
 		return size;
 	}	
-
+	filep->offset = 0;
 	return 0;
 
 

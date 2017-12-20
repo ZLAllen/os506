@@ -4,13 +4,17 @@ This README containes all the functionalities tha we have added to our shell wit
 Issues with the code
 
 -- Environment variables. When typing a command, the full path (bin/cat) should be specified. 
+-- ls. setting file offet is a little messed up but it shows the subdirs and files.
 
 ##############################################################################
 
 Running
 
-bin/cat hello2
+--bin/cat hello2
     where hello2 is a file in rootfs/ (rootfs/hello2)
+
+-- bin/ls bin/
+    where bin/ is the directory you are doing ls on. 
 
 ######################
 
