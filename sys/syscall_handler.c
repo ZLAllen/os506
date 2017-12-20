@@ -81,7 +81,7 @@ int64_t sys_wait4(int pid, uint64_t status, int options) {
  *
  * Do NOT use this directly. Use fork() in syscall.h!
  */
-int64_t sys_fork(uint64_t parent_rip) {
+int64_t sys_fork(uint64_t parent_rip, uint64_t parent_rsp) {
 
 
 	// create child process
@@ -101,6 +101,10 @@ int64_t sys_fork(uint64_t parent_rip) {
 	//while(1);
   // schedule new process like any other
 	schedule(child, (uint64_t)current->kstack[KSTACK_SIZE-7]);
+
+    if (current->userp) {
+        child->mm->start_stack = parent_rsp;
+    }
 
 
 	// return value of child should be 0

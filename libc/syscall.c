@@ -10,7 +10,7 @@
 ssize_t read(unsigned int fd, char* buf, size_t size){
     int ret;
 
-    __asm
+    __asm__ __volatile__
         (
          "int $0x80"
          : "=a" (ret)
@@ -22,7 +22,7 @@ ssize_t read(unsigned int fd, char* buf, size_t size){
 
 ssize_t write(unsigned int fd, const char* buf, size_t size){
     int ret;
-    __asm
+    __asm__ __volatile__
         (
          "int $0x80"
          : "=a" (ret)
@@ -37,7 +37,7 @@ int open(const char *file, int flags) {
 
 	int ret;
 
-	__asm
+	__asm__ __volatile__
 		("int $0x80"
 		:"=a" (ret)
     	: "0"(SYS_open), "D"(file), "S"(flags)
@@ -53,7 +53,7 @@ int close(unsigned int fd){
 
    int ret;
 
-   __asm
+   __asm__ __volatile__
 	   ("int $0x80"
         : "=a"(ret)
         : "0"(SYS_close), "D"(fd)
@@ -64,7 +64,7 @@ int close(unsigned int fd){
 
 int chdir(const char* path){
     int ret;
-    __asm 
+    __asm__ __volatile__ 
         (
          "int $0x80"
          : "=a" (ret)
@@ -79,7 +79,7 @@ int pipe(int pipefd[]) {
 
     int ret;
 
-    __asm("int $0x80"
+    __asm__ __volatile__("int $0x80"
          :"=a"(ret)
          :"0"(SYS_pipe), "D"(pipefd)
 		 :"cc", "rcx", "r11"
@@ -92,7 +92,7 @@ int dup2(int srcfd, int destfd) {
 
     int ret;
     
-    __asm
+    __asm__ __volatile__
         ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_dup2), "D"(srcfd), "S"(destfd)
@@ -107,7 +107,7 @@ int execvpe(char *path, char *argv[], char *envp[]){
 
     int ret; 
 
-    __asm("int $0x80"
+    __asm__ __volatile__("int $0x80"
 			:"=a" (ret)
 			:"0"(SYS_execve), "D"(path), "S"(argv), "d"(envp)
 			:"cc", "rcx", "r11", "memory"
@@ -120,7 +120,7 @@ int execvpe(char *path, char *argv[], char *envp[]){
 /*
 int fstat(int fd, struct stat *buf){
     int ret;
-    __asm
+    __asm__ __volatile__
         ("syscall"
          :"=a" (ret)
          :"0" (SYS_fstat), "D"(fd), "S"(buf)
@@ -135,7 +135,7 @@ int getdents(unsigned int fd, struct linux_dirent *d, unsigned int count){
 
 	int ret;
 
-	__asm
+	__asm__ __volatile__
 		("int $0x80"
 			:"=a"(ret)
 			:"0"(SYS_getdents), "D"(fd), "S"(d), "d"(count)
@@ -151,7 +151,7 @@ void *brk(void* addr){
 
     void *ret;
 
-    __asm("int $0x80"
+    __asm__ __volatile__("int $0x80"
          :"=a"(ret)
          :"0"(SYS_brk), "D"(addr)
 		 :"cc", "rcx", "r11", "memory"
@@ -164,7 +164,7 @@ void *brk(void* addr){
 int dup(int fd){
     int ret;
 
-    __asm
+    __asm__ volatile
         ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_dup), "D"(fd)
@@ -181,7 +181,7 @@ pid_t wait(int *status) {
 pid_t waitpid(pid_t upid, int* status){
     int ret;
 
-    __asm
+    __asm__ volatile
         ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_wait4), "D"(upid), "S"(status)
@@ -195,7 +195,7 @@ pid_t waitpid(pid_t upid, int* status){
 char *getcwd(char *buf, size_t size){
     char* ret;
 
-    __asm
+    __asm__ volatile
         ("int $0x80"
          :"=a"(ret)
          :"0"(SYS_getcwd), "D"(buf), "S"(size)
@@ -206,13 +206,15 @@ char *getcwd(char *buf, size_t size){
 }
 
 void yield() {
-    uint64_t num = SYS_yield;
 
-    syscallArg0(num);
+	int ret;
 
-    __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+    __asm__ volatile
+        ("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_yield)
+         :"cc", "rcx", "r11", "memory"
+        );
 }
 
 int ps(char *buf) {
@@ -232,29 +234,33 @@ int ps(char *buf) {
 uint64_t test(uint64_t arg) {
 
     uint64_t num = SYS_test;
-    uint64_t ret;
-    syscallArg1(num, arg);
+    int ret;
 
     __asm__ volatile ("int $0x80"
-        :"=r" (ret)
-        :: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
+            :"=a"(ret)
+            :"0"(num), "D"(arg)
+            :"cc", "rcx", "r11", "memory"
+            );
 
-    return ret;
+   return ret; 
 }
 
 pid_t fork() {
     uint64_t num = SYS_fork;
     uint64_t addr = 0;
+    uint64_t rsp = 0;
     pid_t ret;
 
 
     __asm__ volatile ("movq 0(%%rsp), %0;" :"=r"(addr));
+    __asm__ volatile ("movq %%rsp, %0;" :"=r"(rsp));
+
+    rsp += 8;
 
     
-    __asm("int $0x80"
+    __asm__ __volatile__("int $0x80"
          :"=a"(ret)
-         :"0"(num), "D"(addr)
+         :"0"(num), "D"(addr), "S"(rsp)
 		 :"cc", "rcx", "r11", "memory"
         );
 
@@ -262,50 +268,12 @@ pid_t fork() {
 }
 
 void exit() {
-    uint64_t num = SYS_exit;
-
-    syscallArg0(num);
-
-    __asm__ volatile ("int $0x80"
-        ::: "%rbx", "%rcx", "%rdx", "%rsi", "%rdi"
-    ); 
-}
-
-void syscallArg0(uint64_t num) {
+	int ret;
     __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-}
-
-void syscallArg1(uint64_t num, uint64_t arg0) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx" ::"r" (arg0));
-}
-
-void syscallArg2(uint64_t num, uint64_t arg0, uint64_t arg1) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         ::"r" (arg0), "r" (arg1)
+        ("int $0x80"
+         :"=a"(ret)
+         :"0"(SYS_exit)
+         :"cc", "rcx", "r11", "memory"
         );
-}
-
-void syscallArg3(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2) {
-    __asm__ __volatile__
-        ("movq %0, %%rax" :: "r" (num));
-    __asm__ __volatile__
-        ("movq %0, %%rbx;" 
-         "movq %1, %%rcx;"
-         "movq %2, %%rdx;"
-         ::"r" (arg0), "r" (arg1), "r" (arg2)
-        );
-}
-
-void syscallArg4(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-}
-void syscallArg5(uint64_t num, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4) {
 }
 

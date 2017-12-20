@@ -24,74 +24,74 @@ extern char** environ;
 
 struct cmd 
 {
-	char type;    // need a general template to identify commands
+    char type;    // need a general template to identify commands
 };
 
 struct ecmd
 {
-	char type;  // type of command, here we distinguish between piple and execut command
-	char* argv[MAX_ARGS];       // command name 
+    char type;  // type of command, here we distinguish between piple and execut command
+    char* argv[MAX_ARGS];       // command name 
 };
 
 struct pcmd
 {
-	char type;         // pipe command basically holds two executable commands, left and right
-	struct cmd* left;
-	struct cmd* right;
+    char type;         // pipe command basically holds two executable commands, left and right
+    struct cmd* left;
+    struct cmd* right;
 };
 
 struct bcmd
 {
-	char type;
-	struct cmd* cmd;
+    char type;
+    struct cmd* cmd;
 };
 
 int getcmd(char* buf, int max, int fd)
 {
-	// roughly cover read() to terminate at newline
-	// int i, cc;
-	// char c;
-	int nread;
+    // roughly cover read() to terminate at newline
+    // int i, cc;
+    // char c;
+    int nread;
 
-	/* need to implement a prompt message */
-	if(fd == 0)
-		//  printf("%s > ", getenv("PS1"));
-		printf("sbunix > ");
+    /* need to implement a prompt message */
+    if(fd == 0)
+        //  printf("%s > ", getenv("PS1"));
+        printf("sbunix > ");
 
-	memset(buf, 0, max);
+    memset(buf, 0, max);
 
-	nread = read(fd, buf, max);
+    nread = read(fd, buf, max);
 
-	buf[nread] = '\0';
+    buf[nread] = '\0';
 
-	return nread;
+    return nread;
 
-	/*
-	   for(i=0;i<max-1;++i){
-	   cc = read(fd, &c, 1);
+    /*
+       for(i=0;i<max-1;++i){
+       cc = read(fd, &c, 1);
 
-	   if(cc < 0) {
-	// error
-	return -1;
-	}
+       if(cc < 0) {
+    // error
+    return -1;
+    }
 
-	//end of line condition
-	if(c == '\r' || c == '\n' || cc == 0){
-	buf[i] = '\0';
-	if(cc == 0){
-	return 0;
-	}
-	break;
-	}else{
-	buf[i] = c;
-	}
-	}
-	*/
+    //end of line condition
+    if(c == '\r' || c == '\n' || cc == 0){
+    buf[i] = '\0';
+    if(cc == 0){
+    return 0;
+    }
+    break;
+    }else{
+    buf[i] = c;
+    }
+    }
+    */
 
 
 
-	//return something positive
-	// return 1;
+    //return something positive
+    // return 1;
 
 }
 
@@ -103,112 +103,112 @@ struct cmd* formEcmd(){
 	cmd = malloc(sizeof(struct ecmd));
 	// printf("the allocated space is %ld\n", sizeof(struct ecmd));
 
-	cmd->type = 'e';
+    cmd->type = 'e';
 
-	return (struct cmd*)cmd;
+    return (struct cmd*)cmd;
 }
 
 
 struct cmd* formPcmd(struct cmd* left, struct cmd* right){
-	struct pcmd* cmd;
-	cmd = malloc(sizeof(struct pcmd));
+    struct pcmd* cmd;
+    cmd = malloc(sizeof(struct pcmd));
 
-	cmd->type = 'p';
-	cmd->left = left;
-	cmd->right = right;
+    cmd->type = 'p';
+    cmd->left = left;
+    cmd->right = right;
 
-	return (struct cmd*)cmd;
+    return (struct cmd*)cmd;
 }
 
 struct cmd* formBcmd(struct cmd* cmd){
-	struct bcmd* subcmd;
-	subcmd = malloc(sizeof(struct bcmd));
+    struct bcmd* subcmd;
+    subcmd = malloc(sizeof(struct bcmd));
 
-	subcmd->type = 'b';
-	subcmd->cmd = cmd;
+    subcmd->type = 'b';
+    subcmd->cmd = cmd;
 
-	return (struct cmd*)subcmd;
+    return (struct cmd*)subcmd;
 
 }
 void fetchtoken(char** ps, char* dst){
-	char* q;
+    char* q;
 
-	q = *ps;
-	//always clean up whitespace 
-	while(*q == ' ') {
-		q++;
-	}
+    q = *ps;
+    //always clean up whitespace 
+    while(*q == ' ') {
+        q++;
+    }
 
-	while((*q != '|') && (*q != '&') && (*q != ' ') && (*q != '\0')) {
-		q++;
-	}
+    while((*q != '|') && (*q != '&') && (*q != ' ') && (*q != '\0')) {
+        q++;
+    }
 
-	//if this is a whitespace, we will null terminated it for the argument.
-	if(*q == ' '){
-		*q = '\0';
-	}
+    //if this is a whitespace, we will null terminated it for the argument.
+    if(*q == ' '){
+        *q = '\0';
+    }
 
-	*ps = ++q;
+    *ps = ++q;
 
 }
 
 
 struct cmd* getexec(char** src, char* dst){
-	char* ps, *sq;
-	int argc;
-	struct ecmd* cmd;
+    char* ps, *sq;
+    int argc;
+    struct ecmd* cmd;
 
-	ps = *src;
-	argc = 0;
+    ps = *src;
+    argc = 0;
 
-	cmd = (struct ecmd*)formEcmd();
-	// take the first argument as command, rest as arguments
-	while((*ps != '|') && (*ps != '&') && (*ps != '\0')) {
-		sq = ps;
-		// printf("ps is %s\n", sq);
-		fetchtoken(&ps,dst);
-		cmd->type = 'e';
-		cmd->argv[argc] = sq;
-		argc++;
-		*src = ps;
-	}
+    cmd = (struct ecmd*)formEcmd();
+    // take the first argument as command, rest as arguments
+    while((*ps != '|') && (*ps != '&') && (*ps != '\0')) {
+        sq = ps;
+        // printf("ps is %s\n", sq);
+        fetchtoken(&ps,dst);
+        cmd->type = 'e';
+        cmd->argv[argc] = sq;
+        argc++;
+        *src = ps;
+    }
 
-	return (struct cmd*)cmd;
+    return (struct cmd*)cmd;
 
 
 }
 
 struct cmd* getpipe(char** src, char* dst){
-	char* ps;
-	struct cmd* cmd;
+    char* ps;
+    struct cmd* cmd;
 
-	ps = *src;
+    ps = *src;
 
-	//always clean up whitespace 
-	while(*ps == ' ') {
-		++ps;
-	}
+    //always clean up whitespace 
+    while(*ps == ' ') {
+        ++ps;
+    }
 
-	*src = ps;
+    *src = ps;
 
-	// take the first command, and form an executable command
-	cmd = getexec(src, dst);
-	if(*(*src) == '|'){
-		//null terminate this for previous argument
-		*(*src) = '\0';
-		++(*src);
-		cmd = formPcmd(cmd, getpipe(src, dst));
-	}
+    // take the first command, and form an executable command
+    cmd = getexec(src, dst);
+    if(*(*src) == '|'){
+        //null terminate this for previous argument
+        *(*src) = '\0';
+        ++(*src);
+        cmd = formPcmd(cmd, getpipe(src, dst));
+    }
 
-	return cmd;
+    return cmd;
 
 }
 
 //to parse command, 
 struct cmd* parsecmd(char* buf){
-	//first we should check if a command contains pipe
-	char* src, *dst;
-	struct cmd* command;
+    //first we should check if a command contains pipe
+    char* src, *dst;
+    struct cmd* command;
 
 	//get the head and tail of the line
 	src = buf;
@@ -218,22 +218,22 @@ struct cmd* parsecmd(char* buf){
 	command = getpipe(&src, dst);
 
 
-	if(src == dst){ 
-		// printf("reach the end\n");
-	}
+    if(src == dst){ 
+        // printf("reach the end\n");
+    }
 
-	//now we check if this command should be running in background
-	if(*src == '&'){
-		// null terminated the last argument
-		*src = '\0';
-		command = formBcmd(command);
-	}
+    //now we check if this command should be running in background
+    if(*src == '&'){
+        // null terminated the last argument
+        *src = '\0';
+        command = formBcmd(command);
+    }
 
-	if(src != dst){ 
-		// printf("reach the end\n");
-		//error, something left unprocessed
-	}
-	return command;
+    if(src != dst){ 
+        // printf("reach the end\n");
+        //error, something left unprocessed
+    }
+    return command;
 
 
 
@@ -386,34 +386,34 @@ void runcmd(struct cmd* cmd){
 void  execute_cmd(char **argv, char **envp)
 {
 
-	pid_t  pid;
-	int status;
+    pid_t  pid;
+    int status;
 
-	pid = fork();
-	if (pid == 0) {          /*child process executes the command*/ 
-		if (execvpe(*argv, argv, envp) == -1) {    
-			printf("ERROR: exec failed\n");
-		}
-		exit();
-	}
-	else if (pid < 0) {     /*fork a child process*/
-		printf("ERROR: forking failed\n");
-		exit();
-	}
-	else {              /*parent waits on the child for completion*/
-		do {
-			waitpid(pid, &status, WUNTRACED);
-		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-	}
-	return 1;
+    pid = fork();
+    if (pid == 0) {          /*child process executes the command*/ 
+        if (execvpe(*argv, argv, envp) == -1) {    
+            printf("ERROR: exec failed\n");
+        }
+        exit();
+    }
+    else if (pid < 0) {     /*fork a child process*/
+        printf("ERROR: forking failed\n");
+        exit();
+    }
+    else {              /*parent waits on the child for completion*/
+        do {
+            waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+    return 1;
 }
 #endif
 
 void welcome_message(){
-	printf("\n*****************************\n");
-	printf("       SBU Shell\n");
-	printf("*******************************\n");
-	printf("\n\n");
+    printf("\n*****************************\n");
+    printf("       SBU Shell\n");
+    printf("*******************************\n");
+    printf("\n\n");
 }
 
 void test1(char* buf){
