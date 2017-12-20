@@ -546,7 +546,8 @@ int main(int argc, char *argv[], char *envp[]) {
 		else {              //parent waits on the child for completion
 			//yield();
 			wait(&status);
-			while(1);
+            printf("Process exited with status %d\n", status);
+			//while(1);
 
 			/*
 			   if(!ret){

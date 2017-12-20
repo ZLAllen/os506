@@ -3,10 +3,16 @@ This README containes all the functionalities tha we have added to our shell wit
 ##############################################################################
 Issues with the code
 
--- Fork is not working in user space since we are not able to locate child's stack pointer.This makes complete testing of the OS problematic.
-    -- Fork should be working in kernel space.
+-- Environment variables. When typing a command, the full path (bin/cat) should be specified. 
 
 ##############################################################################
+
+Running
+
+bin/cat hello2
+    where hello2 is a file in rootfs/ (rootfs/hello2)
+
+######################
 
 Memory management: pmap.c
 -- Divides the entire physical memory into contiguous 4kb pages
